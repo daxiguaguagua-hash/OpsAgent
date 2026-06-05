@@ -104,6 +104,18 @@ Docker 当前情况：
 | 当前运行容器 | `oneapi` |
 | 已占用端口 | `3000` |
 
+本机当前已有 Docker image（容器镜像）版本：
+
+| 镜像 | 版本 | 备注 |
+|---|---:|---|
+| PostgreSQL（关系型数据库） | `postgres:16` | 建议 demo 初期优先复用 |
+| Redis（缓存数据库） | `redis:7-alpine` | 建议 demo 初期优先复用 |
+| MySQL（关系型数据库） | `mysql:8.0` | 当前方案暂不作为默认数据库 |
+| pgvector（PostgreSQL 向量扩展） | `local/pgvector:pg16` | 后续做向量检索时可评估 |
+| one-api（模型 API 网关） | `ghcr.io/songquanpeng/one-api:v0.6.4` | 当前已有运行容器 `oneapi` |
+
+后续编写 `docker-compose.yml` 时，基础镜像优先和本机已有版本对齐，避免一开始额外拉取 `postgres:17-alpine`、`redis:8-alpine` 这类新版本导致环境不一致。
+
 因此 demo 前端不建议占用 `3000`，推荐使用 `5173` 或 `3001`。
 
 Ollama 当前实测情况：
@@ -732,11 +744,13 @@ flowchart TD
 
 | 模块 | 推荐 |
 |---|---|
-| 前端 | React + Vite 或 Next.js |
-| 后端 | Node/NestJS 或 FastAPI |
+| 前端 | TanStack Router（React 路由方案） |
+| 后端 | Hono（轻量 Web 框架） |
 | Agent | Mastra |
 | LLM | Ollama 本地模型，或 OpenAI API |
 | 数据库 | PostgreSQL |
+| ORM | Drizzle（轻量 ORM） |
+| API | tRPC（类型安全接口） |
 | 缓存 | Redis |
 | 指标 | Prometheus |
 | 日志 | Loki |
@@ -745,11 +759,12 @@ flowchart TD
 | 采集 | OpenTelemetry Collector |
 | 对象存储 | MinIO，可选 |
 | 编排 | Docker Compose |
+| Monorepo | Turborepo + pnpm workspace |
 
 如果想保持技术栈统一，推荐：
 
 ```text
-TypeScript 前端 + TypeScript 后端 + Mastra Agent + Docker Compose
+TanStack Router 前端 + Hono 后端 + Mastra Agent + Docker Compose
 ```
 
 如果想偏后端/AI Infra：
@@ -759,6 +774,51 @@ React 前端 + FastAPI 后端 + Python Agent/LangGraph + Docker Compose
 ```
 
 本项目更建议第一种，因为 Mastra 是 TypeScript-first，放到 GitHub 上结构更统一。
+
+## 15.1 better-t-stack 脚手架采用说明
+
+M0 先用 better-t-stack（TypeScript 全栈脚手架）创建基础结构，再按 AI Ops（智能运维）demo（演示项目）的需求扩展。
+
+本次 CLI（命令行工具）复现命令：
+
+```bash
+pnpm create better-t-stack@latest opsagent-better-t-stack-baseline --frontend tanstack-router --backend hono --runtime node --database postgres --orm drizzle --api trpc --auth none --payments none --addons turborepo --examples none --db-setup docker --web-deploy none --server-deploy none --no-git --package-manager pnpm --no-install
+```
+
+better-t-stack 实际生成结构：
+
+```text
+apps/
+  web/
+  server/
+packages/
+  api/
+  db/
+  env/
+  config/
+  ui/
+package.json
+pnpm-workspace.yaml
+turbo.json
+```
+
+结构来源说明：
+
+| 结构 | 来源 | OpsAgent 处理 |
+|---|---|---|
+| `apps/web` | better-t-stack | 后续改名或映射为 `apps/frontend` |
+| `apps/server` | better-t-stack | 后续改名或映射为 `apps/backend` |
+| `packages/api` | better-t-stack | 保留，用于 tRPC（类型安全接口） |
+| `packages/db` | better-t-stack | 保留，用于 Drizzle（轻量 ORM）和 PostgreSQL（关系型数据库） |
+| `packages/env` | better-t-stack | 保留，用于环境变量校验 |
+| `packages/config` | better-t-stack | 保留，用于 TypeScript（类型脚本）配置 |
+| `packages/ui` | better-t-stack | 是否保留待定，看前端复杂度 |
+| `apps/agent` | OpsAgent 后续自定义 | Mastra（智能体框架）AI Ops Agent（智能运维智能体） |
+| `packages/shared` | OpsAgent 后续自定义 | 故障、证据、建议等共享类型 |
+| `observability/` | OpsAgent 后续自定义 | Prometheus（指标）、Loki（日志）、Grafana（看板）、OpenTelemetry（采集） |
+| 根 `docker-compose.yml` | OpsAgent 后续自定义 | 一键启动业务、数据库、缓存、可观测性和 GitLab（企业代码托管平台） |
+
+需要注意：better-t-stack 生成的 PostgreSQL compose（数据库容器配置）默认使用 `image: postgres`，没有固定版本。OpsAgent 后续正式 `docker-compose.yml` 建议优先使用本机已有的 `postgres:16`；Redis（缓存数据库）建议优先使用本机已有的 `redis:7-alpine`。
 
 ## 16. 一句话总结
 

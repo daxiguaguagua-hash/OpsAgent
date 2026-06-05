@@ -33,7 +33,7 @@ OpsAgent 是跨端项目，包含 Frontend（前端）、Backend（后端）、A
 
 ### 3.1 Monorepo 结构
 
-采用 `apps/` + `packages/` 结构：
+采用 `apps/` + `packages/` 结构。M0 先参考 better-t-stack（TypeScript 全栈脚手架）生成的基础结构，再按 OpsAgent 的 AI Ops（智能运维）需求扩展：
 
 ```text
 OpsAgent/
@@ -59,6 +59,40 @@ flowchart LR
   Shared --> BE[apps/backend 后端]
   Shared --> AG[apps/agent 智能体]
 ```
+
+better-t-stack（TypeScript 全栈脚手架）本次实际生成的基础结构：
+
+```text
+opsagent-better-t-stack-baseline/
+  apps/
+    web/
+    server/
+  packages/
+    api/
+    db/
+    env/
+    config/
+    ui/
+  package.json
+  pnpm-workspace.yaml
+  turbo.json
+```
+
+OpsAgent 预计在此基础上做的结构调整：
+
+| 类型 | 目录 | 来源 | 说明 |
+|---|---|---|---|
+| 保留并改名 | `apps/frontend` | `apps/web` | Frontend（前端）业务界面与故障演示页面 |
+| 保留并改名 | `apps/backend` | `apps/server` | Backend（后端）API（接口）与可观测性埋点 |
+| 后续新增 | `apps/agent` | OpsAgent 自定义 | Mastra（智能体框架）AI Ops Agent（智能运维智能体） |
+| 保留 | `packages/api` | better-t-stack | tRPC（类型安全接口）共享 API（接口）定义 |
+| 保留 | `packages/db` | better-t-stack | Drizzle（轻量 ORM）和 PostgreSQL（关系型数据库）模型 |
+| 保留 | `packages/env` | better-t-stack | 环境变量校验 |
+| 保留 | `packages/config` | better-t-stack | TypeScript（类型脚本）通用配置 |
+| 可能调整 | `packages/ui` | better-t-stack | UI（用户界面）组件包，是否保留待定 |
+| 后续新增 | `packages/shared` | OpsAgent 自定义 | Incident（故障）、Evidence（证据）、Recommendation（建议）等共享类型 |
+| 后续新增 | `observability/` | OpsAgent 自定义 | Prometheus（指标）、Loki（日志）、Grafana（看板）、OpenTelemetry（采集）配置 |
+| 后续新增 | `docker-compose.yml` | OpsAgent 自定义 | 统一编排 PostgreSQL、Redis、可观测性组件和 GitLab（企业代码托管平台） |
 
 ### 3.2 包管理与任务编排
 
@@ -102,28 +136,53 @@ M0 只使用 Turborepo（任务编排工具）的最小能力：
 
 Better-T-Stack 是 TypeScript（类型脚本）全栈项目脚手架。它适合参考，但不直接决定 OpsAgent 架构。
 
-M0 中把它作为 spike（技术试验）：
+M0 中把它作为 bootstrap（启动脚手架）和 spike（技术试验）的结合：
 
 ```mermaid
 flowchart TD
-  A[临时目录试跑 better-t-stack] --> B[观察生成结构]
-  B --> C[挑选可复用方案]
-  C --> D[正式项目手动落地]
+  A[运行 better-t-stack CLI 命令行工具] --> B[生成 TypeScript 全栈基础结构]
+  B --> C[保留 apps/packages/turbo/pnpm 基础]
+  C --> D[按 AI Ops 需求新增 agent/observability/GitLab]
 ```
 
-建议命令：
+本次已跑通的复现命令：
 
 ```bash
-pnpm create better-t-stack@latest /tmp/opsagent-stack-spike
+pnpm create better-t-stack@latest opsagent-better-t-stack-baseline --frontend tanstack-router --backend hono --runtime node --database postgres --orm drizzle --api trpc --auth none --payments none --addons turborepo --examples none --db-setup docker --web-deploy none --server-deploy none --no-git --package-manager pnpm --no-install
 ```
+
+选择结果：
+
+| 选项 | 结果 |
+|---|---|
+| Frontend（前端） | TanStack Router（React 路由方案） |
+| Backend（后端） | Hono（轻量 Web 框架） |
+| Runtime（运行时） | Node.js |
+| Database（数据库） | PostgreSQL |
+| ORM（对象关系映射） | Drizzle |
+| API（接口） | tRPC |
+| Auth（认证） | None，M0 暂不启用 |
+| Addons（附加能力） | Turborepo |
+| Examples（示例代码） | None，避免 Todo（待办示例）污染项目叙事 |
+| Postgres setup（PostgreSQL 设置） | Docker（容器） |
+| Package manager（包管理器） | pnpm |
+| Install dependencies（安装依赖） | No，先观察结构 |
+
+注意事项：
+
+| 项目 | 结论 |
+|---|---|
+| 生成位置 | 本次生成在 `/tmp/opsagent-better-t-stack-baseline`，未直接写入 OpsAgent 仓库 |
+| PostgreSQL 镜像 | 脚手架默认写 `image: postgres`，没有固定版本 |
+| OpsAgent 处理 | 后续正式 `docker-compose.yml` 建议固定为本机已有 `postgres:16` |
 
 验收方式：
 
 | 项目 | 标准 |
 |---|---|
-| 是否必须采用 | 否 |
-| 是否必须调研 | 是 |
-| 产出 | 在 M0 总结中说明采用/不采用哪些结构 |
+| 是否必须采用 | 部分采用 |
+| 是否必须调研 | 是，已完成一轮 CLI（命令行工具）试跑 |
+| 产出 | 文档记录采用/不采用哪些结构，正式代码结构仍待落地 |
 
 ### 3.4 CodeGraph 友好约束
 
@@ -193,6 +252,7 @@ M0 完成时必须满足：
 | 环境示例 | `.env.example` 包含数据库、Redis、模型 provider（模型提供方） |
 | 文档入口 | README（项目说明）能链接到任务拆分和 M0 文档 |
 | 安全 | `.env`、密钥、Token（访问令牌）不会进入 Git |
+| 来源说明 | 文档说明哪些结构来自 better-t-stack，哪些是 OpsAgent 后续自定义 |
 
 ## 6. 验证命令
 

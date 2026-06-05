@@ -90,9 +90,16 @@ flowchart LR
 ```text
 OpsAgent/
   docker-compose.yml
-  frontend/
-  backend/
-  agent/
+  apps/
+    frontend/
+    backend/
+    agent/
+  packages/
+    api/
+    db/
+    env/
+    config/
+    shared/
   observability/
     prometheus/
     loki/
@@ -107,11 +114,18 @@ OpsAgent/
 
 | 目录 | 责任边界 |
 |---|---|
-| `frontend/` | Frontend（前端）页面、错误上报、Source Map（源码映射文件） |
-| `backend/` | Backend（后端）接口、日志、Trace（链路追踪）埋点 |
-| `agent/` | Mastra（智能体框架）、Prompt（提示词）、Tools（工具调用）、Workflow（工作流） |
+| `apps/frontend/` | Frontend（前端）页面、错误上报、Source Map（源码映射文件） |
+| `apps/backend/` | Backend（后端）接口、日志、Trace（链路追踪）埋点 |
+| `apps/agent/` | Mastra（智能体框架）、Prompt（提示词）、Tools（工具调用）、Workflow（工作流） |
+| `packages/api/` | tRPC（类型安全接口）共享 API（接口）定义 |
+| `packages/db/` | Drizzle（轻量 ORM）和 PostgreSQL（关系型数据库）模型 |
+| `packages/env/` | 环境变量校验 |
+| `packages/config/` | TypeScript（类型脚本）通用配置 |
+| `packages/shared/` | Incident（故障）、Evidence（证据）、Recommendation（建议）等共享类型 |
 | `observability/` | Prometheus（指标）、Loki（日志）、Grafana（看板）、OpenTelemetry（采集） |
 | `docs/` | 架构说明、面试讲解、团队 ownership（责任归属） |
+
+M0（第 0 阶段）会先参考 better-t-stack（TypeScript 全栈脚手架）生成的 `apps/web`、`apps/server`、`packages/api/db/env/config/ui` 基础结构，再按 OpsAgent 需求补充 `apps/agent`、`packages/shared`、`observability` 和根级 `docker-compose.yml`。
 
 ## 项目文档
 
