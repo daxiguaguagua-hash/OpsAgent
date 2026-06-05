@@ -128,6 +128,7 @@ OpsAgent/
 | 任务拆分 | [docs/task-breakdown.md](docs/task-breakdown.md) 记录 Milestone（里程碑）、任务卡、交付物和验收标准 |
 | M0 闭环 | [docs/issues/M0-project-scaffold.md](docs/issues/M0-project-scaffold.md) 记录项目骨架与治理文件的执行边界 |
 | Agent 工作流 | [docs/workflows/agent-execution-workflow.md](docs/workflows/agent-execution-workflow.md) 记录 `/goal`、hooks（钩子）、门禁和完成汇报模板 |
+| 开发日记 | [docs/devlog/2026-06-05-hook-bootstrap-decision.md](docs/devlog/2026-06-05-hook-bootstrap-decision.md) 记录 hook（钩子）先 shell 后 TypeScript 的架构决策 |
 | 面试表达 | 如何把这个项目讲成一个真实企业 AI Ops（智能运维）闭环 |
 
 ## 核心高级能力

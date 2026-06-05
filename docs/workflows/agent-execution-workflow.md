@@ -58,6 +58,48 @@ flowchart LR
   E[Stop] --> F[检查完成标准]
 ```
 
+OpsAgent 当前落地文件：
+
+| 文件 | 作用 |
+|---|---|
+| `.claude/settings.json` | Claude Code hooks（钩子）配置 |
+| `.claude/hooks/pre-tool-guard.sh` | 工具调用前门禁，阻止密钥写入、危险命令和 M0 越界改动 |
+| `.claude/hooks/stop-check.sh` | 停止前门禁，按 active goal（当前目标）检查验收项 |
+
+### 4.1 active goal 开关
+
+默认情况下，Stop hook（停止钩子）只提示，不强制检查。要开启某个任务的严格门禁，在项目根目录创建：
+
+```bash
+mkdir -p .claude
+printf "M0\n" > .claude/active-goal
+```
+
+关闭严格门禁：
+
+```bash
+rm .claude/active-goal
+```
+
+这样设计是为了避免日常聊天或小文档修改被 M0 验收项误拦截。
+
+### 4.2 本地手动验证 hooks
+
+测试 PreToolUse（工具调用前门禁）是否阻止写 `.env`：
+
+```bash
+printf '{"tool_name":"Write","tool_input":{"file_path":".env"}}' | bash .claude/hooks/pre-tool-guard.sh
+```
+
+测试 M0 Stop hook（停止钩子）：
+
+```bash
+printf "M0\n" > .claude/active-goal
+bash .claude/hooks/stop-check.sh
+```
+
+如果 M0 文件还没创建，这个命令应该失败；等 M0 完成后，它应该通过。
+
 ## 5. Stop Gate 检查清单
 
 Stop hook（停止钩子）应检查：
@@ -102,4 +144,3 @@ Circuit Breaker（熔断规则）用于防止 Agent（智能体）在错误方�
 | M3 Agent 分析 | 是 |
 | 小文案修改 | 可简化使用 |
 | 高风险架构决策 | 必须配合跨模型审查 |
-
