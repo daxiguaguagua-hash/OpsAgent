@@ -38,8 +38,11 @@ case "$active_goal" in
     check_file .env.example
     check_file CODEOWNERS
     check_file docs/team-ownership.md
+    check_file docs/codegraph.md
 
     grep -q "docs/issues/M0-project-scaffold.md" README.md || fail "README.md must link to M0 document"
+    grep -q "docs/team-ownership.md" README.md || fail "README.md must link to team ownership document"
+    grep -q "docs/codegraph.md" README.md || fail "README.md must link to CodeGraph document"
     grep -q "apps/\\*" pnpm-workspace.yaml || fail "pnpm-workspace.yaml must include apps/*"
     grep -q "packages/\\*" pnpm-workspace.yaml || fail "pnpm-workspace.yaml must include packages/*"
 

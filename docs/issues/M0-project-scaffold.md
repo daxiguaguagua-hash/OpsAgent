@@ -253,6 +253,7 @@ M0 完成时必须满足：
 | 文档入口 | README（项目说明）能链接到任务拆分和 M0 文档 |
 | 安全 | `.env`、密钥、Token（访问令牌）不会进入 Git |
 | 来源说明 | 文档说明哪些结构来自 better-t-stack，哪些是 OpsAgent 后续自定义 |
+| 治理说明 | `CODEOWNERS`、`docs/team-ownership.md`、`docs/codegraph.md` 存在并被 README 链接 |
 
 ## 6. 验证命令
 
@@ -275,7 +276,7 @@ git status --short
 使用 Claude Code 或 DeepSeek 执行 M0 时，推荐使用这个 `/goal`：
 
 ```text
-/goal M0 项目骨架闭环完成：apps/frontend、apps/backend、apps/agent、packages/shared、observability、docs 目录存在；pnpm workspace 和 turbo 最小配置可用；packages/shared 可构建；docker-compose.yml 至少包含 PostgreSQL 和 Redis 且 docker compose config 通过；.gitignore、.env.example、CODEOWNERS 和 docs/team-ownership.md 已创建；README 链接到 M0 文档；git status 干净或只剩用户明确允许的改动。
+/goal M0 项目骨架闭环完成：apps/frontend、apps/backend、apps/agent、packages/shared、observability、docs 目录存在；pnpm workspace 和 turbo 最小配置可用；packages/shared 可构建；docker-compose.yml 至少包含 PostgreSQL 和 Redis 且 docker compose config 通过；.gitignore、.env.example、CODEOWNERS、docs/team-ownership.md 和 docs/codegraph.md 已创建；README 链接到 M0、团队责任和 CodeGraph 文档；git status 干净或只剩用户明确允许的改动。
 ```
 
 M0 专属 Stop Gate（停止门）除了通用检查外，还要检查：

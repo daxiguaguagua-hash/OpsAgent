@@ -1,0 +1,28 @@
+# OpsAgent CODEOWNERS（代码负责人示例）
+#
+# 当前项目由一个人开发，但按企业团队边界模拟 ownership（责任归属）。
+# 后续迁入 GitLab（企业代码托管平台）时，可把这些逻辑团队替换成真实 group（组）。
+
+* @docs-team
+
+/apps/frontend/ @frontend-team
+/apps/backend/ @backend-team
+/apps/agent/ @ai-agent-team
+
+/packages/api/ @backend-team @frontend-team
+/packages/db/ @backend-team
+/packages/env/ @sre-team
+/packages/config/ @sre-team
+/packages/shared/ @frontend-team @backend-team @ai-agent-team
+/packages/ui/ @frontend-team
+
+/observability/ @sre-team
+/docker-compose.yml @sre-team @ai-agent-team
+/pnpm-workspace.yaml @sre-team
+/turbo.json @sre-team
+/package.json @sre-team
+
+/.claude/ @sre-team @ai-agent-team
+/docs/ @docs-team
+/README.md @docs-team
+
