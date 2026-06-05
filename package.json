@@ -1,0 +1,40 @@
+{
+  "name": "opsagent",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "check-types": "turbo check-types",
+    "dev:frontend": "turbo -F frontend dev",
+    "dev:backend": "turbo -F backend dev",
+    "dev:agent": "turbo -F @opsagent/agent dev",
+    "compose:config": "docker compose config",
+    "infra:up": "docker compose up -d",
+    "infra:down": "docker compose down",
+    "db:push": "turbo -F @opsagent/db db:push",
+    "db:studio": "turbo -F @opsagent/db db:studio",
+    "db:generate": "turbo -F @opsagent/db db:generate",
+    "db:migrate": "turbo -F @opsagent/db db:migrate",
+    "db:start": "turbo -F @opsagent/db db:start",
+    "db:watch": "turbo -F @opsagent/db db:watch",
+    "db:stop": "turbo -F @opsagent/db db:stop",
+    "db:down": "turbo -F @opsagent/db db:down"
+  },
+  "dependencies": {
+    "@opsagent/env": "workspace:*",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@opsagent/config": "workspace:*",
+    "@types/node": "catalog:",
+    "turbo": "^2.8.12",
+    "typescript": "catalog:"
+  },
+  "packageManager": "pnpm@10.33.2"
+}

@@ -1,0 +1,39 @@
+name: opsagent
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: opsagent-postgres
+    environment:
+      POSTGRES_DB: opsagent
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - opsagent_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: opsagent-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - opsagent_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  opsagent_postgres_data:
+  opsagent_redis_data:
+

@@ -78,21 +78,21 @@ opsagent-better-t-stack-baseline/
   turbo.json
 ```
 
-OpsAgent 预计在此基础上做的结构调整：
+OpsAgent 已在此基础上做的结构调整：
 
 | 类型 | 目录 | 来源 | 说明 |
 |---|---|---|---|
-| 保留并改名 | `apps/frontend` | `apps/web` | Frontend（前端）业务界面与故障演示页面 |
-| 保留并改名 | `apps/backend` | `apps/server` | Backend（后端）API（接口）与可观测性埋点 |
-| 后续新增 | `apps/agent` | OpsAgent 自定义 | Mastra（智能体框架）AI Ops Agent（智能运维智能体） |
+| 已保留并改名 | `apps/frontend` | `apps/web` | Frontend（前端）业务界面与故障演示页面 |
+| 已保留并改名 | `apps/backend` | `apps/server` | Backend（后端）API（接口）与可观测性埋点 |
+| 已新增 | `apps/agent` | OpsAgent 自定义 | Mastra（智能体框架）AI Ops Agent（智能运维智能体） |
 | 保留 | `packages/api` | better-t-stack | tRPC（类型安全接口）共享 API（接口）定义 |
 | 保留 | `packages/db` | better-t-stack | Drizzle（轻量 ORM）和 PostgreSQL（关系型数据库）模型 |
 | 保留 | `packages/env` | better-t-stack | 环境变量校验 |
 | 保留 | `packages/config` | better-t-stack | TypeScript（类型脚本）通用配置 |
 | 可能调整 | `packages/ui` | better-t-stack | UI（用户界面）组件包，是否保留待定 |
-| 后续新增 | `packages/shared` | OpsAgent 自定义 | Incident（故障）、Evidence（证据）、Recommendation（建议）等共享类型 |
-| 后续新增 | `observability/` | OpsAgent 自定义 | Prometheus（指标）、Loki（日志）、Grafana（看板）、OpenTelemetry（采集）配置 |
-| 后续新增 | `docker-compose.yml` | OpsAgent 自定义 | 统一编排 PostgreSQL、Redis、可观测性组件和 GitLab（企业代码托管平台） |
+| 已新增 | `packages/shared` | OpsAgent 自定义 | Incident（故障）、Evidence（证据）、Recommendation（建议）等共享类型 |
+| 已新增 | `observability/` | OpsAgent 自定义 | Prometheus（指标）、Loki（日志）、Grafana（看板）、OpenTelemetry（采集）配置入口 |
+| 已新增 | `docker-compose.yml` | OpsAgent 自定义 | 当前编排 PostgreSQL 和 Redis，后续扩展可观测性组件和 GitLab（企业代码托管平台） |
 
 ### 3.2 包管理与任务编排
 
@@ -182,7 +182,7 @@ pnpm create better-t-stack@latest opsagent-better-t-stack-baseline --frontend ta
 |---|---|
 | 是否必须采用 | 部分采用 |
 | 是否必须调研 | 是，已完成一轮 CLI（命令行工具）试跑 |
-| 产出 | 文档记录采用/不采用哪些结构，正式代码结构仍待落地 |
+| 产出 | 文档记录采用/不采用哪些结构，正式代码结构已开始落地 |
 
 ### 3.4 CodeGraph 友好约束
 

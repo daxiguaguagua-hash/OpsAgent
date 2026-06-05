@@ -125,7 +125,7 @@ OpsAgent/
 | `observability/` | Prometheus（指标）、Loki（日志）、Grafana（看板）、OpenTelemetry（采集） |
 | `docs/` | 架构说明、面试讲解、团队 ownership（责任归属） |
 
-M0（第 0 阶段）会先参考 better-t-stack（TypeScript 全栈脚手架）生成的 `apps/web`、`apps/server`、`packages/api/db/env/config/ui` 基础结构，再按 OpsAgent 需求补充 `apps/agent`、`packages/shared`、`observability` 和根级 `docker-compose.yml`。
+M0（第 0 阶段）已参考 better-t-stack（TypeScript 全栈脚手架）生成的 `apps/web`、`apps/server`、`packages/api/db/env/config/ui` 基础结构，并按 OpsAgent 需求落地为 `apps/frontend`、`apps/backend`，同时补充 `apps/agent`、`packages/shared`、`observability` 和根级 `docker-compose.yml`。
 
 ## 项目文档
 

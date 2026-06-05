@@ -1,10 +1,13 @@
 # Dependencies
 node_modules/
+.pnp
+.pnp.js
 
 # Build outputs
 dist/
 build/
 coverage/
+*.tsbuildinfo
 
 # Environment and secrets
 .env
@@ -22,6 +25,23 @@ coverage/
 *.log
 npm-debug.log*
 pnpm-debug.log*
+.pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+
+# Tool caches
+.turbo/
+.nx/
+.cache/
+tmp/
+temp/
 
 # OS files
 .DS_Store
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json

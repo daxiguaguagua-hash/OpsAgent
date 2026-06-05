@@ -806,17 +806,17 @@ turbo.json
 
 | 结构 | 来源 | OpsAgent 处理 |
 |---|---|---|
-| `apps/web` | better-t-stack | 后续改名或映射为 `apps/frontend` |
-| `apps/server` | better-t-stack | 后续改名或映射为 `apps/backend` |
+| `apps/web` | better-t-stack | 已改名为 `apps/frontend` |
+| `apps/server` | better-t-stack | 已改名为 `apps/backend` |
 | `packages/api` | better-t-stack | 保留，用于 tRPC（类型安全接口） |
 | `packages/db` | better-t-stack | 保留，用于 Drizzle（轻量 ORM）和 PostgreSQL（关系型数据库） |
 | `packages/env` | better-t-stack | 保留，用于环境变量校验 |
 | `packages/config` | better-t-stack | 保留，用于 TypeScript（类型脚本）配置 |
 | `packages/ui` | better-t-stack | 是否保留待定，看前端复杂度 |
-| `apps/agent` | OpsAgent 后续自定义 | Mastra（智能体框架）AI Ops Agent（智能运维智能体） |
-| `packages/shared` | OpsAgent 后续自定义 | 故障、证据、建议等共享类型 |
-| `observability/` | OpsAgent 后续自定义 | Prometheus（指标）、Loki（日志）、Grafana（看板）、OpenTelemetry（采集） |
-| 根 `docker-compose.yml` | OpsAgent 后续自定义 | 一键启动业务、数据库、缓存、可观测性和 GitLab（企业代码托管平台） |
+| `apps/agent` | OpsAgent 自定义 | 已新增，当前提供 mock incident report（模拟故障报告） |
+| `packages/shared` | OpsAgent 自定义 | 已新增，放故障、证据、建议等共享类型 |
+| `observability/` | OpsAgent 自定义 | 已新增目录入口，后续放 Prometheus（指标）、Loki（日志）、Grafana（看板）、OpenTelemetry（采集） |
+| 根 `docker-compose.yml` | OpsAgent 自定义 | 已新增，当前一键启动 PostgreSQL（数据库）和 Redis（缓存） |
 
 需要注意：better-t-stack 生成的 PostgreSQL compose（数据库容器配置）默认使用 `image: postgres`，没有固定版本。OpsAgent 后续正式 `docker-compose.yml` 建议优先使用本机已有的 `postgres:16`；Redis（缓存数据库）建议优先使用本机已有的 `redis:7-alpine`。
 

@@ -1,0 +1,25 @@
+{
+  "name": "@opsagent/agent",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "check-types": "tsc -b --pretty false",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@opsagent/env": "workspace:*",
+    "@opsagent/shared": "workspace:*",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@opsagent/config": "workspace:*",
+    "@types/node": "catalog:",
+    "tsx": "^4.19.2",
+    "typescript": "catalog:"
+  }
+}
+

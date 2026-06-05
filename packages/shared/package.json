@@ -1,0 +1,21 @@
+{
+  "name": "@opsagent/shared",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "check-types": "tsc -b --pretty false"
+  },
+  "devDependencies": {
+    "@opsagent/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}
+
