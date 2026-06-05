@@ -126,6 +126,8 @@ OpsAgent/
 | GitLab 企业模拟 | GitLab（企业代码托管平台）、Merge Request（合并请求）、Code Owners（代码负责人）和 CI/CD（持续集成与持续交付） |
 | 开发里程碑 | 从最小业务系统到可观测性、Mastra（智能体框架）、Source Map（源码映射文件）定位 |
 | 任务拆分 | [docs/task-breakdown.md](docs/task-breakdown.md) 记录 Milestone（里程碑）、任务卡、交付物和验收标准 |
+| M0 闭环 | [docs/issues/M0-project-scaffold.md](docs/issues/M0-project-scaffold.md) 记录项目骨架与治理文件的执行边界 |
+| Agent 工作流 | [docs/workflows/agent-execution-workflow.md](docs/workflows/agent-execution-workflow.md) 记录 `/goal`、hooks（钩子）、门禁和完成汇报模板 |
 | 面试表达 | 如何把这个项目讲成一个真实企业 AI Ops（智能运维）闭环 |
 
 ## 核心高级能力

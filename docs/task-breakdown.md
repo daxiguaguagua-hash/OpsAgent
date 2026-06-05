@@ -2,6 +2,8 @@
 
 本文档是 OpsAgent v0.1 的正式任务拆分。目标是把规划文档里的 AI Ops（智能运维）愿景拆成可以逐步实现、可以提交、可以验收的工程任务。
 
+执行这些任务时，统一参考 [docs/workflows/agent-execution-workflow.md](workflows/agent-execution-workflow.md)，用 `/goal`、hooks（钩子）和门禁约束 Agent（智能体）按流程完成。
+
 ## 1. v0.1 目标
 
 v0.1 不追求一次性做完企业级全量能力，而是先做出一个完整闭环：
@@ -80,14 +82,20 @@ flowchart TD
 
 目标：让仓库先像一个正规项目。
 
+闭环文档：[docs/issues/M0-project-scaffold.md](issues/M0-project-scaffold.md)
+
 | 任务 ID | 任务 | 负责人 | 优先级 | 交付物 | 验收标准 |
 |---|---|---|---:|---|---|
-| M0-01 | 创建目录结构 | sre-team | P0 | `frontend/`、`backend/`、`agent/`、`observability/`、`docs/` | 目录存在，README（项目说明）一致 |
+| M0-01 | 创建目录结构 | sre-team | P0 | `apps/frontend/`、`apps/backend/`、`apps/agent/`、`packages/shared/`、`observability/`、`docs/` | 目录存在，README（项目说明）一致 |
 | M0-02 | 增加 `.gitignore` | sre-team | P0 | `.gitignore` | 忽略 `node_modules`、`.env`、构建产物、日志 |
 | M0-03 | 增加 `.env.example` | sre-team | P0 | `.env.example` | 包含模型、数据库、端口、GitLab 配置示例 |
-| M0-04 | 增加 `CODEOWNERS` | docs-team | P1 | `CODEOWNERS` | 能体现 frontend/backend/agent/observability ownership（责任归属） |
-| M0-05 | 增加基础 `docker-compose.yml` | sre-team | P0 | `docker-compose.yml` | 至少包含 PostgreSQL、Redis |
-| M0-06 | 增加 `docs/team-ownership.md` | docs-team | P1 | 团队责任说明 | 能解释当前个人项目如何模拟团队边界 |
+| M0-04 | 增加 `package.json`、`pnpm-workspace.yaml`、`turbo.json` | sre-team | P0 | Monorepo（单仓多项目）基础配置 | 根目录能运行统一脚本 |
+| M0-05 | 增加 `packages/shared` 最小 TypeScript 包 | sre-team | P0 | 共享类型包 | `pnpm build` 能构建 |
+| M0-06 | 增加基础 `docker-compose.yml` | sre-team | P0 | PostgreSQL、Redis | `docker compose config` 通过 |
+| M0-07 | 增加 `CODEOWNERS` | docs-team | P1 | `CODEOWNERS` | 能体现 frontend/backend/agent/observability ownership（责任归属） |
+| M0-08 | 增加 `docs/team-ownership.md` | docs-team | P1 | 团队责任说明 | 能解释当前个人项目如何模拟团队边界 |
+| M0-09 | better-t-stack 技术试验 | sre-team | P1 | spike 结论 | 记录采用/不采用哪些结构 |
+| M0-10 | 增加 CodeGraph 初始化说明 | docs-team | P1 | CodeGraph 说明 | 说明何时初始化和如何使用 |
 
 ## 5. M1 最小业务系统
 
@@ -254,7 +262,9 @@ flowchart LR
 
 立即可执行任务：
 
-- [ ] M0-01 创建目录结构
+- [ ] M0-01 创建 `apps/*`、`packages/shared`、`observability` 目录结构
 - [ ] M0-02 增加 `.gitignore`
 - [ ] M0-03 增加 `.env.example`
-- [ ] M0-05 增加基础 `docker-compose.yml`
+- [ ] M0-04 增加 `package.json`、`pnpm-workspace.yaml`、`turbo.json`
+- [ ] M0-05 增加 `packages/shared` 最小 TypeScript 包
+- [ ] M0-06 增加基础 `docker-compose.yml`
