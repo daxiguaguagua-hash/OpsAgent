@@ -186,18 +186,21 @@ flowchart LR
 | M3-09 | 前端展示 AI 分析结果 | frontend-team | P0 | 报告展示组件 | 点击分析后能看到报告 |
 | M3-10 | 输出 Incident Lifecycle（故障生命周期） | ai-agent-team | P1 | 生命周期字段 | 报告能区分发现、诊断、缓解、复盘 |
 
-## 8. M4 Source Map 前端源码定位
+## 8. M4 Sentry 与 Source Map 前端源码定位
 
-目标：展示前端生产错误也能安全定位源码。
+目标：使用 Sentry（应用性能与错误监控平台）展示企业真实方案，同时保留简化自研流程解释 Source Map（源码映射）的底层原理。
 
 | 任务 ID | 任务 | 负责人 | 优先级 | 交付物 | 验收标准 |
 |---|---|---|---:|---|---|
 | M4-01 | 前端生产构建生成 Source Map（源码映射文件） | frontend-team | P1 | build 配置 | 生成 `.map` 文件 |
 | M4-02 | Source Map 不公开暴露 | frontend-team | P1 | 部署说明 | 浏览器不能直接访问 `.map` |
-| M4-03 | 增加 MinIO 私有存储 | sre-team | P1 | MinIO Compose 服务 | 可以上传构建产物 |
-| M4-04 | 实现前端错误上报 | frontend-team | P1 | error reporter | 上报 `release`、`file`、`line`、`column` |
-| M4-05 | 实现 symbolication（源码反解） | backend-team | P1 | 反解 API | 压缩 JS 行列号能映射到源码位置 |
-| M4-06 | Agent 结合源码给建议 | ai-agent-team | P1 | 报告增强 | 报告包含源码文件和疑似行号 |
+| M4-03 | 接入 Sentry 前端 SDK（软件开发工具包） | frontend-team | P0 | Sentry 初始化与错误边界 | 前端演示异常能形成 Sentry Issue（问题记录） |
+| M4-04 | 配置 Release（发布版本）与私有 Source Map 上传 | frontend-team + sre-team | P0 | 构建与上传脚本 | Sentry 能把压缩堆栈还原到源码文件和行号 |
+| M4-05 | 增加 Breadcrumbs（操作轨迹）与环境上下文 | frontend-team | P1 | 错误上下文字段 | Issue 包含操作轨迹、环境、版本和场景 |
+| M4-06 | 增加 MinIO 私有存储 | sre-team | P1 | MinIO Compose 服务 | 可以私有保存演示用构建产物和 Source Map |
+| M4-07 | 实现简化 symbolication（源码反解） | backend-team | P1 | 演示用反解 API | 压缩 JS 行列号能通过私有 Source Map 映射到源码位置 |
+| M4-08 | 对比 Sentry 与自研反解流程 | docs-team | P1 | 架构与安全说明 | 明确生产方案、教学方案和 Source Map 不公开原则 |
+| M4-09 | Agent 结合源码给建议 | ai-agent-team | P1 | 报告增强 | 报告包含源码文件、疑似行号和人类审核建议 |
 
 ## 9. M5 GitLab 企业模拟模式
 
