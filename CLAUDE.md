@@ -126,6 +126,22 @@ Agent 通过 `MODEL_PROVIDER` 环境变量支持三种模式：
 - **后端构建**：使用 `tsdown`（非 tsc）—— 配置在 `apps/backend/tsdown.config.ts`
 - **前端开发端口**：3001（不是 `.env.example` 中的默认 5173；`vite.config.ts` 覆盖了端口）
 
+### 禁止领域字符串硬编码
+
+参与程序判断、状态转换、跨模块协议、配置读取或重复使用的字符串，必须从统一定义导入。
+
+```typescript
+// 禁止
+if (task.status === "planned") {}
+
+// 推荐
+if (task.status === TASK_STATUS.PLANNED) {}
+```
+
+Task Status（任务状态）、Role（角色）、Actor ID（执行者标识）、Message Type（消息类型）、Error Code（错误代码）、路径、配置键和固定命令应按领域放入 `constants/` 或对应领域模块，使用 `as const` 对象派生类型。不要把所有字符串集中到一个巨型文件。
+
+新增领域值时必须先复用或扩展统一定义。详细规则见 `docs/workflows/agent-execution-workflow.md` 的 TypeScript 领域字符串规范。
+
 ## CI / Docker Compose 校验
 
 ```bash

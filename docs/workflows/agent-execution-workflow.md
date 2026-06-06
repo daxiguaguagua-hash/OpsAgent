@@ -214,9 +214,9 @@ Circuit Breaker（熔断规则）用于防止 Agent（智能体）在错误方�
 | 涉及删除数据、密钥、发布生产 | 必须人类确认 |
 | 架构分歧无法收敛 | Claude / Codex / DeepSeek 独立给方案，再交叉比较 |
 
-## 6.1 TypeScript 领域状态约束
+## 6.1 TypeScript 领域字符串规范
 
-Task Status（任务状态）、Role（角色）、Message Type（消息类型）等领域值必须由集中常量、类型映射或状态机定义提供，不能在业务分支中重复散落字符串字面量。
+参与程序判断、状态转换、跨模块协议、配置读取或重复使用的字符串，必须由集中定义、类型映射、配置文件或状态机提供，不能在业务代码中散落字符串字面量。
 
 ```text
 不推荐：task.status === "planned"
@@ -227,7 +227,49 @@ TaskStatus.Planned
 专用状态判断函数
 ```
 
+### 必须集中管理
+
+| 类型 | 推荐位置 |
+|---|---|
+| Task Status（任务状态） | `constants/task-status.ts` |
+| Role（角色） | `constants/task-role.ts` |
+| Actor ID（执行者标识） | `constants/actor-id.ts` |
+| Message Type（消息类型） | `constants/message-type.ts` |
+| Error Code（错误代码） | `constants/error-code.ts` |
+| 项目路径 | `constants/paths.ts` |
+| 固定命令 | `constants/commands.ts` |
+| 可部署配置 | JSON（结构化数据）或环境变量配置 |
+| UI Copy（界面文案） | 对应功能的文案资源模块 |
+
+统一定义必须按领域拆分，禁止创建一个包含全部字符串的巨型 `strings.ts`。
+
+优先使用：
+
+```typescript
+export const TASK_STATUS = {
+  PLANNED: "planned",
+  IMPLEMENTING: "implementing",
+  TESTING: "testing",
+} as const;
+
+export type TaskStatus =
+  typeof TASK_STATUS[keyof typeof TASK_STATUS];
+```
+
+允许就地书写的例外：
+
+- 仅出现一次的日志说明。
+- 不参与判断、协议或测试断言的描述文字。
+- 不会跨模块复用的局部提示。
+
 特殊状态转换应写入统一状态机配置或专用转换函数，并配套测试；不得继续向 `handoffTask` 等核心函数追加临时字符串条件分支。M0-17 中已有实现按里程碑冻结保留，M1 起执行此约束。
+
+任务审查时必须检查：
+
+- [ ] 是否新增了参与判断的字符串字面量。
+- [ ] 是否复用了既有领域常量。
+- [ ] 新领域值是否同时更新类型和测试。
+- [ ] 测试是否依赖易变化的完整错误文案，而不是稳定 Error Code（错误代码）。
 
 ## 7. 完成汇报模板
 
