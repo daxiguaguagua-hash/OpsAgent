@@ -89,7 +89,9 @@ export function handoffTask(task: ActiveTask, nextRole: string, at = new Date().
   const desiredStatus = handoffStatus[nextRole];
   let nextTask = task;
   if (desiredStatus && desiredStatus !== task.status) {
-    nextTask = transitionTask(task, desiredStatus);
+    nextTask = task.status === "planned" && desiredStatus === "testing"
+      ? transitionTask(transitionTask(task, "implementing"), "testing")
+      : transitionTask(task, desiredStatus);
   }
 
   return {

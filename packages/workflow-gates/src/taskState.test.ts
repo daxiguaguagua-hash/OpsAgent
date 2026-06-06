@@ -28,6 +28,14 @@ const policy: RolePolicy = {
       reviewer: "reviewer",
       humanApprovalRequired: false,
     },
+    testing: {
+      owner: "tester",
+      executor: "tester",
+      tester: "tester",
+      testStrategist: "test-strategist",
+      reviewer: "reviewer",
+      humanApprovalRequired: false,
+    },
   },
 };
 
@@ -49,6 +57,15 @@ test("handoff follows implementer and tester workflow", () => {
   assert.equal(implementing.status, "implementing");
   assert.equal(testing.status, "testing");
   assert.equal(testing.handoffHistory.length, 2);
+});
+
+test("testing tasks can start directly with the tester role", () => {
+  const created = createTask(policy, "M0-17", "Milestone acceptance", "testing");
+  const testing = handoffTask(created, "tester", "2026-06-06T00:00:00.000Z");
+
+  assert.equal(testing.status, "testing");
+  assert.equal(testing.currentAssignee, "tester");
+  assert.equal(testing.handoffHistory.length, 1);
 });
 
 test("ready_for_review requires approved test impact and evidence", () => {
