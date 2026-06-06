@@ -112,6 +112,42 @@ OpsAgent/
   README.md
 ```
 
+## 当前可运行能力
+
+M1（第 1 阶段）最小业务系统已经完成：
+
+| 能力 | 地址或入口 |
+|---|---|
+| Frontend（前端）故障控制台 | `http://localhost:3001` |
+| Backend（后端）服务 | `http://localhost:8000` |
+| 订单健康检查 | `GET /api/orders/health` |
+| 创建订单 | `POST /api/orders` |
+| 受控 500 故障 | `POST /api/demo/fail-500` |
+| 高延迟故障 | `GET /api/demo/slow` |
+| 前端演示异常 | 前端控制台按钮 |
+
+本地启动：
+
+```bash
+pnpm install
+cp .env.example apps/backend/.env
+cp .env.example apps/frontend/.env
+cp .env.example apps/agent/.env
+docker compose up -d
+pnpm db:push
+pnpm dev
+```
+
+验证：
+
+```bash
+pnpm check-types
+pnpm test
+pnpm build
+pnpm --filter @opsagent/db db:verify
+pnpm --filter backend cache:verify
+```
+
 | 目录 | 责任边界 |
 |---|---|
 | `apps/frontend/` | Frontend（前端）页面、错误上报、Source Map（源码映射文件） |
@@ -148,6 +184,8 @@ M0（第 0 阶段）已参考 better-t-stack（TypeScript 全栈脚手架）生�
 | M0-15 执行者运行时 | [docs/issues/M0-15-actor-runtime.md](docs/issues/M0-15-actor-runtime.md) 记录 Claude Code CLI（命令行工具）调用、角色权限、超时和审计结果 |
 | M0-16 智能体消息总线 | [docs/issues/M0-16-agent-message-bus.md](docs/issues/M0-16-agent-message-bus.md) 记录 Codex 与 Claude Code 的消息投递、回复、归档和测试协商 |
 | M0-17 里程碑验收 | [docs/issues/M0-17-milestone-acceptance.md](docs/issues/M0-17-milestone-acceptance.md) 记录 M0-01 至 M0-16 的验证证据、已知警告和 M1 准入结论 |
+| M1-01 技术栈审计 | [docs/issues/M1-01-stack-baseline-audit.md](docs/issues/M1-01-stack-baseline-audit.md) 记录现有前后端、数据库和缓存基线 |
+| M1 里程碑验收 | [docs/issues/M1-milestone-acceptance.md](docs/issues/M1-milestone-acceptance.md) 记录 M1-01 至 M1-12 的验证证据、双 Agent（智能体）工作流实测和 M2 准入结论 |
 | Agent 角色策略 | [docs/workflows/agent-role-policy.md](docs/workflows/agent-role-policy.md) 记录架构、实现、测试、审查和人类批准的职责与交接流程 |
 | 团队责任 | [docs/team-ownership.md](docs/team-ownership.md) 记录 frontend-team（前端团队）、backend-team（后端团队）、ai-agent-team（智能体团队）、sre-team（稳定性团队）和 docs-team（文档团队）边界 |
 | CodeGraph 代码图谱 | [docs/codegraph.md](docs/codegraph.md) 记录 CodeGraph（代码图谱工具）的使用边界和项目约束 |

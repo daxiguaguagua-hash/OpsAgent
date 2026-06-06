@@ -24,6 +24,8 @@
             "items": { "type": "string" }
           },
           "permissionMode": { "type": "string" },
+          "dangerouslySkipPermissions": { "type": "boolean" },
+          "bootstrapPrompt": { "type": "string", "minLength": 1 },
           "settingSources": {
             "type": "array",
             "items": { "type": "string" }

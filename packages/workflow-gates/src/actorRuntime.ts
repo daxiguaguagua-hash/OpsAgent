@@ -48,6 +48,8 @@ export function createExecutionRequest(
     allowedTools: profile.allowedTools ?? [],
     disallowedTools: profile.disallowedTools ?? [],
     permissionMode: profile.permissionMode,
+    dangerouslySkipPermissions: profile.dangerouslySkipPermissions ?? false,
+    bootstrapPrompt: profile.bootstrapPrompt,
     settingSources: profile.settingSources ?? [],
     freshSession: profile.freshSession ?? true,
     externalProvider: profile.externalProvider,
@@ -56,19 +58,26 @@ export function createExecutionRequest(
   };
 }
 
-export function buildClaudeCodeArgs(request: ExecutionRequest): string[] {
+export function buildClaudeCodeArgs(
+  request: ExecutionRequest,
+  prompt = request.prompt,
+): string[] {
   if (request.adapter !== "claude-code") {
     throw new Error(`Actor '${request.actor}' uses manual execution`);
   }
 
-  const args = ["-p", "--output-format", "json"];
+  // Keep the positional prompt before variadic tool options so Claude Code
+  // cannot consume it as another --allowedTools/--disallowedTools value.
+  const args = ["-p", prompt, "--output-format", "json"];
   if (request.freshSession) {
     args.push("--no-session-persistence");
   }
   if (request.settingSources.length > 0) {
     args.push("--setting-sources", request.settingSources.join(","));
   }
-  if (request.permissionMode) {
+  if (request.dangerouslySkipPermissions) {
+    args.push("--dangerously-skip-permissions");
+  } else if (request.permissionMode) {
     args.push("--permission-mode", request.permissionMode);
   }
   if (request.allowedTools.length > 0) {
@@ -77,7 +86,6 @@ export function buildClaudeCodeArgs(request: ExecutionRequest): string[] {
   if (request.disallowedTools.length > 0) {
     args.push("--disallowedTools", request.disallowedTools.join(","));
   }
-  args.push(request.prompt);
   return args;
 }
 
@@ -104,23 +112,28 @@ export async function executeActor(
     );
   }
 
+  let bootstrapOutput: string | undefined;
+  if (request.bootstrapPrompt) {
+    const bootstrapResult = await runner(
+      request.executable ?? "claude",
+      buildClaudeCodeArgs(request, request.bootstrapPrompt),
+      { cwd: request.cwd, timeoutMs: request.timeoutMs },
+    );
+    const bootstrapEnvelope = requireSuccessfulClaudeResult(
+      request,
+      bootstrapResult,
+      "bootstrap",
+    );
+    bootstrapOutput = bootstrapEnvelope.result ?? "";
+  }
+
   const processResult = await runner(
     request.executable ?? "claude",
     buildClaudeCodeArgs(request),
     { cwd: request.cwd, timeoutMs: request.timeoutMs },
   );
 
-  if (processResult.exitCode !== 0) {
-    const detail = processResult.stderr.trim() || processResult.stdout.trim();
-    throw new Error(
-      `Actor '${request.actor}' failed with exit code ${processResult.exitCode}: ${detail}`,
-    );
-  }
-
-  const envelope = parseClaudeEnvelope(processResult.stdout);
-  if (envelope.is_error) {
-    throw new Error(`Actor '${request.actor}' returned an error: ${envelope.result ?? "unknown error"}`);
-  }
+  const envelope = requireSuccessfulClaudeResult(request, processResult, "execution");
 
   return {
     taskId: request.taskId,
@@ -128,11 +141,35 @@ export async function executeActor(
     actor: request.actor,
     success: true,
     output: envelope.result ?? "",
+    bootstrapOutput,
     sessionId: envelope.session_id,
     durationMs: envelope.duration_ms,
     costUsd: envelope.total_cost_usd,
     completedAt: new Date().toISOString(),
   };
+}
+
+function requireSuccessfulClaudeResult(
+  request: ExecutionRequest,
+  processResult: ProcessResult,
+  stage: "bootstrap" | "execution",
+): ClaudeResultEnvelope {
+  if (processResult.exitCode !== 0) {
+    const detail = processResult.stderr.trim() || processResult.stdout.trim();
+    throw new Error(
+      `Actor '${request.actor}' ${stage} failed with exit code `
+      + `${processResult.exitCode}: ${detail}`,
+    );
+  }
+
+  const envelope = parseClaudeEnvelope(processResult.stdout);
+  if (envelope.is_error) {
+    throw new Error(
+      `Actor '${request.actor}' ${stage} returned an error: `
+      + `${envelope.result ?? "unknown error"}`,
+    );
+  }
+  return envelope;
 }
 
 function parseClaudeEnvelope(stdout: string): ClaudeResultEnvelope {

@@ -15,6 +15,7 @@ OpsAgent 是一个 **AI Ops 智能运维本地演示项目**，基于 Docker Com
 ```bash
 pnpm dev              # 启动所有应用开发模式 (turbo dev, 常驻, 不走缓存)
 pnpm build            # 构建所有包和应用
+pnpm test             # 运行所有测试 (turbo test)
 pnpm check-types      # 对所有包做类型检查
 
 # 单应用开发
@@ -31,6 +32,53 @@ pnpm db:push          # 直接推送 schema 到数据库（不走迁移）
 pnpm db:generate      # 生成迁移文件
 pnpm db:migrate       # 执行迁移
 pnpm db:studio        # 打开 Drizzle Studio 管理界面
+pnpm db:start         # 启动数据库容器
+pnpm db:stop          # 停止数据库容器
+pnpm db:down          # 停止并删除数据库容器
+pnpm db:watch         # 监听 schema 变化自动推送
+```
+
+### 任务工作流 CLI
+
+`packages/workflow-gates/` 提供多角色任务管理命令，任务数据存储在 `.agent/` 目录：
+
+```bash
+# 创建和定义当前任务
+pnpm task:create -- <任务ID> "<标题>" <类型>     # 创建活动任务（类型：architecture|implementation|testing|release）
+pnpm task:scope -- <范围描述>                    # 设置当前任务范围
+pnpm task:criteria -- <验收标准>                 # 设置当前任务验收标准
+
+# 测试治理
+pnpm task:test-impact -- <add|update|none> "<理由>" [提出者]
+pnpm task:test-plan -- <测试计划>
+pnpm task:verify-command -- <验证命令>
+pnpm task:test-approve                           # Codex 批准测试变更（达成共识）
+
+# 执行和交接
+pnpm task:start                                  # planned → implementing
+pnpm task:handoff -- <目标角色>                  # 按状态机交接当前任务
+pnpm task:execute -- --approve-external-data     # 执行当前角色；外部模型需人工批准仓库上下文
+
+# 查看和关闭
+pnpm task:show                                   # 查看当前任务详情
+pnpm task:next                                   # 查看下一角色和建议命令
+pnpm task:evidence -- <证据描述>                 # 附加测试证据
+pnpm task:validate                               # 校验当前任务门禁
+pnpm task:review                                 # 标记进入审查
+pnpm task:finish                                 # 标记任务完成
+pnpm task:close                                  # 归档任务
+```
+
+### Agent 消息总线
+
+```bash
+pnpm msg:send -- <任务ID> <from> <to> <类型> "<主题>" "<内容>"
+pnpm msg:inbox -- <actor名>                       # 查看收件箱
+pnpm msg:outbox -- <actor名>                      # 查看发件箱
+pnpm msg:show -- <消息ID>                         # 查看消息详情
+pnpm msg:read -- <消息ID>                         # 标记已读
+pnpm msg:reply -- <消息ID> "<回复内容>"            # 回复消息
+pnpm msg:resolve -- <消息ID>                      # 标记已解决
 ```
 
 ### 单包命令
@@ -41,20 +89,57 @@ pnpm -F frontend build
 pnpm -F @opsagent/db db:push
 ```
 
+### 验证命令
+
+```bash
+pnpm --filter @opsagent/db db:verify    # 验证 DB 可读写（insert → select → delete 闭环）
+pnpm --filter backend cache:verify       # 验证 Redis 缓存连通性
+pnpm compose:config                     # 校验 docker-compose.yml 语法
+```
+
 ## 架构
 
 ```
-apps/agent/       → Mastra AI Agent（M0 阶段仅做 mock 冒烟测试）
+apps/agent/       → Mastra AI Agent（仅做 mock 冒烟测试）
 apps/backend/     → Hono HTTP 服务 + tRPC 端点
+  src/business/   → 业务服务层（orders.ts、demo.ts）—— 每个子目录有独立的 constants.ts
+  src/cache/      → Redis 缓存客户端（懒加载单例）
+  src/http/       → HTTP 路由常量、状态码、错误类
 apps/frontend/    → React 19 + TanStack Router + Tailwind v4 + tRPC 客户端
+  src/lib/        → 前端业务逻辑（opsApi.ts API 客户端、constants.ts）
 packages/api/     → tRPC 路由定义（前后端共享类型）
 packages/db/      → Drizzle ORM schema、迁移文件、DB 客户端工厂
+  src/orders.ts   → 订单 CRUD（createOrder、listOrders、countOrders）
+  src/verify.ts   → DB 可写验证脚本
 packages/env/     → @t3-oss/env-core + Zod 环境变量校验（server.ts / web.ts）
-packages/shared/  → 共享类型：IncidentReport、Evidence、Recommendation
+packages/shared/  → 共享类型：IncidentReport、Evidence、Recommendation，以及 OPS_API_ROUTE 等常量
 packages/ui/      → shadcn/ui 组件 + Tailwind v4 + CVA
-packages/config/  → 共享 tsconfig.base.json
-observability/    → Prometheus/Loki/Grafana/OTel 配置（M0：仅占位目录）
+packages/config/         → 共享 tsconfig.base.json
+packages/workflow-gates/ → 多角色任务状态机、消息总线、Actor 运行时、编排引擎
+observability/           → Prometheus/Loki/Grafana/OTel 配置（仅占位目录）
 ```
+
+### 多 Agent 工作流层
+
+`packages/workflow-gates/` 实现了一个模拟多 Agent 协作的本地工作流系统：
+
+- **`taskState.ts`** — 任务状态机：`planned` → `implementing` → `testing` → `ready_for_review` → `completed`
+- **`taskTypes.ts`** — 核心类型：`ActiveTask`、`RolePolicy`、`ExecutionBrief`、`AgentMessage`
+- **`orchestration.ts`** — 编排引擎：根据角色策略生成下一步执行指令
+- **`messageBus.ts`** — Agent 间消息总线：支持 `task_assignment`、`execution_result`、`test_change_request`、`review_request`、`decision`、`clarification` 消息类型
+- **`actorRuntime.ts`** — Actor 执行运行时：将 `ExecutionRequest` 转化为实际 CLI 调用
+- **`rolePolicy.ts`** — 角色策略：定义 architect/implementer/tester/test-strategist/reviewer/approver 分工
+
+**六个角色**（定义在 `.agent/role-policy.json`）：
+
+| 角色 | 当前执行者 | 职责 |
+|---|---|---|
+| architect | gpt5.5 | 架构、任务拆分、验收标准 |
+| implementer | ClaudeCode | 先执行 `/init` 增量维护本文件，再承担主要编码实现 |
+| test-strategist | Codex | 测试影响分析、用例设计 |
+| tester | ClaudeCode（全新只读上下文） | 测试执行、回归检查，不修改代码 |
+| reviewer | gpt5.5 | 代码审查、测试证据审查 |
+| approver | Human | 范围决策、发布授权 |
 
 ### 数据流向
 
@@ -81,10 +166,10 @@ observability/    → Prometheus/Loki/Grafana/OTel 配置（M0：仅占位目录
 ### 环境变量
 
 在 `packages/env/` 中定义和校验：
-- **服务端** (`packages/env/src/server.ts`)：`PORT`、`DATABASE_URL`、`CORS_ORIGIN`、`MODEL_PROVIDER`、`OLLAMA_MODEL`、`NODE_ENV`
+- **服务端** (`packages/env/src/server.ts`)：`PORT`、`DATABASE_URL`、`REDIS_URL`、`CORS_ORIGIN`、`MODEL_PROVIDER`、`OLLAMA_MODEL`、`NODE_ENV`
 - **前端** (`packages/env/src/web.ts`)：`VITE_SERVER_URL`（前缀 `VITE_`）
 
-根目录 `.env.example` 展示了期望的变量结构。复制为 `.env`，`.env` 已被 gitignore。
+根目录 `.env.example` 展示了期望的变量结构。后端需要 `.env`（复制 `.env.example` 到 `apps/backend/.env`），前端同理。
 
 ### Agent 模型策略
 
@@ -98,17 +183,35 @@ Agent 通过 `MODEL_PROVIDER` 环境变量支持三种模式：
 
 ## Claude Code 治理钩子
 
-本项目使用 Claude Code hooks 作为治理层：
+本项目使用 Claude Code hooks 作为治理层，配置在 `.claude/settings.json`。钩子脚本已迁移至 TypeScript 编译版本：
 
-- **PreToolUse 钩子** (`.claude/hooks/pre-tool-guard.sh`)：
+- **PreToolUse 钩子** (`.claude/hooks/pre-tool-guard-ts.sh` → `packages/workflow-gates/src/preToolGuard.ts`)：
   - 阻止写入密钥文件（`.env`、`*.pem`、`*.key`、私钥）
   - 阻止危险命令（`git reset --hard`、`rm -rf`、`docker compose down -v` 等），除非设置 `OPSAGENT_ALLOW_DESTRUCTIVE=1`
-  - 当 `.claude/active-goal` 存在时，按阶段约束文件修改范围（例如 `M0` 阶段仅允许修改脚手架路径）
+  - 当 `.claude/active-goal` 存在时，按阶段约束文件修改范围
+  - 当 `.agent/active-task.json` 存在时，校验任务字段完整性（`testImpact` 共识、`testEvidence` 非空、`handoffHistory` 等）
 
-- **Stop 钩子** (`.claude/hooks/stop-check.sh`)：
+- **Stop 钩子** (`.claude/hooks/stop-check-ts.sh` → `packages/workflow-gates/src/stopCheck.ts`)：
   - 当 `.claude/active-goal` 存在时，校验必需的文件和目录是否存在
   - 执行 `docker compose config` 和 `pnpm build` 作为门禁
-  - 当前活跃的阶段：`M0` —— 检查脚手架结构、必需文档、工作区配置和构建是否通过
+  - 校验 `.agent/active-task.json` 的任务门禁要求
+  - M1 复用 M0 基础检查，并追加 `pnpm check-types` 与 `pnpm test`
+
+## .agent/ 目录 — 多 Agent 工作流状态
+
+`.agent/` 目录存储多角色工作流的机器可读状态（全部 Git-ignored）：
+
+| 文件 | 作用 |
+|---|---|
+| `role-policy.json` | 角色定义和任务类型的默认分工 |
+| `actor-registry.json` | Actor 适配器注册（claude-code、manual 等） |
+| `active-task.json` | 当前活动任务声明 |
+| `active-task.example.json` | 任务声明模板 |
+| `role-policy.schema.json` | role-policy 的 JSON Schema |
+| `actor-registry.schema.json` | actor-registry 的 JSON Schema |
+| `message.schema.json` | Agent 消息的 JSON Schema |
+| `history/` | 已完成任务的归档 |
+| `messages/` | Agent 间消息持久化存储 |
 
 `.claude/active-goal` 文件已被 **gitignore**，属于开发者本地状态。开始新阶段时创建此文件，一行写入阶段名即可（如 `M1`）。完成后删除或归档。
 
@@ -119,12 +222,14 @@ Agent 通过 `MODEL_PROVIDER` 环境变量支持三种模式：
 ## 关键约定
 
 - **包命名**：应用使用裸名（`frontend`、`backend`），包使用 `@opsagent/` 作用域
-- **ESM 优先**：所有包设置 `"type": "module"`，源码中 import 写 `.ts` 后缀
+- **ESM 优先**：所有包设置 `"type": "module"`，源码中 import 写 `.ts` / `.js` 后缀
 - **workspace 协议**：内部依赖在 package.json 中使用 `"workspace:*"`
 - **Catalog 版本**：公共依赖版本集中在 `pnpm-workspace.yaml` 的 `catalog:` 下，package.json 中引用 `"catalog:"`
 - **TypeScript 6**：项目使用 TS 6（见 catalog）
 - **后端构建**：使用 `tsdown`（非 tsc）—— 配置在 `apps/backend/tsdown.config.ts`
 - **前端开发端口**：3001（不是 `.env.example` 中的默认 5173；`vite.config.ts` 覆盖了端口）
+- **常量按领域存放**：每个业务模块有独立的 `constants.ts`（如 `business/constants.ts`、`http/constants.ts`、`cache/constants.ts`），不要把所有常量集中到一个巨型文件
+- **后端分层**：`business/`（业务服务，纯逻辑，可注入）→ `http/`（Hono 路由 + 错误处理）→ `cache/`（Redis 客户端）
 
 ### 禁止领域字符串硬编码
 
@@ -158,3 +263,6 @@ Docker Compose 启动 PostgreSQL 16 和 Redis 7，含健康检查。卷已命名
 - `docs/team-ownership.md` — 模拟团队边界（frontend/backend/agent/sre/docs）
 - `docs/codegraph.md` — CodeGraph 使用规则与约束
 - `docs/workflows/agent-execution-workflow.md` — `/goal` 命令、钩子门禁、完成汇报模板
+- `docs/workflows/agent-role-policy.md` — 多角色任务工作流、任务状态机、测试治理规则
+- `docs/issues/` — 各里程碑的详细 Issue 卡片（M0-11 ~ M0-17, M1-01 等）
+- `docs/devlog/` — 开发决策日志

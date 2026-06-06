@@ -17,8 +17,8 @@ import type { ActiveTask, RolePolicy } from "./taskTypes.ts";
 const policy: RolePolicy = {
   roles: {
     architect: { actor: "gpt5.5" },
-    implementer: { actor: "claude-code-deepseek" },
-    tester: { actor: "claude-code-deepseek-new-context" },
+    implementer: { actor: "claude-code" },
+    tester: { actor: "claude-code-new-context" },
     "test-strategist": { actor: "codex" },
     reviewer: { actor: "gpt5.5" },
     approver: { actor: "human" },
@@ -66,7 +66,7 @@ test("testing brief identifies the fresh Claude Code actor and review command", 
   const testing = handoffTask(task, "tester", "2026-06-06T00:00:00.000Z");
   const brief = buildExecutionBrief(testing, policy);
 
-  assert.equal(brief.actor, "claude-code-deepseek-new-context");
+  assert.equal(brief.actor, "claude-code-new-context");
   assert.equal(brief.fallbackActor, undefined);
   assert.equal(brief.nextRole, "reviewer");
   assert.ok(brief.suggestedCommands.includes("pnpm task:review"));

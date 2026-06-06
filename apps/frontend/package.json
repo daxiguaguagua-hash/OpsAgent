@@ -8,12 +8,14 @@
     "build": "vite build",
     "serve": "vite preview",
     "start": "vite",
-    "check-types": "vite build && tsc --noEmit"
+    "check-types": "vite build && tsc --noEmit",
+    "test": "tsx --test src/lib/*.test.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@opsagent/api": "workspace:*",
     "@opsagent/env": "workspace:*",
+    "@opsagent/shared": "workspace:*",
     "@opsagent/ui": "workspace:*",
     "@tailwindcss/vite": "^4.2.2",
     "@tanstack/react-query": "^5.90.12",
@@ -40,6 +42,7 @@
     "@vitejs/plugin-react": "^6.0.1",
     "postcss": "^8.5.10",
     "tailwindcss": "^4.2.2",
+    "tsx": "^4.22.4",
     "typescript": "catalog:",
     "vite": "^8.0.8"
   }

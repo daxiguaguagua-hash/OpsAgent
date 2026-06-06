@@ -5,12 +5,23 @@
     ".": {
       "default": "./src/index.ts"
     },
+    "./constants": {
+      "default": "./src/constants.ts"
+    },
+    "./orders": {
+      "default": "./src/orders.ts"
+    },
+    "./schema": {
+      "default": "./src/schema/index.ts"
+    },
     "./*": {
       "default": "./src/*.ts"
     }
   },
   "scripts": {
+    "check-types": "tsc -b --pretty false",
     "db:push": "drizzle-kit push",
+    "db:verify": "tsc -b && node dist/src/verify.js",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
     "db:migrate": "drizzle-kit migrate",

@@ -7,11 +7,11 @@
       "responsibilities": ["architecture", "task-breakdown", "acceptance-criteria", "risk-review"]
     },
     "implementer": {
-      "actor": "claude-code-deepseek",
+      "actor": "claude-code",
       "responsibilities": ["implementation", "local-fix", "implementation-notes"]
     },
     "tester": {
-      "actor": "claude-code-deepseek-new-context",
+      "actor": "claude-code-new-context",
       "responsibilities": ["test-plan", "automated-tests", "negative-tests", "regression-check", "test-evidence"]
     },
     "test-strategist": {

@@ -1,0 +1,132 @@
+import { trpcServer } from "@hono/trpc-server";
+import { createContext } from "@opsagent/api/context";
+import { appRouter } from "@opsagent/api/routers/index";
+import { env } from "@opsagent/env/server";
+import {
+  OPS_API_ROUTE,
+  OPS_HTTP_METHOD,
+  OPS_SERVICE_STATUS,
+} from "@opsagent/shared";
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { logger } from "hono/logger";
+
+import {
+  createOrderInputSchema,
+  type OrderService,
+  orderService,
+} from "./business/orders";
+import { DEMO_BUSINESS } from "./business/constants";
+import {
+  demoService,
+  type DemoService,
+} from "./business/demo";
+import {
+  API_ERROR_CODE,
+  API_MESSAGE,
+  HTTP_ROUTE,
+  HTTP_STATUS,
+} from "./http/constants";
+import { DemoForcedFailureError } from "./http/errors";
+
+export function createApp(
+  orders: OrderService = orderService,
+  demo: DemoService = demoService,
+) {
+  const app = new Hono();
+
+  app.use(logger());
+  app.use(
+    "/*",
+    cors({
+      origin: env.CORS_ORIGIN,
+      allowMethods: [
+        OPS_HTTP_METHOD.GET,
+        OPS_HTTP_METHOD.POST,
+        OPS_HTTP_METHOD.OPTIONS,
+      ],
+    }),
+  );
+
+  app.use(
+    HTTP_ROUTE.TRPC,
+    trpcServer({
+      router: appRouter,
+      createContext: (_opts, context) => createContext({ context }),
+    }),
+  );
+
+  app.get(HTTP_ROUTE.ROOT, (context) => {
+    return context.text(API_MESSAGE.ROOT);
+  });
+
+  app.get(OPS_API_ROUTE.ORDER_HEALTH, async (context) => {
+    return context.json(await orders.checkHealth());
+  });
+
+  app.get(OPS_API_ROUTE.ORDERS, async (context) => {
+    return context.json({ orders: await orders.list() });
+  });
+
+  app.post(OPS_API_ROUTE.ORDERS, async (context) => {
+    const input = createOrderInputSchema.safeParse(await context.req.json());
+
+    if (!input.success) {
+      return context.json(
+        {
+          error: {
+            code: API_ERROR_CODE.INVALID_ORDER_INPUT,
+            message: API_MESSAGE.INVALID_ORDER_INPUT,
+          },
+        },
+        HTTP_STATUS.BAD_REQUEST,
+      );
+    }
+
+    return context.json(
+      { order: await orders.create(input.data) },
+      HTTP_STATUS.CREATED,
+    );
+  });
+
+  app.post(OPS_API_ROUTE.DEMO_FAIL_500, () => {
+    throw new DemoForcedFailureError();
+  });
+
+  app.get(OPS_API_ROUTE.DEMO_SLOW, async (context) => {
+    await demo.delay(DEMO_BUSINESS.SLOW_DELAY_MS);
+
+    return context.json({
+      status: OPS_SERVICE_STATUS.COMPLETED,
+      configuredDelayMs: DEMO_BUSINESS.SLOW_DELAY_MS,
+      thresholdMs: DEMO_BUSINESS.SLOW_THRESHOLD_MS,
+    });
+  });
+
+  app.onError((error, context) => {
+    if (error instanceof DemoForcedFailureError) {
+      return context.json(
+        {
+          error: {
+            code: error.code,
+            message: error.message,
+          },
+        },
+        HTTP_STATUS.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    console.error(error);
+    return context.json(
+      {
+        error: {
+          code: API_ERROR_CODE.INTERNAL_SERVER_ERROR,
+          message: API_MESSAGE.INTERNAL_SERVER_ERROR,
+        },
+      },
+      HTTP_STATUS.INTERNAL_SERVER_ERROR,
+    );
+  });
+
+  return app;
+}

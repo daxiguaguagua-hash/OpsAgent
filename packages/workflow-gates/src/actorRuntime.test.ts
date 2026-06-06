@@ -11,19 +11,21 @@ import type { ActorRegistry, ExecutionBrief } from "./taskTypes.ts";
 const registry: ActorRegistry = {
   version: "0.1.0",
   actors: {
-    "claude-code-deepseek": {
+    "claude-code": {
       adapter: "claude-code",
       executable: "claude",
       mode: "implementation",
       allowedTools: ["Read", "Edit", "Bash"],
-      permissionMode: "dontAsk",
+      permissionMode: "bypassPermissions",
+      dangerouslySkipPermissions: true,
+      bootstrapPrompt: "/init",
       settingSources: ["user", "project"],
       freshSession: true,
       externalProvider: "deepseek",
       requiresExternalDataApproval: true,
       timeoutMs: 10_000,
     },
-    "claude-code-deepseek-new-context": {
+    "claude-code-new-context": {
       adapter: "claude-code",
       executable: "claude",
       mode: "testing",
@@ -44,10 +46,10 @@ const registry: ActorRegistry = {
 };
 
 test("createExecutionRequest binds prompt, role, actor, and runtime profile", () => {
-  const request = createExecutionRequest(brief("tester", "claude-code-deepseek-new-context"), registry, "/repo");
+  const request = createExecutionRequest(brief("tester", "claude-code-new-context"), registry, "/repo");
 
   assert.equal(request.role, "tester");
-  assert.equal(request.actor, "claude-code-deepseek-new-context");
+  assert.equal(request.actor, "claude-code-new-context");
   assert.equal(request.mode, "testing");
   assert.deepEqual(request.disallowedTools, ["Edit", "Write"]);
   assert.equal(request.externalProvider, "deepseek");
@@ -56,17 +58,36 @@ test("createExecutionRequest binds prompt, role, actor, and runtime profile", ()
 });
 
 test("tester Claude Code args create a fresh restricted session", () => {
-  const request = createExecutionRequest(brief("tester", "claude-code-deepseek-new-context"), registry, "/repo");
+  const request = createExecutionRequest(brief("tester", "claude-code-new-context"), registry, "/repo");
   const args = buildClaudeCodeArgs(request);
 
   assert.ok(args.includes("--no-session-persistence"));
   assert.ok(args.includes("Read,Bash"));
   assert.ok(args.includes("Edit,Write"));
-  assert.equal(args.at(-1), "Run independent tests");
+  assert.equal(args[1], "Run independent tests");
+  assert.equal(args.includes("--dangerously-skip-permissions"), false);
+});
+
+test("implementer bootstraps CLAUDE.md and uses dangerous mode", () => {
+  const request = createExecutionRequest(
+    brief("implementer", "claude-code"),
+    registry,
+    "/repo",
+  );
+  const bootstrapArgs = buildClaudeCodeArgs(
+    request,
+    request.bootstrapPrompt,
+  );
+
+  assert.ok(bootstrapArgs.includes("--dangerously-skip-permissions"));
+  assert.equal(bootstrapArgs[1], "/init");
+  assert.ok(
+    bootstrapArgs.indexOf("/init") < bootstrapArgs.indexOf("--allowedTools"),
+  );
 });
 
 test("external providers require explicit data approval", () => {
-  const request = createExecutionRequest(brief("tester", "claude-code-deepseek-new-context"), registry, "/repo");
+  const request = createExecutionRequest(brief("tester", "claude-code-new-context"), registry, "/repo");
 
   assert.throws(
     () => assertExecutionApproved(request, false),
@@ -76,22 +97,34 @@ test("external providers require explicit data approval", () => {
 });
 
 test("executeActor parses structured Claude Code output without network", async () => {
-  const request = createExecutionRequest(brief("implementer", "claude-code-deepseek"), registry, "/repo");
-  const result = await executeActor(request, async () => ({
-    exitCode: 0,
-    stdout: JSON.stringify({
-      is_error: false,
-      result: "Implementation complete",
-      session_id: "session-1",
-      duration_ms: 1200,
-      total_cost_usd: 0.01,
-    }),
-    stderr: "",
-  }));
+  const request = createExecutionRequest(
+    brief("implementer", "claude-code"),
+    registry,
+    "/repo",
+  );
+  const prompts: string[] = [];
+  const result = await executeActor(request, async (_command, args) => {
+    prompts.push(args[1] ?? "");
+    return {
+      exitCode: 0,
+      stdout: JSON.stringify({
+        is_error: false,
+        result: prompts.length === 1
+          ? "CLAUDE.md updated"
+          : "Implementation complete",
+        session_id: `session-${prompts.length}`,
+        duration_ms: 1200,
+        total_cost_usd: 0.01,
+      }),
+      stderr: "",
+    };
+  });
 
   assert.equal(result.success, true);
+  assert.deepEqual(prompts, ["/init", "Implement approved scope"]);
+  assert.equal(result.bootstrapOutput, "CLAUDE.md updated");
   assert.equal(result.output, "Implementation complete");
-  assert.equal(result.sessionId, "session-1");
+  assert.equal(result.sessionId, "session-2");
 });
 
 test("manual actors cannot be executed by the runtime", async () => {

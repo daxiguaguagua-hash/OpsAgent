@@ -4,8 +4,10 @@
   "main": "src/index.ts",
   "scripts": {
     "build": "tsdown",
+    "cache:verify": "tsx src/verifyCache.ts",
     "check-types": "tsc -b",
     "dev": "tsx watch src/index.ts",
+    "test": "tsx --test src/*.test.ts",
     "start": "node dist/index.mjs"
   },
   "dependencies": {
@@ -14,9 +16,11 @@
     "@opsagent/api": "workspace:*",
     "@opsagent/db": "workspace:*",
     "@opsagent/env": "workspace:*",
+    "@opsagent/shared": "workspace:*",
     "@trpc/server": "catalog:",
     "dotenv": "catalog:",
     "hono": "catalog:",
+    "redis": "^5.12.1",
     "zod": "catalog:"
   },
   "devDependencies": {

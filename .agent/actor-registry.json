@@ -2,20 +2,22 @@
   "$schema": "./actor-registry.schema.json",
   "version": "0.1.0",
   "actors": {
-    "claude-code-deepseek": {
+    "claude-code": {
       "adapter": "claude-code",
       "executable": "claude",
       "mode": "implementation",
       "allowedTools": ["Read", "Glob", "Grep", "Edit", "Write", "Bash"],
       "disallowedTools": [],
-      "permissionMode": "dontAsk",
+      "permissionMode": "bypassPermissions",
+      "dangerouslySkipPermissions": true,
+      "bootstrapPrompt": "/init",
       "settingSources": ["user", "project"],
       "freshSession": true,
       "externalProvider": "deepseek",
       "requiresExternalDataApproval": true,
       "timeoutMs": 900000
     },
-    "claude-code-deepseek-new-context": {
+    "claude-code-new-context": {
       "adapter": "claude-code",
       "executable": "claude",
       "mode": "testing",

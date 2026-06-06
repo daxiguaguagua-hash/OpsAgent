@@ -24,6 +24,7 @@ coverage/
 # Agent workflow local state
 .agent/active-task.json
 .agent/history/
+.understand-anything/
 .agent/executions/
 .agent/messages/
 

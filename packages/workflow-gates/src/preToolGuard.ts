@@ -2,6 +2,7 @@ import { block, readStdin } from "./lib/io.ts";
 import { extractPaths, parseHookPayload } from "./lib/hookPayload.ts";
 import { baseName, readActiveGoal } from "./lib/repo.ts";
 import { isM0AllowedPath } from "./rules/m0.ts";
+import { isM1AllowedPath } from "./rules/m1.ts";
 
 const payload = parseHookPayload(readStdin());
 const paths = extractPaths(payload);
@@ -37,10 +38,20 @@ if (payload.tool_name === "Bash" && command) {
   }
 }
 
-if (readActiveGoal() === "M0") {
+const activeGoal = readActiveGoal();
+
+if (activeGoal === "M0") {
   for (const path of paths) {
     if (!isM0AllowedPath(path)) {
-      block(`OpsAgent hook blocked: M0 active-goal only allows project scaffold paths, got: ${path}`);
+      block(`OpsAgent hook blocked (M0): path '${path}' is outside M0 scaffold scope`);
+    }
+  }
+}
+
+if (activeGoal === "M1") {
+  for (const path of paths) {
+    if (!isM1AllowedPath(path)) {
+      block(`OpsAgent hook blocked (M1): path '${path}' is outside M1 business-system scope`);
     }
   }
 }

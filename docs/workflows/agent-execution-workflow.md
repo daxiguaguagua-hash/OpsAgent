@@ -4,7 +4,7 @@
 
 ## 1. 核心目标
 
-用 `/goal` 和 hooks（钩子）约束 Claude Code、DeepSeek、Codex 等 Agent（智能体）按流程完成任务，避免跳步骤、提前宣布完成、漏跑验证、越界改文件。
+用 `/goal` 和 hooks（钩子）约束 ClaudeCode、Codex 等 Agent（智能体）按流程完成任务，避免跳步骤、提前宣布完成、漏跑验证、越界改文件。
 
 ```mermaid
 flowchart TD
@@ -100,9 +100,10 @@ M0-15 使用 Actor Registry（执行者注册表）把角色映射为真实运�
 ```mermaid
 flowchart LR
   A[task:next 执行简报] --> B[task:execute 执行请求]
-  B --> C[Claude Code CLI]
-  C --> D[DeepSeek]
-  D --> E[本地审计记录]
+  B --> C[ClaudeCode /init]
+  C --> D[维护 CLAUDE.md]
+  D --> E[ClaudeCode 执行任务]
+  E --> F[本地审计记录]
 ```
 
 ```bash
@@ -113,9 +114,11 @@ pnpm task:execute -- --dry-run
 pnpm task:execute -- --approve-external-data
 ```
 
-Implementer（实现角色）允许编辑，Tester（测试角色）使用全新会话并禁止编辑。模型调用成功只写入审计记录，不会绕过测试门禁或自动推进任务状态。
+Implementer（实现角色）先运行 `/init`，增量维护 `CLAUDE.md`，随后使用 `--dangerously-skip-permissions`（跳过 ClaudeCode 自身权限确认）执行主要编码任务。项目 hooks（钩子）、任务范围、测试共识和状态机仍然生效。
 
-Claude Code + DeepSeek 属于外部模型调用，可能发送任务 Prompt（提示词）和模型主动读取的仓库上下文。运行时默认拒绝，必须由用户明确批准 `--approve-external-data`（批准外部数据传输）。
+Tester（测试角色）使用全新只读会话，禁止 Edit、Write 和 MultiEdit，不启用危险模式。模型调用成功只写入审计记录，不会绕过测试门禁或自动推进任务状态。
+
+ClaudeCode 可能通过当前电脑配置的模型服务发送任务 Prompt（提示词）和主动读取的仓库上下文。运行时默认拒绝，必须由用户明确批准 `--approve-external-data`（批准外部数据传输）。这是 OpsAgent 自己的数据边界门；Codex 运行环境还可能有更高一层的外部数据安全审批，ClaudeCode dangerous mode（危险模式）不能绕过这一层。
 
 ### 4.6 Agent Message Bus 智能体消息总线
 
@@ -148,14 +151,14 @@ flowchart TD
   A[新增或修改任务] --> B[Codex 分析测试影响]
   B --> C{add/update/none}
   C --> D[记录 testImpact]
-  D --> E[Claude Code + DeepSeek 实现]
+  D --> E[ClaudeCode 实现]
   E --> F{实现者认为测试要改?}
   F -->|否| G[Tester 执行测试]
   F -->|是| H[先与 Codex 达成共识]
   H --> G
 ```
 
-Claude Code + DeepSeek 不得单方面修改既有测试合同。若认为测试需要调整，必须说明是需求变化、测试错误还是覆盖不足，由 Codex 审核并在 `testImpact.consensus` 中记录 `approved` 后再修改。
+ClaudeCode 不得单方面修改既有测试合同。若认为测试需要调整，必须说明是需求变化、测试错误还是覆盖不足，由 Codex 审核并在 `testImpact.consensus` 中记录 `approved` 后再修改。
 
 ### 4.1 active goal 开关
 
@@ -212,7 +215,7 @@ Circuit Breaker（熔断规则）用于防止 Agent（智能体）在错误方�
 | 同一问题修复 3 轮仍失败 | 停止并汇报 blocker（阻塞点） |
 | 连续 2 次修复引入新失败 | 停止，要求重新规划 |
 | 涉及删除数据、密钥、发布生产 | 必须人类确认 |
-| 架构分歧无法收敛 | Claude / Codex / DeepSeek 独立给方案，再交叉比较 |
+| 架构分歧无法收敛 | ClaudeCode / Codex 独立给方案，再交叉比较 |
 
 ## 6.1 TypeScript 领域字符串规范
 
@@ -292,3 +295,5 @@ export type TaskStatus =
 | M3 Agent 分析 | 是 |
 | 小文案修改 | 可简化使用 |
 | 高风险架构决策 | 必须配合跨模型审查 |
+
+M1 的 PreToolUse（工具调用前）门禁允许业务、配置、文档和工作流路径，但拒绝提前修改 M2 的 Prometheus、Loki、Grafana、OpenTelemetry 配置及 M5 的 GitLab CI（持续集成）文件。M1 Stop Hook（停止钩子）复用 M0 基础检查，再依次运行类型检查与全仓测试。

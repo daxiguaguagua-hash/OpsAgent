@@ -5,6 +5,7 @@ import { z } from "zod";
 export const env = createEnv({
   server: {
     DATABASE_URL: z.string().min(1),
+    REDIS_URL: z.url().default("redis://localhost:6379"),
     CORS_ORIGIN: z.url(),
     PORT: z.coerce.number().int().positive().default(8000),
     MODEL_PROVIDER: z.enum(["openai", "ollama", "mock"]).default("mock"),

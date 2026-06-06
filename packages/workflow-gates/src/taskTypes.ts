@@ -84,6 +84,8 @@ export interface ActorProfile {
   allowedTools?: string[];
   disallowedTools?: string[];
   permissionMode?: string;
+  dangerouslySkipPermissions?: boolean;
+  bootstrapPrompt?: string;
   settingSources?: string[];
   freshSession?: boolean;
   externalProvider?: string;
@@ -108,6 +110,8 @@ export interface ExecutionRequest {
   allowedTools: string[];
   disallowedTools: string[];
   permissionMode?: string;
+  dangerouslySkipPermissions: boolean;
+  bootstrapPrompt?: string;
   settingSources: string[];
   freshSession: boolean;
   externalProvider?: string;
@@ -121,6 +125,7 @@ export interface ExecutionResult {
   actor: string;
   success: boolean;
   output: string;
+  bootstrapOutput?: string;
   sessionId?: string;
   durationMs?: number;
   costUsd?: number;
