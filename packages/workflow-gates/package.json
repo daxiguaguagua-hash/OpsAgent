@@ -1,0 +1,16 @@
+{
+  "name": "@opsagent/workflow-gates",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b",
+    "check-types": "tsc -b --pretty false",
+    "pre-tool": "node --experimental-strip-types src/preToolGuard.ts",
+    "stop": "node --experimental-strip-types src/stopCheck.ts"
+  },
+  "devDependencies": {
+    "@opsagent/config": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

@@ -141,6 +141,7 @@ M0（第 0 阶段）已参考 better-t-stack（TypeScript 全栈脚手架）生�
 | 开发里程碑 | 从最小业务系统到可观测性、Mastra（智能体框架）、Source Map（源码映射文件）定位 |
 | 任务拆分 | [docs/task-breakdown.md](docs/task-breakdown.md) 记录 Milestone（里程碑）、任务卡、交付物和验收标准 |
 | M0 闭环 | [docs/issues/M0-project-scaffold.md](docs/issues/M0-project-scaffold.md) 记录项目骨架与治理文件的执行边界 |
+| M0.1 工作流门禁 | [docs/issues/M0.1-workflow-gates.md](docs/issues/M0.1-workflow-gates.md) 记录 hooks（钩子）从 shell 迁移到 TypeScript（类型脚本）的方案 |
 | 团队责任 | [docs/team-ownership.md](docs/team-ownership.md) 记录 frontend-team（前端团队）、backend-team（后端团队）、ai-agent-team（智能体团队）、sre-team（稳定性团队）和 docs-team（文档团队）边界 |
 | CodeGraph 代码图谱 | [docs/codegraph.md](docs/codegraph.md) 记录 CodeGraph（代码图谱工具）的使用边界和项目约束 |
 | Agent 工作流 | [docs/workflows/agent-execution-workflow.md](docs/workflows/agent-execution-workflow.md) 记录 `/goal`、hooks（钩子）、门禁和完成汇报模板 |

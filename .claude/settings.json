@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/pre-tool-guard.sh\""
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/pre-tool-guard-ts.sh\""
           }
         ]
       }
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/stop-check.sh\""
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/stop-check-ts.sh\""
           }
         ]
       }
