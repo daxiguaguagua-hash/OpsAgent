@@ -66,8 +66,12 @@ flowchart TD
 开始任务时：
 
 ```bash
-cp .agent/active-task.example.json .agent/active-task.json
+pnpm task:create -- M1-01 "实现健康检查接口" implementation
 ```
+
+随后使用 `task:scope`、`task:criteria`、`task:test-impact`、`task:test-plan` 和 `task:verify-command` 补齐任务合同，再通过 `task:handoff` 在角色之间交接。
+
+如果 `task:test-impact` 的 `proposedBy` 是 `implementer`，共识会保持 `pending`；必须由 Codex 执行 `pnpm task:test-approve` 后才能送审。
 
 任务状态：
 
@@ -102,3 +106,5 @@ flowchart LR
 ```
 
 真正的自动多 AI 调度属于后续 orchestrator（编排器）能力，不能用 hook 冒充。
+
+CLI（命令行工具）目前只记录角色声明和批准结果，不能以密码学方式证明实际调用者就是 Codex。M0 阶段依靠 Git（版本控制）权限、提交审查和人工纪律保证可信度；可验证身份与自动调度留给后续编排器实现。

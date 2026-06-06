@@ -34,7 +34,7 @@
       "executor": "architect",
       "tester": "tester",
       "testStrategist": "test-strategist",
-      "reviewer": "human",
+      "reviewer": "approver",
       "humanApprovalRequired": true
     },
     "implementation": {

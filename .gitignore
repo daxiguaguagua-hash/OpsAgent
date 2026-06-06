@@ -23,6 +23,7 @@ coverage/
 
 # Agent workflow local state
 .agent/active-task.json
+.agent/history/
 
 # Logs
 *.log

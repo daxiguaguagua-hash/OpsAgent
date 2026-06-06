@@ -9,6 +9,7 @@
   "testStrategist": "test-strategist",
   "reviewer": "reviewer",
   "humanApprover": "approver",
+  "currentAssignee": "architect",
   "scope": ["apps/backend/**"],
   "acceptanceCriteria": ["功能完成", "类型检查通过"],
   "testImpact": {
@@ -20,5 +21,6 @@
   },
   "testPlan": ["正常路径", "失败路径", "回归检查"],
   "verificationCommands": ["pnpm check-types"],
-  "testEvidence": []
+  "testEvidence": [],
+  "handoffHistory": []
 }

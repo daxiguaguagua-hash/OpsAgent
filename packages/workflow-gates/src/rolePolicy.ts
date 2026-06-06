@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { block } from "./lib/io.ts";
+import type { ActiveTask, RolePolicy } from "./taskTypes.ts";
 
 const activeTaskPath = ".agent/active-task.json";
 const rolePolicyPath = ".agent/role-policy.json";
@@ -11,43 +12,6 @@ const validStatuses = new Set([
   "ready_for_review",
   "completed",
 ]);
-
-interface RolePolicy {
-  roles?: Record<string, unknown>;
-  taskPolicies?: Record<string, {
-    owner?: string;
-    executor?: string;
-    tester?: string;
-    testStrategist?: string;
-    reviewer?: string;
-    humanApprovalRequired?: boolean;
-  }>;
-}
-
-interface ActiveTask {
-  id?: string;
-  title?: string;
-  taskType?: string;
-  status?: string;
-  owner?: string;
-  executor?: string;
-  tester?: string;
-  testStrategist?: string;
-  reviewer?: string;
-  humanApprover?: string;
-  scope?: string[];
-  acceptanceCriteria?: string[];
-  testImpact?: {
-    action?: "add" | "update" | "none";
-    rationale?: string;
-    proposedBy?: string;
-    reviewedBy?: string;
-    consensus?: "approved" | "pending";
-  };
-  testPlan?: string[];
-  verificationCommands?: string[];
-  testEvidence?: string[];
-}
 
 export function validateActiveTask(): void {
   if (!existsSync(activeTaskPath)) {
@@ -67,6 +31,7 @@ export function validateActiveTask(): void {
     "testStrategist",
     "reviewer",
     "humanApprover",
+    "currentAssignee",
   ];
 
   for (const field of requiredTextFields) {
@@ -89,6 +54,10 @@ export function validateActiveTask(): void {
     if (!role || !policy.roles?.[role]) {
       block(`OpsAgent role policy blocked: '${roleField}' references unknown role '${role}'`);
     }
+  }
+
+  if (!policy.roles?.[task.currentAssignee]) {
+    block(`OpsAgent role policy blocked: currentAssignee references unknown role '${task.currentAssignee}'`);
   }
 
   for (const roleField of ["owner", "executor", "tester", "testStrategist", "reviewer"] as const) {
@@ -115,6 +84,19 @@ export function validateActiveTask(): void {
     && (!task.testEvidence || task.testEvidence.length === 0)
   ) {
     block("OpsAgent role policy blocked: testEvidence is required before review or completion");
+  }
+
+  if (task.status === "ready_for_review" || task.status === "completed") {
+    for (const [field, values] of [
+      ["scope", task.scope],
+      ["acceptanceCriteria", task.acceptanceCriteria],
+      ["testPlan", task.testPlan],
+      ["verificationCommands", task.verificationCommands],
+    ] as const) {
+      if (values.some((value) => value.startsWith("TODO:"))) {
+        block(`OpsAgent role policy blocked: '${field}' still contains TODO placeholders`);
+      }
+    }
   }
 }
 
