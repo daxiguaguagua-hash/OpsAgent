@@ -73,6 +73,50 @@ OpsAgent 当前落地文件：
 | `.agent/active-task.example.json` | 活动任务模板，包含 tester（测试角色）和 testEvidence（测试证据） |
 | `packages/workflow-gates/src/rolePolicy.ts` | Stop hook 使用的角色与测试证据校验器 |
 
+### 4.4 Orchestration Assistant 编排助手
+
+日常任务优先使用四个上层命令：
+
+```mermaid
+flowchart LR
+  A[task:start 启动实现] --> B[task:next 查看执行简报]
+  B --> C[task:review 提交审查]
+  C --> D[task:finish 完成归档]
+```
+
+| 命令 | 说明 |
+|---|---|
+| `pnpm task:start` | 校验任务合同并交给 Implementer（实现角色） |
+| `pnpm task:next` | 输出当前模型、下一模型、建议命令和 Prompt（提示词） |
+| `pnpm task:review` | 校验测试证据并交给 Reviewer（审查角色） |
+| `pnpm task:finish` | 完成并归档任务 |
+
+`task:next` 只生成 Execution Brief（执行简报），不会自动启动模型。真正的模型进程调用属于后续 Orchestrator（编排器）。
+
+### 4.5 Actor Runtime 执行者运行时
+
+M0.5 使用 Actor Registry（执行者注册表）把角色映射为真实运行方式：
+
+```mermaid
+flowchart LR
+  A[task:next 执行简报] --> B[task:execute 执行请求]
+  B --> C[Claude Code CLI]
+  C --> D[DeepSeek]
+  D --> E[本地审计记录]
+```
+
+```bash
+# 只查看即将执行的角色、权限和 Prompt（提示词）
+pnpm task:execute -- --dry-run
+
+# 实际调用当前可执行 Actor（执行者）
+pnpm task:execute -- --approve-external-data
+```
+
+Implementer（实现角色）允许编辑，Tester（测试角色）使用全新会话并禁止编辑。模型调用成功只写入审计记录，不会绕过测试门禁或自动推进任务状态。
+
+Claude Code + DeepSeek 属于外部模型调用，可能发送任务 Prompt（提示词）和模型主动读取的仓库上下文。运行时默认拒绝，必须由用户明确批准 `--approve-external-data`（批准外部数据传输）。
+
 ### 4.3 测试用例变更协议
 
 ```mermaid

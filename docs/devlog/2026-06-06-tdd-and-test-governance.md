@@ -48,7 +48,7 @@ flowchart TD
 |---|---|
 | Codex / test-strategist（测试策略角色） | 判断测试影响、设计测试用例、审核测试修改 |
 | Claude Code + DeepSeek / implementer（实现角色） | 实现业务；可以提出修改测试，但不能单方面修改测试合同 |
-| QA Agent / tester（测试角色） | 执行正常路径、失败路径、回归检查并提供证据 |
+| 全新上下文 Claude Code + DeepSeek / tester（测试角色） | 执行正常路径、失败路径、回归检查并提供证据 |
 | gpt5.5 / reviewer（审查角色） | 审查实现和测试证据 |
 | Human（人类） | 对争议和发布作最终决定 |
 
@@ -73,4 +73,3 @@ flowchart TD
 ```
 
 这条规则可以防止实现者为了让流水线变绿而降低测试标准。
-

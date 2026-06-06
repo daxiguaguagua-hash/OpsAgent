@@ -51,8 +51,78 @@ export interface TaskPolicy {
   humanApprovalRequired?: boolean;
 }
 
+export interface RoleDefinition {
+  actor?: string;
+  fallbackActor?: string;
+  responsibilities?: string[];
+}
+
 export interface RolePolicy {
-  roles?: Record<string, unknown>;
+  roles?: Record<string, RoleDefinition>;
   taskPolicies?: Record<string, TaskPolicy>;
 }
 
+export interface ExecutionBrief {
+  taskId: string;
+  status: TaskStatus;
+  currentRole: string;
+  actor: string;
+  fallbackActor?: string;
+  nextRole?: string;
+  nextActor?: string;
+  action: string;
+  suggestedCommands: string[];
+  prompt: string;
+}
+
+export type ActorAdapter = "claude-code" | "manual";
+
+export interface ActorProfile {
+  adapter: ActorAdapter;
+  executable?: string;
+  mode: string;
+  allowedTools?: string[];
+  disallowedTools?: string[];
+  permissionMode?: string;
+  settingSources?: string[];
+  freshSession?: boolean;
+  externalProvider?: string;
+  requiresExternalDataApproval?: boolean;
+  timeoutMs?: number;
+}
+
+export interface ActorRegistry {
+  version: string;
+  actors: Record<string, ActorProfile>;
+}
+
+export interface ExecutionRequest {
+  taskId: string;
+  role: string;
+  actor: string;
+  adapter: ActorAdapter;
+  mode: string;
+  prompt: string;
+  cwd: string;
+  executable?: string;
+  allowedTools: string[];
+  disallowedTools: string[];
+  permissionMode?: string;
+  settingSources: string[];
+  freshSession: boolean;
+  externalProvider?: string;
+  requiresExternalDataApproval: boolean;
+  timeoutMs: number;
+}
+
+export interface ExecutionResult {
+  taskId: string;
+  role: string;
+  actor: string;
+  success: boolean;
+  output: string;
+  sessionId?: string;
+  durationMs?: number;
+  costUsd?: number;
+  completedAt: string;
+}

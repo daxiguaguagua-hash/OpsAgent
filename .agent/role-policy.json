@@ -11,8 +11,7 @@
       "responsibilities": ["implementation", "local-fix", "implementation-notes"]
     },
     "tester": {
-      "actor": "qa-agent",
-      "fallbackActor": "claude-code-deepseek-new-context",
+      "actor": "claude-code-deepseek-new-context",
       "responsibilities": ["test-plan", "automated-tests", "negative-tests", "regression-check", "test-evidence"]
     },
     "test-strategist": {

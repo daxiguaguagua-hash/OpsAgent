@@ -1,0 +1,44 @@
+{
+  "$schema": "./actor-registry.schema.json",
+  "version": "0.1.0",
+  "actors": {
+    "claude-code-deepseek": {
+      "adapter": "claude-code",
+      "executable": "claude",
+      "mode": "implementation",
+      "allowedTools": ["Read", "Glob", "Grep", "Edit", "Write", "Bash"],
+      "disallowedTools": [],
+      "permissionMode": "dontAsk",
+      "settingSources": ["user", "project"],
+      "freshSession": true,
+      "externalProvider": "deepseek",
+      "requiresExternalDataApproval": true,
+      "timeoutMs": 900000
+    },
+    "claude-code-deepseek-new-context": {
+      "adapter": "claude-code",
+      "executable": "claude",
+      "mode": "testing",
+      "allowedTools": ["Read", "Glob", "Grep", "Bash"],
+      "disallowedTools": ["Edit", "Write", "MultiEdit"],
+      "permissionMode": "dontAsk",
+      "settingSources": ["user", "project"],
+      "freshSession": true,
+      "externalProvider": "deepseek",
+      "requiresExternalDataApproval": true,
+      "timeoutMs": 600000
+    },
+    "gpt5.5": {
+      "adapter": "manual",
+      "mode": "architecture"
+    },
+    "codex": {
+      "adapter": "manual",
+      "mode": "test-strategy"
+    },
+    "human": {
+      "adapter": "manual",
+      "mode": "approval"
+    }
+  }
+}

@@ -97,6 +97,11 @@ flowchart TD
 | M0-08 | 增加 `docs/team-ownership.md` | docs-team | P1 | 团队责任说明 | 能解释当前个人项目如何模拟团队边界 |
 | M0-09 | better-t-stack 技术试验 | sre-team | P1 | spike 结论 | 记录采用/不采用哪些结构 |
 | M0-10 | 增加 CodeGraph 初始化说明 | docs-team | P1 | CodeGraph 说明 | 说明何时初始化和如何使用 |
+| M0-11 | 增加 TypeScript 工作流门禁 | sre-team | P0 | `packages/workflow-gates` | Hook（钩子）可以执行确定性检查 |
+| M0-12 | 增加角色与测试治理 | qa-team | P0 | 角色策略和测试共识协议 | 实现者不能单方面降低测试标准 |
+| M0-13 | 增加任务交接 CLI | sre-team | P0 | 状态机、交接、证据和归档命令 | 非法状态跳跃被阻断 |
+| M0-14 | 增加 Orchestration Assistant 编排助手 | ai-agent-team | P0 | 组合命令和 Execution Brief（执行简报） | 能输出当前模型、下一模型、命令和提示词 |
+| M0-15 | 增加 Actor Runtime 执行者运行时 | ai-agent-team | P0 | 执行者注册表和 Claude Code Adapter（适配器） | 能按角色权限调用本机 Claude Code + DeepSeek 并保存审计结果 |
 
 ## 5. M1 最小业务系统
 
@@ -251,21 +256,19 @@ flowchart TD
 
 ## 13. 当前下一步
 
-下一步建议从 M0 开始：
+M0 项目骨架和工作流治理已经完成，下一步进入 M1：
 
 ```mermaid
 flowchart LR
-  A[现在] --> B[创建项目骨架]
-  B --> C[增加 .gitignore]
-  C --> D[增加 .env.example]
-  D --> E[增加 docker-compose.yml 基础服务]
+  A[M0 治理完成] --> B[M1 最小业务系统]
+  B --> C[健康检查接口]
+  C --> D[数据库连接]
+  D --> E[故障演示入口]
 ```
 
 立即可执行任务：
 
-- [ ] M0-01 创建 `apps/*`、`packages/shared`、`observability` 目录结构
-- [ ] M0-02 增加 `.gitignore`
-- [ ] M0-03 增加 `.env.example`
-- [ ] M0-04 增加 `package.json`、`pnpm-workspace.yaml`、`turbo.json`
-- [ ] M0-05 增加 `packages/shared` 最小 TypeScript 包
-- [ ] M0-06 增加基础 `docker-compose.yml`
+- [ ] M1-03 完善 Backend（后端）健康检查 API（接口）
+- [ ] M1-04 验证 PostgreSQL（关系型数据库）连接
+- [ ] M1-06 实现正常业务接口
+- [ ] M1-07 实现后端 500 故障接口

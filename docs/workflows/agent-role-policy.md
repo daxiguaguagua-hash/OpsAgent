@@ -30,7 +30,7 @@ flowchart LR
 | architect（架构角色） | gpt5.5 | 架构、任务拆分、验收标准、风险判断 |
 | implementer（实现角色） | Claude Code + DeepSeek | 按任务范围编码、修复、提交实现说明 |
 | test-strategist（测试策略角色） | Codex | 每次任务新增/修改时分析测试影响，设计或审核测试用例 |
-| tester（测试角色） | QA Agent（测试智能体）；当前可由新上下文 Claude Code + DeepSeek 代行 | 测试计划、正常/失败路径、回归检查、测试证据 |
+| tester（测试角色） | 全新上下文 Claude Code + DeepSeek | 测试计划、正常/失败路径、回归检查、测试证据 |
 | reviewer（审查角色） | gpt5.5 | 代码审查、架构审查、测试证据审查 |
 | approver（批准角色） | Human（人类） | 范围决策、冲突裁决、提交和发布授权 |
 
@@ -97,7 +97,7 @@ pnpm task:create -- M1-01 "实现健康检查接口" implementation
 
 ## 5. 当前限制
 
-当前策略不会自动调用 gpt5.5、DeepSeek 或 QA Agent（测试智能体）。它实现的是：
+当前策略不会自动调用 gpt5.5、DeepSeek 或 Claude Code。它实现的是：
 
 ```mermaid
 flowchart LR

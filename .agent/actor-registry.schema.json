@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpsAgent Actor Registry",
+  "type": "object",
+  "required": ["version", "actors"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string" },
+    "actors": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["adapter", "mode"],
+        "properties": {
+          "adapter": { "enum": ["claude-code", "manual"] },
+          "executable": { "type": "string" },
+          "mode": { "type": "string" },
+          "allowedTools": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "disallowedTools": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "permissionMode": { "type": "string" },
+          "settingSources": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "freshSession": { "type": "boolean" },
+          "externalProvider": { "type": "string" },
+          "requiresExternalDataApproval": { "type": "boolean" },
+          "timeoutMs": { "type": "integer", "minimum": 1000 }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

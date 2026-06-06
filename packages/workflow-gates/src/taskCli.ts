@@ -7,8 +7,22 @@ import {
   setTestImpact,
   transitionTask,
 } from "./taskState.ts";
+import {
+  buildExecutionBrief,
+  finishTask,
+  formatExecutionBrief,
+  startTask,
+  submitForReview,
+} from "./orchestration.ts";
+import {
+  assertExecutionApproved,
+  createExecutionRequest,
+  executeActor,
+} from "./actorRuntime.ts";
 import type {
   ActiveTask,
+  ActorRegistry,
+  ExecutionResult,
   RolePolicy,
   TaskStatus,
   TestImpactAction,
@@ -17,6 +31,7 @@ import { validateActiveTask } from "./rolePolicy.ts";
 
 const activeTaskPath = ".agent/active-task.json";
 const rolePolicyPath = ".agent/role-policy.json";
+const actorRegistryPath = ".agent/actor-registry.json";
 const rawArgs = process.argv.slice(2);
 const separatorIndex = rawArgs.indexOf("--");
 if (separatorIndex >= 0) {
@@ -31,6 +46,21 @@ try {
       break;
     case "show":
       printTask(readTask());
+      break;
+    case "next":
+      console.log(formatExecutionBrief(buildExecutionBrief(readTask(), readPolicy())));
+      break;
+    case "start":
+      updateTask((task) => startTask(task));
+      break;
+    case "review":
+      updateTask((task) => submitForReview(task));
+      break;
+    case "finish":
+      handleFinish();
+      break;
+    case "execute":
+      await handleExecute(args);
       break;
     case "status":
       updateTask((task) => transitionTask(task, requiredArg(args[0], "status") as TaskStatus));
@@ -90,9 +120,45 @@ function handleCreate(args: string[]): void {
   const id = requiredArg(args[0], "id");
   const title = requiredArg(args[1], "title");
   const taskType = args[2] ?? "implementation";
-  const task = createTask(readJson<RolePolicy>(rolePolicyPath), id, title, taskType);
+  const task = createTask(readPolicy(), id, title, taskType);
   writeTask(task);
   printTask(task);
+}
+
+function handleFinish(): void {
+  const task = finishTask(readTask(), readPolicy());
+  writeTask(task);
+  closeTask();
+}
+
+async function handleExecute(args: string[]): Promise<void> {
+  const task = readTask();
+  const brief = buildExecutionBrief(task, readPolicy());
+  const request = createExecutionRequest(
+    brief,
+    readJson<ActorRegistry>(actorRegistryPath),
+  );
+
+  if (args.includes("--dry-run")) {
+    console.log(JSON.stringify(request, null, 2));
+    return;
+  }
+
+  assertExecutionApproved(request, args.includes("--approve-external-data"));
+  const result = await executeActor(request);
+  writeExecutionRecord(result);
+  console.log(JSON.stringify(result, null, 2));
+}
+
+function writeExecutionRecord(result: ExecutionResult): void {
+  const safeTaskId = result.taskId.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const timestamp = result.completedAt.replace(/[:.]/g, "-");
+  const directory = `.agent/executions/${safeTaskId}`;
+  mkdirSync(directory, { recursive: true });
+  writeFileSync(
+    `${directory}/${timestamp}.json`,
+    `${JSON.stringify(result, null, 2)}\n`,
+  );
 }
 
 function updateTask(update: (task: ActiveTask) => ActiveTask): void {
@@ -134,6 +200,10 @@ function readJson<T>(path: string): T {
   return JSON.parse(readFileSync(path, "utf8")) as T;
 }
 
+function readPolicy(): RolePolicy {
+  return readJson<RolePolicy>(rolePolicyPath);
+}
+
 function requiredArg(value: string | undefined, name: string): string {
   if (!value?.trim()) {
     throw new Error(`Missing required argument: ${name}`);
@@ -154,6 +224,11 @@ function printUsage(): void {
 Commands:
   create <id> <title> [taskType]
   show
+  next
+  start
+  review
+  finish
+  execute [--dry-run|--approve-external-data]
   status <planned|implementing|testing|ready_for_review|completed>
   handoff <role>
   scope <pattern...>
