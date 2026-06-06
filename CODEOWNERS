@@ -23,6 +23,6 @@
 /package.json @sre-team
 
 /.claude/ @sre-team @ai-agent-team
+/.agent/ @ai-agent-team @qa-team
 /docs/ @docs-team
 /README.md @docs-team
-

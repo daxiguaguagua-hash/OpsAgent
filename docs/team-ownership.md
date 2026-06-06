@@ -9,6 +9,7 @@ flowchart TD
   A --> D[ai-agent-team 智能体团队]
   A --> E[sre-team 稳定性团队]
   A --> F[docs-team 文档团队]
+  A --> G[qa-team 测试团队]
 ```
 
 ## 责任表
@@ -19,6 +20,7 @@ flowchart TD
 | backend-team | API（接口）、业务故障、数据库访问、日志和 Trace（链路追踪）埋点 | `apps/backend/`、`packages/api/`、`packages/db/` |
 | ai-agent-team | Mastra（智能体框架）、Prompt（提示词）、Tools（工具调用）、Workflow（工作流）、模型降级 | `apps/agent/`、`packages/shared/` |
 | sre-team | Docker Compose（容器编排）、环境变量、可观测性、CI/CD（持续集成与持续交付） | `observability/`、`docker-compose.yml`、`packages/config/`、`packages/env/` |
+| qa-team | 测试计划、自动化测试、失败路径、回归检查、测试证据 | 各模块测试文件、`.agent/active-task.json` |
 | docs-team | README（项目说明）、任务拆分、面试讲解、Runbook（处置手册） | `docs/`、`README.md` |
 
 ## 模拟审批规则
@@ -37,10 +39,10 @@ flowchart LR
 | 前端页面或 UI（用户界面）组件 | frontend-team |
 | 后端 API（接口）或数据库模型 | backend-team |
 | Agent（智能体）分析逻辑 | ai-agent-team |
+| 测试计划、回归验证、测试证据 | qa-team |
 | Docker（容器）、可观测性、CI/CD（持续集成与持续交付） | sre-team |
 | 文档、面试表达、任务拆分 | docs-team |
 
 ## 面试表达
 
 > 虽然 OpsAgent 是个人项目，但我按企业项目方式设计了 ownership（责任归属）：前端、后端、智能体、SRE（站点可靠性工程师）和文档各有边界。后续本地 GitLab（企业代码托管平台）会用 CODEOWNERS（代码负责人）和 Protected Branch（受保护分支）模拟真实团队审批。
-

@@ -11,9 +11,10 @@ flowchart TD
   A[用户目标] --> B[Goal 目标锁定]
   B --> C[Plan 规划]
   C --> D[Build 实现]
-  D --> E[Local Gates 本地门禁]
-  E --> F[Status Gate 状态门]
-  F --> G[Human Gate 人类确认]
+  D --> E[Test 测试]
+  E --> F[Local Gates 本地门禁]
+  F --> G[Review 审查]
+  G --> H[Human Gate 人类确认]
 ```
 
 ## 2. 通用执行流程
@@ -23,7 +24,10 @@ flowchart TD
 | Goal | 用 `/goal` 明确完成条件 | 可检查的完成标准 |
 | Plan | 阅读任务文档，确认范围、风险、不做什么 | 简短计划 |
 | Build | 按任务 ID 执行，不扩大范围 | 文件改动 |
-| Local Gates | 跑测试、构建、配置检查 | 验证证据 |
+| Test Strategy | 每次新增或修改任务时，由 Codex 判断测试需新增、修改或无需变化 | `testImpact` 测试影响记录 |
+| Test | 由 tester（测试角色）执行正常、失败和回归场景 | 测试证据 |
+| Local Gates | 跑类型检查、构建、配置检查和任务角色校验 | 门禁证据 |
+| Review | reviewer（审查角色）检查代码和测试证据 | 审查结论 |
 | Status Gate | 更新 README（项目说明）、任务文档或状态文档 | 文档同步 |
 | Human Gate | 向用户报告结果和风险 | 可审核总结 |
 
@@ -65,6 +69,25 @@ OpsAgent 当前落地文件：
 | `.claude/settings.json` | Claude Code hooks（钩子）配置 |
 | `.claude/hooks/pre-tool-guard.sh` | 工具调用前门禁，阻止密钥写入、危险命令和 M0 越界改动 |
 | `.claude/hooks/stop-check.sh` | 停止前门禁，按 active goal（当前目标）检查验收项 |
+| `.agent/role-policy.json` | 机器可读的架构、实现、测试、审查和批准角色策略 |
+| `.agent/active-task.example.json` | 活动任务模板，包含 tester（测试角色）和 testEvidence（测试证据） |
+| `packages/workflow-gates/src/rolePolicy.ts` | Stop hook 使用的角色与测试证据校验器 |
+
+### 4.3 测试用例变更协议
+
+```mermaid
+flowchart TD
+  A[新增或修改任务] --> B[Codex 分析测试影响]
+  B --> C{add/update/none}
+  C --> D[记录 testImpact]
+  D --> E[Claude Code + DeepSeek 实现]
+  E --> F{实现者认为测试要改?}
+  F -->|否| G[Tester 执行测试]
+  F -->|是| H[先与 Codex 达成共识]
+  H --> G
+```
+
+Claude Code + DeepSeek 不得单方面修改既有测试合同。若认为测试需要调整，必须说明是需求变化、测试错误还是覆盖不足，由 Codex 审核并在 `testImpact.consensus` 中记录 `approved` 后再修改。
 
 ### 4.1 active goal 开关
 

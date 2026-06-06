@@ -55,6 +55,7 @@ flowchart TD
 | backend-team | API（应用程序接口）、业务故障、日志、Trace（链路追踪）埋点 |
 | ai-agent-team | Mastra（智能体框架）、Tools（工具调用）、Workflow（工作流）、模型降级 |
 | sre-team | Docker Compose（容器编排）、Prometheus（指标）、Loki（日志）、Grafana（看板）、GitLab（代码托管） |
+| qa-team | 测试计划、自动化测试、失败路径、回归检查、测试证据 |
 | docs-team | README（项目说明）、架构图、面试讲稿、Runbook（处置手册） |
 
 ## 3. Milestone 规划

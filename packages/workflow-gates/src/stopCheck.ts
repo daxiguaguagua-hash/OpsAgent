@@ -1,5 +1,8 @@
 import { readActiveGoal } from "./lib/repo.ts";
+import { validateActiveTask } from "./rolePolicy.ts";
 import { checkM0Stop } from "./rules/m0.ts";
+
+validateActiveTask();
 
 const activeGoal = readActiveGoal();
 

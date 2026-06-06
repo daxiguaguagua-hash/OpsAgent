@@ -1,0 +1,24 @@
+{
+  "id": "M1-01",
+  "title": "示例任务",
+  "taskType": "implementation",
+  "status": "planned",
+  "owner": "architect",
+  "executor": "implementer",
+  "tester": "tester",
+  "testStrategist": "test-strategist",
+  "reviewer": "reviewer",
+  "humanApprover": "approver",
+  "scope": ["apps/backend/**"],
+  "acceptanceCriteria": ["功能完成", "类型检查通过"],
+  "testImpact": {
+    "action": "add",
+    "rationale": "新增业务行为，需要增加对应测试用例",
+    "proposedBy": "test-strategist",
+    "reviewedBy": "test-strategist",
+    "consensus": "approved"
+  },
+  "testPlan": ["正常路径", "失败路径", "回归检查"],
+  "verificationCommands": ["pnpm check-types"],
+  "testEvidence": []
+}

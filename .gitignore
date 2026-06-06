@@ -21,6 +21,9 @@ coverage/
 # Claude Code local state
 .claude/active-goal
 
+# Agent workflow local state
+.agent/active-task.json
+
 # Logs
 *.log
 npm-debug.log*

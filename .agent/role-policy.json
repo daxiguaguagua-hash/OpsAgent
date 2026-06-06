@@ -1,0 +1,65 @@
+{
+  "$schema": "./role-policy.schema.json",
+  "version": "0.1.0",
+  "roles": {
+    "architect": {
+      "actor": "gpt5.5",
+      "responsibilities": ["architecture", "task-breakdown", "acceptance-criteria", "risk-review"]
+    },
+    "implementer": {
+      "actor": "claude-code-deepseek",
+      "responsibilities": ["implementation", "local-fix", "implementation-notes"]
+    },
+    "tester": {
+      "actor": "qa-agent",
+      "fallbackActor": "claude-code-deepseek-new-context",
+      "responsibilities": ["test-plan", "automated-tests", "negative-tests", "regression-check", "test-evidence"]
+    },
+    "test-strategist": {
+      "actor": "codex",
+      "responsibilities": ["test-impact-analysis", "test-case-design", "test-change-review", "test-consensus"]
+    },
+    "reviewer": {
+      "actor": "gpt5.5",
+      "responsibilities": ["code-review", "architecture-review", "test-evidence-review"]
+    },
+    "approver": {
+      "actor": "human",
+      "responsibilities": ["scope-decision", "conflict-resolution", "commit-approval", "release-approval"]
+    }
+  },
+  "taskPolicies": {
+    "architecture": {
+      "owner": "architect",
+      "executor": "architect",
+      "tester": "tester",
+      "testStrategist": "test-strategist",
+      "reviewer": "human",
+      "humanApprovalRequired": true
+    },
+    "implementation": {
+      "owner": "architect",
+      "executor": "implementer",
+      "tester": "tester",
+      "testStrategist": "test-strategist",
+      "reviewer": "reviewer",
+      "humanApprovalRequired": false
+    },
+    "testing": {
+      "owner": "tester",
+      "executor": "tester",
+      "tester": "tester",
+      "testStrategist": "test-strategist",
+      "reviewer": "reviewer",
+      "humanApprovalRequired": false
+    },
+    "release": {
+      "owner": "approver",
+      "executor": "implementer",
+      "tester": "tester",
+      "testStrategist": "test-strategist",
+      "reviewer": "reviewer",
+      "humanApprovalRequired": true
+    }
+  }
+}
