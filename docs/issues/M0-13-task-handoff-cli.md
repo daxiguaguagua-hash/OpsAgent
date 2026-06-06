@@ -1,8 +1,8 @@
-# M0.3 Task Handoff CLI 任务交接命令
+# M0-13 Task Handoff CLI 任务交接命令
 
 ## 1. 目标
 
-M0.3 把角色策略从“文档制度”推进成“可执行任务流”。CLI（命令行工具）管理 `.agent/active-task.json`，记录当前负责人、状态、测试影响、测试证据和交接历史。
+M0-13 把角色策略从“文档制度”推进成“可执行任务流”。CLI（命令行工具）管理 `.agent/active-task.json`，记录当前负责人、状态、测试影响、测试证据和交接历史。
 
 ```mermaid
 flowchart LR

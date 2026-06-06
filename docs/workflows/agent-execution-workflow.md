@@ -95,7 +95,7 @@ flowchart LR
 
 ### 4.5 Actor Runtime 执行者运行时
 
-M0.5 使用 Actor Registry（执行者注册表）把角色映射为真实运行方式：
+M0-15 使用 Actor Registry（执行者注册表）把角色映射为真实运行方式：
 
 ```mermaid
 flowchart LR

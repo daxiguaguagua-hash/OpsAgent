@@ -141,11 +141,12 @@ M0（第 0 阶段）已参考 better-t-stack（TypeScript 全栈脚手架）生�
 | 开发里程碑 | 从最小业务系统到可观测性、Mastra（智能体框架）、Source Map（源码映射文件）定位 |
 | 任务拆分 | [docs/task-breakdown.md](docs/task-breakdown.md) 记录 Milestone（里程碑）、任务卡、交付物和验收标准 |
 | M0 闭环 | [docs/issues/M0-project-scaffold.md](docs/issues/M0-project-scaffold.md) 记录项目骨架与治理文件的执行边界 |
-| M0.1 工作流门禁 | [docs/issues/M0.1-workflow-gates.md](docs/issues/M0.1-workflow-gates.md) 记录 hooks（钩子）从 shell 迁移到 TypeScript（类型脚本）的方案 |
-| M0.3 任务交接 | [docs/issues/M0.3-task-handoff-cli.md](docs/issues/M0.3-task-handoff-cli.md) 记录角色交接、任务状态机、测试证据和归档命令 |
-| M0.4 编排助手 | [docs/issues/M0.4-orchestration-assistant.md](docs/issues/M0.4-orchestration-assistant.md) 记录组合命令、模型角色映射、下一步建议和角色提示词 |
-| M0.5 执行者运行时 | [docs/issues/M0.5-actor-runtime.md](docs/issues/M0.5-actor-runtime.md) 记录 Claude Code CLI（命令行工具）调用、角色权限、超时和审计结果 |
-| M0.6 智能体消息总线 | [docs/issues/M0.6-agent-message-bus.md](docs/issues/M0.6-agent-message-bus.md) 记录 Codex 与 Claude Code 的消息投递、回复、归档和测试协商 |
+| M0-11 工作流门禁 | [docs/issues/M0-11-workflow-gates.md](docs/issues/M0-11-workflow-gates.md) 记录 hooks（钩子）从 shell 迁移到 TypeScript（类型脚本）的方案 |
+| M0-12 角色与测试治理 | [docs/issues/M0-12-role-test-governance.md](docs/issues/M0-12-role-test-governance.md) 记录角色职责、测试影响分析和测试修改共识 |
+| M0-13 任务交接 | [docs/issues/M0-13-task-handoff-cli.md](docs/issues/M0-13-task-handoff-cli.md) 记录角色交接、任务状态机、测试证据和归档命令 |
+| M0-14 编排助手 | [docs/issues/M0-14-orchestration-assistant.md](docs/issues/M0-14-orchestration-assistant.md) 记录组合命令、模型角色映射、下一步建议和角色提示词 |
+| M0-15 执行者运行时 | [docs/issues/M0-15-actor-runtime.md](docs/issues/M0-15-actor-runtime.md) 记录 Claude Code CLI（命令行工具）调用、角色权限、超时和审计结果 |
+| M0-16 智能体消息总线 | [docs/issues/M0-16-agent-message-bus.md](docs/issues/M0-16-agent-message-bus.md) 记录 Codex 与 Claude Code 的消息投递、回复、归档和测试协商 |
 | Agent 角色策略 | [docs/workflows/agent-role-policy.md](docs/workflows/agent-role-policy.md) 记录架构、实现、测试、审查和人类批准的职责与交接流程 |
 | 团队责任 | [docs/team-ownership.md](docs/team-ownership.md) 记录 frontend-team（前端团队）、backend-team（后端团队）、ai-agent-team（智能体团队）、sre-team（稳定性团队）和 docs-team（文档团队）边界 |
 | CodeGraph 代码图谱 | [docs/codegraph.md](docs/codegraph.md) 记录 CodeGraph（代码图谱工具）的使用边界和项目约束 |

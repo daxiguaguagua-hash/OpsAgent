@@ -1,8 +1,8 @@
-# M0.5 Actor Runtime 执行者运行时
+# M0-15 Actor Runtime 执行者运行时
 
 ## 1. 目标
 
-M0.5 把 M0.4 生成的 Execution Brief（执行简报）转换为可执行的 Execution Request（执行请求），并通过 Claude Code Adapter（适配器）调用本机 Claude Code CLI（命令行工具）。
+M0-15 把 M0-14 生成的 Execution Brief（执行简报）转换为可执行的 Execution Request（执行请求），并通过 Claude Code Adapter（适配器）调用本机 Claude Code CLI（命令行工具）。
 
 ```mermaid
 flowchart LR
@@ -100,7 +100,7 @@ flowchart TD
   C -->|是| E[人工或 CLI 交接]
 ```
 
-模型进程退出成功不代表任务完成。M0.5 不会：
+模型进程退出成功不代表任务完成。M0-15 不会：
 
 - 自动把 Implementer（实现角色）的结果标记为测试通过。
 - 自动把 Tester（测试角色）的文字报告写成测试证据。

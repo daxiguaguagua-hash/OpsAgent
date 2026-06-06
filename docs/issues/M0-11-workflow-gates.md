@@ -1,8 +1,8 @@
-# M0.1 Workflow Gates 工作流门禁 TS 化
+# M0-11 Workflow Gates 工作流门禁 TS 化
 
 ## 1. 目标
 
-M0.1 的目标是把 Claude Code hooks（钩子）里的复杂判断迁移到 TypeScript（类型脚本），让规则更容易阅读、测试和扩展。
+M0-11 的目标是把 Claude Code hooks（钩子）里的复杂判断迁移到 TypeScript（类型脚本），让规则更容易阅读、测试和扩展。
 
 保留原则：
 
@@ -89,4 +89,3 @@ rm .claude/active-goal
 ## 6. 面试表达
 
 > 我没有把 hook（钩子）规则一直堆在 shell 里，而是把 shell 降级成启动器，把规则迁移到 TypeScript（类型脚本）包里。这样工作流门禁可以被类型检查、可以模块化扩展，也更适合后续让不同 Agent（智能体）遵守同一套工程规则。
-
