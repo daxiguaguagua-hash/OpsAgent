@@ -126,3 +126,28 @@ export interface ExecutionResult {
   costUsd?: number;
   completedAt: string;
 }
+
+export type AgentMessageType =
+  | "task_assignment"
+  | "execution_result"
+  | "test_change_request"
+  | "review_request"
+  | "decision"
+  | "clarification";
+
+export type AgentMessageStatus = "pending" | "read" | "resolved";
+
+export interface AgentMessage {
+  id: string;
+  taskId: string;
+  from: string;
+  to: string;
+  type: AgentMessageType;
+  subject: string;
+  content: string;
+  status: AgentMessageStatus;
+  createdAt: string;
+  updatedAt: string;
+  replyTo?: string;
+  metadata?: Record<string, string | number | boolean>;
+}

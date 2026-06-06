@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpsAgent Agent Message",
+  "type": "object",
+  "required": [
+    "id",
+    "taskId",
+    "from",
+    "to",
+    "type",
+    "subject",
+    "content",
+    "status",
+    "createdAt",
+    "updatedAt"
+  ],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "taskId": { "type": "string", "minLength": 1 },
+    "from": { "type": "string", "minLength": 1 },
+    "to": { "type": "string", "minLength": 1 },
+    "type": {
+      "enum": [
+        "task_assignment",
+        "execution_result",
+        "test_change_request",
+        "review_request",
+        "decision",
+        "clarification"
+      ]
+    },
+    "subject": { "type": "string", "minLength": 1 },
+    "content": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["pending", "read", "resolved"] },
+    "createdAt": { "type": "string" },
+    "updatedAt": { "type": "string" },
+    "replyTo": { "type": "string" },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": {
+        "type": ["string", "number", "boolean"]
+      }
+    }
+  },
+  "additionalProperties": false
+}

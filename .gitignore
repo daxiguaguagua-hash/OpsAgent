@@ -25,6 +25,7 @@ coverage/
 .agent/active-task.json
 .agent/history/
 .agent/executions/
+.agent/messages/
 
 # Logs
 *.log

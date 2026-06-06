@@ -117,6 +117,30 @@ Implementer（实现角色）允许编辑，Tester（测试角色）使用全新
 
 Claude Code + DeepSeek 属于外部模型调用，可能发送任务 Prompt（提示词）和模型主动读取的仓库上下文。运行时默认拒绝，必须由用户明确批准 `--approve-external-data`（批准外部数据传输）。
 
+### 4.6 Agent Message Bus 智能体消息总线
+
+Codex 和 Claude Code 使用异步消息完成澄清、测试修改申请和决策回复：
+
+```mermaid
+flowchart LR
+  A[Codex msg:send] --> B[Claude Inbox 收件箱]
+  B --> C[task:execute 注入 Prompt]
+  C --> D[Claude execution_result]
+  D --> E[Codex Inbox 收件箱]
+  E --> F[Codex msg:reply]
+```
+
+常用命令：
+
+```bash
+pnpm msg:inbox -- codex --unread
+pnpm msg:send -- <taskId> <from> <to> <type> "<subject>" "<content>"
+pnpm msg:reply -- <recipient> <messageId> <from> <type> "<content>"
+pnpm msg:resolve -- <recipient> <messageId>
+```
+
+消息中的决策不能绕过任务状态机。测试修改仍必须通过 `task:test-approve` 形成机器可验证的共识。
+
 ### 4.3 测试用例变更协议
 
 ```mermaid

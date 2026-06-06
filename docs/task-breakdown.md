@@ -102,6 +102,7 @@ flowchart TD
 | M0-13 | 增加任务交接 CLI | sre-team | P0 | 状态机、交接、证据和归档命令 | 非法状态跳跃被阻断 |
 | M0-14 | 增加 Orchestration Assistant 编排助手 | ai-agent-team | P0 | 组合命令和 Execution Brief（执行简报） | 能输出当前模型、下一模型、命令和提示词 |
 | M0-15 | 增加 Actor Runtime 执行者运行时 | ai-agent-team | P0 | 执行者注册表和 Claude Code Adapter（适配器） | 能按角色权限调用本机 Claude Code + DeepSeek 并保存审计结果 |
+| M0-16 | 增加 Agent Message Bus 智能体消息总线 | ai-agent-team | P0 | 收件箱、发件箱、回复和归档 CLI（命令行工具） | Codex 和 Claude Code 能通过任务消息完成异步协商 |
 
 ## 5. M1 最小业务系统
 
