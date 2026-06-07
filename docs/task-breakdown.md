@@ -153,7 +153,7 @@ flowchart TD
 | M2-01 | 后端输出结构化日志 | backend-team | P0 | JSON 日志 | 已完成：日志包含 `traceId`、接口、状态码、耗时和稳定错误码 |
 | M2-02 | 增加 Prometheus 配置 | sre-team | P0 | `observability/prometheus/` | 已完成：Prometheus 可以启动，Target 状态为 `up`，可查询 200 与 500 请求指标 |
 | M2-03 | 增加 Loki 配置 | sre-team | P0 | `observability/loki/`、`observability/alloy/` | 已完成：Alloy 采集 JSONL，Loki ready，可按 `traceId` 查询 500 日志 |
-| M2-04 | 增加 Grafana datasource | sre-team | P0 | `observability/grafana/datasources/` | Grafana 自动接入 Prometheus 和 Loki |
+| M2-04 | 增加 Grafana datasource | sre-team | P0 | `observability/grafana/datasources/` | 已完成：Grafana 自动接入 Prometheus 和 Loki，provisioning 注册数据源 |
 | M2-05 | 增加 OpenTelemetry Collector | sre-team | P1 | `observability/otel/` | 可以接收 Trace（链路追踪） |
 | M2-06 | 增加 Jaeger 或 Tempo | sre-team | P1 | Compose 服务 | 可以查看 Trace（链路追踪） |
 | M2-07 | 增加基础 Dashboard | sre-team | P0 | Grafana dashboard JSON | 展示请求量、错误率、延迟 |

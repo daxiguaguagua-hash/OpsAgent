@@ -16,7 +16,7 @@ OpsAgent 是一个 **AI Ops 智能运维本地演示项目**，基于 Docker Com
 |---|---|---|
 | M0 | 治理框架、多 Agent 工作流、消息总线、任务状态机 | 已完成 |
 | M1 | 最小业务系统（订单 CRUD）与智能体工作流验收 | 已完成 |
-| M2 | 可观测性基础闭环（Prometheus + Loki + Tempo + Grafana） | 进行中（M2-01 结构化日志、M2-02 Prometheus、M2-03 Loki + Alloy 已完成） |
+| M2 | 可观测性基础闭环（Prometheus + Loki + Tempo + Grafana） | 进行中（M2-01 至 M2-04 已完成，Grafana 已自动接入 Prometheus 与 Loki） |
 | M3 | AI 分析 + GBrain RAG 文档知识检索 | 规划中 |
 | M4 | 前端源码定位（Sentry + 简化自研反解） | 规划中 |
 
@@ -39,7 +39,7 @@ pnpm dev:frontend     # turbo -F frontend dev (Vite, 端口 3001)
 pnpm dev:backend      # turbo -F backend dev (Hono, 端口取 env PORT)
 pnpm dev:agent        # turbo -F @opsagent/agent dev
 
-# 基础设施 (PostgreSQL 16 + Redis 7 + Prometheus + Loki + Alloy)
+# 基础设施 (PostgreSQL 16 + Redis 7 + Prometheus + Loki + Alloy + Grafana)
 pnpm infra:up         # docker compose up -d
 pnpm infra:down       # docker compose down
 

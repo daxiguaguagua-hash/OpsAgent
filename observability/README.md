@@ -7,8 +7,10 @@
 | `prometheus/` | Prometheus | 9090 | 指标抓取与存储 |
 | `loki/` | Loki | 3100 | 日志聚合与查询 |
 | `alloy/` | Grafana Alloy | — | 日志采集（替代已 EOL 的 Promtail） |
-| `grafana/` | Grafana | 3000（M2-04） | 统一可视化看板 |
+| `grafana/` | Grafana | 3000 | 统一可视化看板，自动 provisioning 注册 Prometheus 和 Loki 数据源 |
 | `otel/` | OpenTelemetry | — | 采集标准配置（M2-05） |
+
+Grafana 默认语言由 `GRAFANA_DEFAULT_LANGUAGE` 控制，演示配置使用 `zh-Hans`（简体中文）。个人 Profile（个人资料）语言设置优先于全局默认值。
 
 ## Loki + Alloy 日志采集
 
