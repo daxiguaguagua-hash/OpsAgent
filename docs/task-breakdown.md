@@ -170,6 +170,7 @@ flowchart LR
   L[Loki 日志] --> M
   T[Trace 链路追踪] --> M
   G[Git 源码] --> M
+  B[GBrain RAG 共享知识库] --> M
   M --> R[Incident Report 故障报告]
 ```
 
@@ -185,6 +186,22 @@ flowchart LR
 | M3-08 | 设计 Incident Report 模板 | docs-team | P0 | Markdown 模板 | 包含影响范围、证据、根因、建议、人类审核 |
 | M3-09 | 前端展示 AI 分析结果 | frontend-team | P0 | 报告展示组件 | 点击分析后能看到报告 |
 | M3-10 | 输出 Incident Lifecycle（故障生命周期） | ai-agent-team | P1 | 生命周期字段 | 报告能区分发现、诊断、缓解、复盘 |
+| M3-11 | 整理 Agent Knowledge Base（智能体知识库）文档 | docs-team + ai-agent-team | P0 | `docs/architecture/`、`docs/decisions/`、`docs/knowledge/` 等知识目录 | 明确稳定知识、过程记录和历史归档边界，过期文档不会污染默认检索 |
+| M3-12 | 注册 GBrain Sources（数据源） | ai-agent-team | P0 | GBrain 多数据源配置和同步命令 | 可以按文档目录独立同步，并能追踪检索结果来源 |
+| M3-13 | 接入 GBrain MCP（模型上下文协议） | ai-agent-team | P0 | GBrain MCP 接入配置 | Codex 和 Claude Code 能通过受控工具查询同一个项目知识库 |
+| M3-14 | 实现 Agent 执行前 RAG（检索增强生成） | ai-agent-team | P0 | 检索策略和上下文组装逻辑 | 执行者能同时读取任务事实、历史知识和当前代码上下文，且来源边界清晰 |
+| M3-15 | 实现任务完成后的知识沉淀 | ai-agent-team + docs-team | P1 | 任务摘要、架构决策、故障经验写入流程 | 有价值的结论进入 GBrain，原始聊天噪声不会直接进入知识库 |
+| M3-16 | 建立 RAG Evaluation（检索评估）与引用审计 | qa-team + ai-agent-team | P1 | 项目问题集、命中率记录和来源引用 | 检索结果可复现、可追溯，并能验证中文项目文档的召回质量 |
+
+GBrain 接入边界：
+
+| 系统 | 负责内容 | 不负责内容 |
+|---|---|---|
+| OpsAgent PostgreSQL（数据库） | 任务、消息、审批、测试证据等权威运行状态 | 不承担模糊语义检索 |
+| GBrain + PostgreSQL + pgvector（向量扩展） | 架构决策、工作流、故障经验和任务摘要的混合检索 | 不作为任务状态的事实来源 |
+| CodeGraph（代码图谱） | 当前源码符号、调用关系和变更影响分析 | 不替代历史知识库 |
+
+M3-11 至 M3-16 在 M2 验收完成后启动。M2 期间只记录方案，不提前迁移文档或接入 GBrain，避免扩大当前里程碑范围。
 
 ## 8. M4 Sentry 与 Source Map 前端源码定位
 
