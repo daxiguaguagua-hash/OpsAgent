@@ -16,7 +16,7 @@ OpsAgent 是一个 **AI Ops 智能运维本地演示项目**，基于 Docker Com
 |---|---|---|
 | M0 | 治理框架、多 Agent 工作流、消息总线、任务状态机 | 已完成 |
 | M1 | 最小业务系统（订单 CRUD）与智能体工作流验收 | 已完成 |
-| M2 | 可观测性基础闭环（Prometheus + Loki + Tempo + Grafana） | 进行中（M2-01 结构化日志已完成；M2-02 Prometheus 已上线） |
+| M2 | 可观测性基础闭环（Prometheus + Loki + Tempo + Grafana） | 进行中（M2-01 结构化日志、M2-02 Prometheus、M2-03 Loki + Alloy 已完成） |
 | M3 | AI 分析 + GBrain RAG 文档知识检索 | 规划中 |
 | M4 | 前端源码定位（Sentry + 简化自研反解） | 规划中 |
 
@@ -39,7 +39,7 @@ pnpm dev:frontend     # turbo -F frontend dev (Vite, 端口 3001)
 pnpm dev:backend      # turbo -F backend dev (Hono, 端口取 env PORT)
 pnpm dev:agent        # turbo -F @opsagent/agent dev
 
-# 基础设施 (PostgreSQL 16 + Redis 7 + Prometheus)
+# 基础设施 (PostgreSQL 16 + Redis 7 + Prometheus + Loki + Alloy)
 pnpm infra:up         # docker compose up -d
 pnpm infra:down       # docker compose down
 
@@ -94,10 +94,10 @@ pnpm task:close                                  # 归档任务
 pnpm msg:send -- <任务ID> <from> <to> <类型> "<主题>" "<内容>"
 pnpm msg:inbox -- <actor名>                       # 查看收件箱
 pnpm msg:outbox -- <actor名>                      # 查看发件箱
-pnpm msg:show -- <消息ID>                         # 查看消息详情
-pnpm msg:read -- <消息ID>                         # 标记已读
-pnpm msg:reply -- <消息ID> "<回复内容>"            # 回复消息
-pnpm msg:resolve -- <消息ID>                      # 标记已解决
+pnpm msg:show -- <接收者> <消息ID>                # 查看消息详情
+pnpm msg:read -- <接收者> <消息ID>                # 标记已读
+pnpm msg:reply -- <接收者> <消息ID> <发送者> <类型> "<回复内容>" # 回复消息
+pnpm msg:resolve -- <接收者> <消息ID>             # 标记已解决
 ```
 
 ### 单包命令
@@ -215,7 +215,7 @@ Sentry 不在 M2 范围，将在 M4 接入，用于前端异常聚合、Release 
 ### 环境变量
 
 在 `packages/env/` 中定义和校验：
-- **服务端** (`packages/env/src/server.ts`)：`PORT`、`DATABASE_URL`、`REDIS_URL`、`CORS_ORIGIN`、`MODEL_PROVIDER`、`OLLAMA_MODEL`、`NODE_ENV`
+- **服务端** (`packages/env/src/server.ts`)：`PORT`、`DATABASE_URL`、`REDIS_URL`、`CORS_ORIGIN`、`MODEL_PROVIDER`、`OLLAMA_MODEL`、`NODE_ENV`、`LOG_FILE_PATH`
 - **前端** (`packages/env/src/web.ts`)：`VITE_SERVER_URL`（前缀 `VITE_`）
 
 根目录 `.env.example` 展示了期望的变量结构。后端需要 `.env`（复制 `.env.example` 到 `apps/backend/.env`），前端同理。

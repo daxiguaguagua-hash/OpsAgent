@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 
 import type { Order } from "@opsagent/db/schema";
@@ -22,7 +25,11 @@ import {
 import { DEMO_BUSINESS } from "./business/constants";
 import type { DemoService } from "./business/demo";
 import { PROMETHEUS } from "./observability/constants";
-import type { LogEntry, LogSink } from "./observability/logger";
+import {
+  createRuntimeLogSink,
+  type LogEntry,
+  type LogSink,
+} from "./observability/logger";
 import {
   httpRequestsTotal,
   httpRequestDurationSeconds,
@@ -287,6 +294,48 @@ test("error log for 400 includes stable errorCode", async () => {
   assert.equal(entry.level, "ERROR");
   assert.equal(entry.statusCode, 400);
   assert.equal(entry.errorCode, API_ERROR_CODE.INVALID_ORDER_INPUT);
+});
+
+test("runtime log sink keeps console output when file logging is disabled", () => {
+  const lines: string[] = [];
+  const sink = createRuntimeLogSink(
+    undefined,
+    (message) => lines.push(message),
+  );
+
+  sink("{\"status\":\"ok\"}");
+
+  assert.deepEqual(lines, ["{\"status\":\"ok\"}"]);
+});
+
+test("runtime log sink creates a JSONL file and keeps console output", async () => {
+  const directory = mkdtempSync(join(tmpdir(), "opsagent-logs-"));
+  const filePath = join(directory, "nested", "backend.jsonl");
+  const consoleLines: string[] = [];
+
+  try {
+    const sink = createRuntimeLogSink(
+      filePath,
+      (message) => consoleLines.push(message),
+    );
+    const app = createApp(createFakeOrderService(), undefined, sink);
+
+    await app.request(OPS_API_ROUTE.DEMO_FAIL_500, {
+      method: OPS_HTTP_METHOD.POST,
+    });
+
+    const fileLines = readFileSync(filePath, "utf8").trim().split("\n");
+    assert.equal(fileLines.length, 1);
+    assert.deepEqual(consoleLines, fileLines);
+
+    const entry = JSON.parse(fileLines[0] ?? "") as LogEntry;
+    assert.equal(entry.statusCode, HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    assert.equal(entry.errorCode, API_ERROR_CODE.DEMO_FORCED_FAILURE);
+    assert.equal(fileLines[0]?.includes("stack"), false);
+    assert.equal(fileLines[0]?.includes("authorization"), false);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
 });
 
 test("metrics endpoint returns Prometheus text with expected metric names", async () => {

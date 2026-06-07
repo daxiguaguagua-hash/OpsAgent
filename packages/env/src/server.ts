@@ -11,6 +11,7 @@ export const env = createEnv({
     MODEL_PROVIDER: z.enum(["openai", "ollama", "mock"]).default("mock"),
     OLLAMA_MODEL: z.string().default("qwen2.5-coder:14b"),
     NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+    LOG_FILE_PATH: z.string().min(1).optional(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

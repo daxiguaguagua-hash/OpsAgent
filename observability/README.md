@@ -1,6 +1,29 @@
 # Observability 可观测性
 
-这里后续放 Prometheus（指标系统）、Loki（日志系统）、Grafana（可视化看板）和 OpenTelemetry（可观测性采集标准）配置。
+## 组件
 
-M0 只保留目录入口，M2 再接入真实配置。
+| 目录 | 组件 | 端口 | 用途 |
+|---|---|---|---|
+| `prometheus/` | Prometheus | 9090 | 指标抓取与存储 |
+| `loki/` | Loki | 3100 | 日志聚合与查询 |
+| `alloy/` | Grafana Alloy | — | 日志采集（替代已 EOL 的 Promtail） |
+| `grafana/` | Grafana | 3000（M2-04） | 统一可视化看板 |
+| `otel/` | OpenTelemetry | — | 采集标准配置（M2-05） |
 
+## Loki + Alloy 日志采集
+
+Backend 配置 `LOG_FILE_PATH=../../logs/backend.jsonl` 后，同时输出控制台和仓库根目录的 JSONL 文件；未配置时只输出控制台。Turbo 在 `apps/backend` 工作目录运行后端，因此相对路径以该目录为基准。Grafana Alloy 容器挂载根目录 `./logs` 并 tail（持续追踪）日志文件，推送到 Loki。
+
+### 查询示例
+
+Loki 运行在 `http://localhost:3100`，使用 LogQL 查询：
+
+```logql
+{service_name="opsagent-backend"} | json | statusCode = 500
+```
+
+按 traceId 查询：
+
+```logql
+{service_name="opsagent-backend"} | json | traceId = "opsagent-xxx"
+```

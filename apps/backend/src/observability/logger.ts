@@ -1,3 +1,5 @@
+import { appendFileSync, mkdirSync } from "node:fs";
+import { dirname } from "node:path";
 import { randomUUID } from "node:crypto";
 import type { Context, Next } from "hono";
 
@@ -73,5 +75,38 @@ function createStructuredLogger(sink: LogSink = console.log) {
   };
 }
 
-export { createStructuredLogger, generateTraceId, resolveTraceId };
+function createFileLogSink(filePath: string): LogSink {
+  mkdirSync(dirname(filePath), { recursive: true });
+  return (message: string) => {
+    appendFileSync(filePath, `${message}\n`);
+  };
+}
+
+function createRuntimeLogSink(
+  filePath?: string,
+  consoleSink: LogSink = console.log,
+  warningSink: LogSink = console.warn,
+): LogSink {
+  if (!filePath) {
+    return consoleSink;
+  }
+
+  const fileSink = createFileLogSink(filePath);
+  return (message: string) => {
+    consoleSink(message);
+    try {
+      fileSink(message);
+    } catch {
+      warningSink(`Failed to write structured log to ${filePath}`);
+    }
+  };
+}
+
+export {
+  createFileLogSink,
+  createRuntimeLogSink,
+  createStructuredLogger,
+  generateTraceId,
+  resolveTraceId,
+};
 export type { LogEntry, LogSink };
