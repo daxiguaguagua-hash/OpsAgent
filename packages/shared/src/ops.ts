@@ -14,6 +14,7 @@ export const OPS_HTTP_METHOD = {
 export const OPS_HTTP_HEADER = {
   CONTENT_TYPE: "content-type",
   APPLICATION_JSON: "application/json",
+  TRACE_ID: "x-trace-id",
 } as const;
 
 export const OPS_SERVICE_STATUS = {

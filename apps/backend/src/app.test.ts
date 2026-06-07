@@ -4,6 +4,7 @@ import test from "node:test";
 import type { Order } from "@opsagent/db/schema";
 import {
   OPS_API_ROUTE,
+  OPS_HTTP_HEADER,
   OPS_HTTP_METHOD,
   OPS_SERVICE_STATUS,
   type OrderHealthDto,
@@ -20,6 +21,7 @@ import {
 } from "./http/constants";
 import { DEMO_BUSINESS } from "./business/constants";
 import type { DemoService } from "./business/demo";
+import type { LogEntry, LogSink } from "./observability/logger";
 
 const FIXTURE_ORDER: Order = {
   id: 1,
@@ -39,6 +41,13 @@ const FIXTURE_HEALTH: OrderHealthDto = {
   },
   orderCount: 1,
 };
+
+function requireSingleLogLine(lines: string[]): string {
+  assert.equal(lines.length, 1, "exactly one log line per request");
+  const line = lines[0];
+  assert.ok(line, "structured log line must be present");
+  return line;
+}
 
 function createFakeOrderService(): OrderService {
   const storedOrders = [FIXTURE_ORDER];
@@ -157,4 +166,142 @@ test("slow endpoint delegates the configured delay", async () => {
   assert.equal(body.status, OPS_SERVICE_STATUS.COMPLETED);
   assert.equal(body.configuredDelayMs, DEMO_BUSINESS.SLOW_DELAY_MS);
   assert.equal(body.thresholdMs, DEMO_BUSINESS.SLOW_THRESHOLD_MS);
+});
+
+test("response includes trace ID header on success", async () => {
+  const response = await createApp(createFakeOrderService()).request(
+    OPS_API_ROUTE.ORDER_HEALTH,
+  );
+
+  const traceId = response.headers.get(OPS_HTTP_HEADER.TRACE_ID);
+  assert.ok(traceId, "trace ID header must be present");
+  assert.ok(
+    traceId.startsWith("opsagent-"),
+    "trace ID must have opsagent prefix",
+  );
+});
+
+test("structured log output is parseable JSON with required fields", async () => {
+  const lines: string[] = [];
+  const sink: LogSink = (message) => {
+    lines.push(message);
+  };
+
+  const app = createApp(createFakeOrderService(), undefined, sink);
+  await app.request(OPS_API_ROUTE.ORDER_HEALTH);
+
+  const entry = JSON.parse(requireSingleLogLine(lines)) as LogEntry;
+
+  assert.equal(typeof entry.timestamp, "string");
+  assert.equal(entry.level, "INFO");
+  assert.equal(typeof entry.traceId, "string");
+  assert.ok(entry.traceId.startsWith("opsagent-"));
+  assert.equal(entry.method, "GET");
+  assert.equal(entry.route, OPS_API_ROUTE.ORDER_HEALTH);
+  assert.equal(entry.statusCode, 200);
+  assert.equal(typeof entry.durationMs, "number");
+  assert.equal(entry.errorCode, undefined);
+});
+
+test("trace ID is inherited from incoming request header", async () => {
+  const lines: string[] = [];
+  const sink: LogSink = (message) => {
+    lines.push(message);
+  };
+  const upstreamTraceId = "upstream-abc-123";
+
+  const app = createApp(createFakeOrderService(), undefined, sink);
+  const response = await app.request(OPS_API_ROUTE.ORDER_HEALTH, {
+    headers: { [OPS_HTTP_HEADER.TRACE_ID]: upstreamTraceId },
+  });
+
+  assert.equal(
+    response.headers.get(OPS_HTTP_HEADER.TRACE_ID),
+    upstreamTraceId,
+  );
+  const entry = JSON.parse(requireSingleLogLine(lines)) as LogEntry;
+  assert.equal(entry.traceId, upstreamTraceId);
+});
+
+test("invalid incoming trace ID is replaced with a generated ID", async () => {
+  const lines: string[] = [];
+  const app = createApp(
+    createFakeOrderService(),
+    undefined,
+    (message) => lines.push(message),
+  );
+
+  const response = await app.request(OPS_API_ROUTE.ORDER_HEALTH, {
+    headers: { [OPS_HTTP_HEADER.TRACE_ID]: "invalid trace id" },
+  });
+  const traceId = response.headers.get(OPS_HTTP_HEADER.TRACE_ID);
+
+  assert.ok(traceId?.startsWith("opsagent-"));
+  assert.notEqual(traceId, "invalid trace id");
+  const entry = JSON.parse(requireSingleLogLine(lines)) as LogEntry;
+  assert.equal(entry.traceId, traceId);
+});
+
+test("error log for 500 includes errorCode without stack or sensitive data", async () => {
+  const lines: string[] = [];
+  const sink: LogSink = (message) => {
+    lines.push(message);
+  };
+
+  const app = createApp(createFakeOrderService(), undefined, sink);
+  await app.request(OPS_API_ROUTE.DEMO_FAIL_500, {
+    method: OPS_HTTP_METHOD.POST,
+  });
+
+  const raw = requireSingleLogLine(lines);
+  const entry = JSON.parse(raw) as LogEntry;
+  assert.equal(entry.level, "ERROR");
+  assert.equal(entry.statusCode, 500);
+  assert.equal(entry.errorCode, API_ERROR_CODE.DEMO_FORCED_FAILURE);
+
+  assert.equal(raw.includes("stack"), false);
+  assert.equal(raw.includes("authorization"), false);
+  assert.equal(raw.includes("cookie"), false);
+});
+
+test("error log for 400 includes stable errorCode", async () => {
+  const lines: string[] = [];
+  const sink: LogSink = (message) => {
+    lines.push(message);
+  };
+
+  const app = createApp(createFakeOrderService(), undefined, sink);
+  await app.request(OPS_API_ROUTE.ORDERS, {
+    method: OPS_HTTP_METHOD.POST,
+    body: JSON.stringify({ customerName: "", totalCents: 0 }),
+    headers: { "content-type": "application/json" },
+  });
+
+  const entry = JSON.parse(requireSingleLogLine(lines)) as LogEntry;
+  assert.equal(entry.level, "ERROR");
+  assert.equal(entry.statusCode, 400);
+  assert.equal(entry.errorCode, API_ERROR_CODE.INVALID_ORDER_INPUT);
+});
+
+test("unexpected errors use a stable code without leaking exception details", async () => {
+  const lines: string[] = [];
+  const failingOrders = createFakeOrderService();
+  failingOrders.checkHealth = async () => {
+    throw new Error("database password must remain private");
+  };
+  const app = createApp(
+    failingOrders,
+    undefined,
+    (message) => lines.push(message),
+  );
+
+  const response = await app.request(OPS_API_ROUTE.ORDER_HEALTH);
+  const raw = requireSingleLogLine(lines);
+  const entry = JSON.parse(raw) as LogEntry;
+
+  assert.equal(response.status, HTTP_STATUS.INTERNAL_SERVER_ERROR);
+  assert.equal(entry.level, "ERROR");
+  assert.equal(entry.errorCode, API_ERROR_CODE.INTERNAL_SERVER_ERROR);
+  assert.equal(raw.includes("database password"), false);
+  assert.equal(raw.includes("stack"), false);
 });

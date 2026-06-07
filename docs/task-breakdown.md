@@ -150,7 +150,7 @@ flowchart TD
 
 | 任务 ID | 任务 | 负责人 | 优先级 | 交付物 | 验收标准 |
 |---|---|---|---:|---|---|
-| M2-01 | 后端输出结构化日志 | backend-team | P0 | JSON 日志 | 日志包含 `traceId`、接口、状态码、耗时 |
+| M2-01 | 后端输出结构化日志 | backend-team | P0 | JSON 日志 | 已完成：日志包含 `traceId`、接口、状态码、耗时和稳定错误码 |
 | M2-02 | 增加 Prometheus 配置 | sre-team | P0 | `observability/prometheus/` | Prometheus 可以启动并抓取指标 |
 | M2-03 | 增加 Loki 配置 | sre-team | P0 | `observability/loki/` | Loki 可以接收日志 |
 | M2-04 | 增加 Grafana datasource | sre-team | P0 | `observability/grafana/datasources/` | Grafana 自动接入 Prometheus 和 Loki |

@@ -87,6 +87,11 @@ pnpm msg:resolve -- <消息ID>                      # 标记已解决
 ```bash
 pnpm -F frontend build
 pnpm -F @opsagent/db db:push
+
+# 单包测试和类型检查
+pnpm -F backend test
+pnpm -F @opsagent/db test
+pnpm -F backend check-types
 ```
 
 ### 验证命令
@@ -105,6 +110,7 @@ apps/backend/     → Hono HTTP 服务 + tRPC 端点
   src/business/   → 业务服务层（orders.ts、demo.ts）—— 每个子目录有独立的 constants.ts
   src/cache/      → Redis 缓存客户端（懒加载单例）
   src/http/       → HTTP 路由常量、状态码、错误类
+  src/observability/ → JSON 请求日志、traceId 传播和可注入日志出口
 apps/frontend/    → React 19 + TanStack Router + Tailwind v4 + tRPC 客户端
   src/lib/        → 前端业务逻辑（opsApi.ts API 客户端、constants.ts）
 packages/api/     → tRPC 路由定义（前后端共享类型）

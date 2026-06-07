@@ -9,7 +9,8 @@ import {
 } from "@opsagent/shared";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { logger } from "hono/logger";
+import { createStructuredLogger } from "./observability/logger";
+import type { LogSink } from "./observability/logger";
 
 import {
   createOrderInputSchema,
@@ -32,10 +33,11 @@ import { DemoForcedFailureError } from "./http/errors";
 export function createApp(
   orders: OrderService = orderService,
   demo: DemoService = demoService,
+  logSink: LogSink = console.log,
 ) {
   const app = new Hono();
 
-  app.use(logger());
+  app.use(createStructuredLogger(logSink));
   app.use(
     "/*",
     cors({
@@ -72,6 +74,7 @@ export function createApp(
     const input = createOrderInputSchema.safeParse(await context.req.json());
 
     if (!input.success) {
+      context.set("errorCode", API_ERROR_CODE.INVALID_ORDER_INPUT);
       return context.json(
         {
           error: {
@@ -105,6 +108,7 @@ export function createApp(
 
   app.onError((error, context) => {
     if (error instanceof DemoForcedFailureError) {
+      context.set("errorCode", error.code);
       return context.json(
         {
           error: {
@@ -116,7 +120,7 @@ export function createApp(
       );
     }
 
-    console.error(error);
+    context.set("errorCode", API_ERROR_CODE.INTERNAL_SERVER_ERROR);
     return context.json(
       {
         error: {
