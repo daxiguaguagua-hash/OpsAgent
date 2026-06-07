@@ -21,7 +21,13 @@ import {
 } from "./http/constants";
 import { DEMO_BUSINESS } from "./business/constants";
 import type { DemoService } from "./business/demo";
+import { PROMETHEUS } from "./observability/constants";
 import type { LogEntry, LogSink } from "./observability/logger";
+import {
+  httpRequestsTotal,
+  httpRequestDurationSeconds,
+  METRICS_ROUTE,
+} from "./observability/metrics";
 
 const FIXTURE_ORDER: Order = {
   id: 1,
@@ -281,6 +287,80 @@ test("error log for 400 includes stable errorCode", async () => {
   assert.equal(entry.level, "ERROR");
   assert.equal(entry.statusCode, 400);
   assert.equal(entry.errorCode, API_ERROR_CODE.INVALID_ORDER_INPUT);
+});
+
+test("metrics endpoint returns Prometheus text with expected metric names", async () => {
+  const app = createApp(createFakeOrderService());
+  const response = await app.request(METRICS_ROUTE);
+
+  assert.equal(response.status, 200);
+  assert.equal(
+    response.headers.get("content-type"),
+    PROMETHEUS.CONTENT_TYPE,
+  );
+
+  const body = await response.text();
+  assert.ok(
+    body.includes(PROMETHEUS.METRIC_NAME.HTTP_REQUESTS_TOTAL),
+    "includes counter",
+  );
+  assert.ok(
+    body.includes(PROMETHEUS.METRIC_NAME.HTTP_REQUEST_DURATION_SECONDS),
+    "includes histogram",
+  );
+});
+
+test("http_requests_total increments after a backend request", async () => {
+  const app = createApp(createFakeOrderService());
+
+  const response = await app.request(OPS_API_ROUTE.ORDER_HEALTH);
+
+  const metric = await httpRequestsTotal.get();
+  const matching = metric.values.find(
+    (v) =>
+      v.labels.method === OPS_HTTP_METHOD.GET
+      && v.labels.route === OPS_API_ROUTE.ORDER_HEALTH
+      && v.labels.status_code === String(response.status),
+  );
+
+  assert.ok(matching, "counter has entry for the health check request");
+  assert.ok(matching.value >= 1, "counter value is at least 1");
+});
+
+test("http_request_duration_seconds records duration after a request", async () => {
+  const app = createApp(createFakeOrderService());
+
+  const response = await app.request(OPS_API_ROUTE.ORDER_HEALTH);
+
+  const metric = await httpRequestDurationSeconds.get();
+  const matching = metric.values.find(
+    (v) =>
+      v.labels.method === OPS_HTTP_METHOD.GET
+      && v.labels.route === OPS_API_ROUTE.ORDER_HEALTH
+      && v.labels.status_code === String(response.status),
+  );
+
+  assert.ok(matching, "histogram has entry for the health check request");
+  assert.ok(typeof matching.value === "number");
+});
+
+test("http_requests_total records 500 error requests with correct labels", async () => {
+  const app = createApp(createFakeOrderService());
+
+  const response = await app.request(OPS_API_ROUTE.DEMO_FAIL_500, {
+    method: OPS_HTTP_METHOD.POST,
+  });
+
+  const metric = await httpRequestsTotal.get();
+  const matching = metric.values.find(
+    (v) =>
+      v.labels.method === OPS_HTTP_METHOD.POST
+      && v.labels.route === OPS_API_ROUTE.DEMO_FAIL_500
+      && v.labels.status_code === String(response.status),
+  );
+
+  assert.ok(matching, "counter has entry for the 500 fail request");
+  assert.ok(matching.value >= 1, "counter value is at least 1");
 });
 
 test("unexpected errors use a stable code without leaking exception details", async () => {

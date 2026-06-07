@@ -8,6 +8,18 @@ OpsAgent 是一个 **AI Ops 智能运维本地演示项目**，基于 Docker Com
 
 基于 [better-t-stack](https://www.better-t-stack.dev/) v3.31.1 脚手架生成。`bts.jsonc` 记录了完整的 `create-better-t-stack` 命令。
 
+## 里程碑路线图
+
+当前阶段由 `.claude/active-goal` 控制（当前：**M2**）。
+
+| 里程碑 | 内容 | 状态 |
+|---|---|---|
+| M0 | 治理框架、多 Agent 工作流、消息总线、任务状态机 | 已完成 |
+| M1 | 最小业务系统（订单 CRUD）与智能体工作流验收 | 已完成 |
+| M2 | 可观测性基础闭环（Prometheus + Loki + Tempo + Grafana） | 进行中（M2-01 结构化日志已完成；M2-02 Prometheus 已上线） |
+| M3 | AI 分析 + GBrain RAG 文档知识检索 | 规划中 |
+| M4 | 前端源码定位（Sentry + 简化自研反解） | 规划中 |
+
 ## 大仓常用命令
 
 所有命令在仓库根目录执行，包管理器为 `pnpm@10.33.2`。
@@ -18,12 +30,16 @@ pnpm build            # 构建所有包和应用
 pnpm test             # 运行所有测试 (turbo test)
 pnpm check-types      # 对所有包做类型检查
 
+# 单包测试（各包使用自身配置的测试运行器）
+pnpm -F backend test
+pnpm -F @opsagent/db test
+
 # 单应用开发
 pnpm dev:frontend     # turbo -F frontend dev (Vite, 端口 3001)
 pnpm dev:backend      # turbo -F backend dev (Hono, 端口取 env PORT)
 pnpm dev:agent        # turbo -F @opsagent/agent dev
 
-# 基础设施 (PostgreSQL 16 + Redis 7)
+# 基础设施 (PostgreSQL 16 + Redis 7 + Prometheus)
 pnpm infra:up         # docker compose up -d
 pnpm infra:down       # docker compose down
 
@@ -41,6 +57,8 @@ pnpm db:watch         # 监听 schema 变化自动推送
 ### 任务工作流 CLI
 
 `packages/workflow-gates/` 提供多角色任务管理命令，任务数据存储在 `.agent/` 目录：
+
+> 所有 `task:*` 和 `msg:*` 命令通过 `node --experimental-strip-types` 直接运行 TypeScript 源码，无需预编译。
 
 ```bash
 # 创建和定义当前任务
@@ -61,6 +79,7 @@ pnpm task:execute -- --approve-external-data     # 执行当前角色；外部�
 
 # 查看和关闭
 pnpm task:show                                   # 查看当前任务详情
+pnpm task:status -- <目标状态>                   # 手动推进到指定合法状态
 pnpm task:next                                   # 查看下一角色和建议命令
 pnpm task:evidence -- <证据描述>                 # 附加测试证据
 pnpm task:validate                               # 校验当前任务门禁
@@ -104,13 +123,15 @@ pnpm compose:config                     # 校验 docker-compose.yml 语法
 
 ## 架构
 
+本项目已初始化 `.codegraph/`（基于 tree-sitter AST 的代码索引）。查找符号、追踪调用链、分析变更影响时，优先使用 `codegraph_*` MCP 工具，不要以 grep/Read 起步。详细规则见 `docs/codegraph.md` 和用户级 `CLAUDE.md`。
+
 ```
 apps/agent/       → Mastra AI Agent（仅做 mock 冒烟测试）
 apps/backend/     → Hono HTTP 服务 + tRPC 端点
   src/business/   → 业务服务层（orders.ts、demo.ts）—— 每个子目录有独立的 constants.ts
   src/cache/      → Redis 缓存客户端（懒加载单例）
   src/http/       → HTTP 路由常量、状态码、错误类
-  src/observability/ → JSON 请求日志、traceId 传播和可注入日志出口
+  src/observability/ → 结构化 JSON 日志、traceId 传播、Prometheus 指标（prom-client Counter + Histogram）
 apps/frontend/    → React 19 + TanStack Router + Tailwind v4 + tRPC 客户端
   src/lib/        → 前端业务逻辑（opsApi.ts API 客户端、constants.ts）
 packages/api/     → tRPC 路由定义（前后端共享类型）
@@ -122,7 +143,7 @@ packages/shared/  → 共享类型：IncidentReport、Evidence、Recommendation�
 packages/ui/      → shadcn/ui 组件 + Tailwind v4 + CVA
 packages/config/         → 共享 tsconfig.base.json
 packages/workflow-gates/ → 多角色任务状态机、消息总线、Actor 运行时、编排引擎
-observability/           → Prometheus/Loki/Grafana/OTel 配置（仅占位目录）
+observability/           → Prometheus/Loki/Tempo/Grafana/OTel 配置（M2 建设中）
 ```
 
 ### 多 Agent 工作流层
@@ -162,6 +183,28 @@ observability/           → Prometheus/Loki/Grafana/OTel 配置（仅占位目�
                      │
                      └──→ LLM (Ollama 本地 / OpenAI 云端 / mock) → IncidentReport 故障报告
 ```
+
+### 可观测性组件职责（M2）
+
+| 组件 | 角色 | 回答的问题 |
+|---|---|---|
+| Prometheus | 指标存储 | 问题是否发生、影响多大（请求量、错误率、延迟） |
+| Loki | 日志存储 | 某次请求具体发生了什么（路由、状态码、traceId） |
+| Tempo | 链路存储 | 请求慢或失败在哪个步骤（HTTP/DB/Redis 各自耗时） |
+| Grafana | 统一查询与可视化 | 跨数据源看板、Explore 查询、告警 |
+| OpenTelemetry | 采集标准 | 应用埋点 SDK，产生 traces/metrics/logs |
+
+Sentry 不在 M2 范围，将在 M4 接入，用于前端异常聚合、Release 关联和 Source Map 反解。
+
+### 三层知识系统边界
+
+| 系统 | 回答的问题 |
+|---|---|
+| OpsAgent PostgreSQL | 当前任务真实处于什么状态？ |
+| CodeGraph（`.codegraph/`） | 当前代码在哪里、如何调用、修改会影响什么？ |
+| GBrain（M3 接入） | 以前做过什么决定、遇到过什么问题？ |
+
+三者职责不重叠。GBrain 负责历史知识检索（M3），不取代 PostgreSQL 的任务权威状态，也不取代 CodeGraph 的源码结构查询。
 
 ### tRPC 设置
 
@@ -253,13 +296,33 @@ Task Status（任务状态）、Role（角色）、Actor ID（执行者标识）
 
 新增领域值时必须先复用或扩展统一定义。详细规则见 `docs/workflows/agent-execution-workflow.md` 的 TypeScript 领域字符串规范。
 
+### 选择性 TDD 与测试治理
+
+本项目采用选择性 TDD，不同场景策略不同：
+
+| 场景 | 策略 |
+|---|---|
+| 业务规则、状态机、数据转换 | 优先 TDD（先写失败测试） |
+| Bug 修复 | 先写复现 Bug 的失败测试 |
+| Workflow Gate（工作流门禁） | 优先 TDD |
+| 探索性 UI | 先实现，再补行为测试 |
+| Docker / 第三方集成 | 先做 spike，再补集成测试 |
+
+**测试修改需经 Codex（test-strategist）批准：**
+- 新增或修改任务时，Codex 必须同步判断测试影响（`task:test-impact`）
+- 如果业务代码实现者认为已有测试需要修改，必须标记 `action: update` 并与 Codex 协商
+- **测试失败不等于测试应该被修改**：优先判断需求是否变化；需求未变时修业务代码，需求变化后由 Codex 与实现者确认新合同
+- 未达成共识前任务不得进入审查或完成状态
+
 ## CI / Docker Compose 校验
 
 ```bash
 pnpm compose:config   # 校验 docker-compose.yml 语法
 ```
 
-Docker Compose 启动 PostgreSQL 16 和 Redis 7，含健康检查。卷已命名且持久化。
+Docker Compose 启动 PostgreSQL 16、Redis 7 和 Prometheus，含健康检查。卷已命名且持久化。
+
+Prometheus 抓取后端 `:8000/metrics` 端点，指标由 `prom-client` 库直接暴露（Counter `http_requests_total` + Histogram `http_request_duration_seconds`），当前不经过 OpenTelemetry Collector。
 
 ## 文档
 

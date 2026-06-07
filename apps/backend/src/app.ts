@@ -9,8 +9,14 @@ import {
 } from "@opsagent/shared";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { PROMETHEUS } from "./observability/constants";
 import { createStructuredLogger } from "./observability/logger";
 import type { LogSink } from "./observability/logger";
+import {
+  createMetricsMiddleware,
+  getMetricsContent,
+  METRICS_ROUTE,
+} from "./observability/metrics";
 
 import {
   createOrderInputSchema,
@@ -38,6 +44,7 @@ export function createApp(
   const app = new Hono();
 
   app.use(createStructuredLogger(logSink));
+  app.use(createMetricsMiddleware());
   app.use(
     "/*",
     cors({
@@ -60,6 +67,13 @@ export function createApp(
 
   app.get(HTTP_ROUTE.ROOT, (context) => {
     return context.text(API_MESSAGE.ROOT);
+  });
+
+  app.get(METRICS_ROUTE, async () => {
+    const body = await getMetricsContent();
+    return new Response(body, {
+      headers: { "content-type": PROMETHEUS.CONTENT_TYPE },
+    });
   });
 
   app.get(OPS_API_ROUTE.ORDER_HEALTH, async (context) => {
