@@ -16,7 +16,7 @@ OpsAgent 是一个 **AI Ops 智能运维本地演示项目**，基于 Docker Com
 |---|---|---|
 | M0 | 治理框架、多 Agent 工作流、消息总线、任务状态机 | 已完成 |
 | M1 | 最小业务系统（订单 CRUD）与智能体工作流验收 | 已完成 |
-| M2 | 可观测性基础闭环（Prometheus + Loki + Tempo + Grafana） | 进行中（M2-01 至 M2-04 已完成，Grafana 已自动接入 Prometheus 与 Loki） |
+| M2 | 可观测性基础闭环（Prometheus + Loki + Tempo + Grafana） | 进行中（M2-01 至 M2-05 已完成；M2-06 将接入 Tempo 持久化 Trace） |
 | M3 | AI 分析 + GBrain RAG 文档知识检索 | 规划中 |
 | M4 | 前端源码定位（Sentry + 简化自研反解） | 规划中 |
 
@@ -131,7 +131,7 @@ apps/backend/     → Hono HTTP 服务 + tRPC 端点
   src/business/   → 业务服务层（orders.ts、demo.ts）—— 每个子目录有独立的 constants.ts
   src/cache/      → Redis 缓存客户端（懒加载单例）
   src/http/       → HTTP 路由常量、状态码、错误类
-  src/observability/ → 结构化 JSON 日志、traceId 传播、Prometheus 指标（prom-client Counter + Histogram）
+  src/observability/ → 结构化 JSON 日志、OpenTelemetry Trace、traceId 关联、Prometheus 指标
 apps/frontend/    → React 19 + TanStack Router + Tailwind v4 + tRPC 客户端
   src/lib/        → 前端业务逻辑（opsApi.ts API 客户端、constants.ts）
 packages/api/     → tRPC 路由定义（前后端共享类型）
@@ -194,6 +194,8 @@ observability/           → Prometheus/Loki/Tempo/Grafana/OTel 配置（M2 建�
 | Grafana | 统一查询与可视化 | 跨数据源看板、Explore 查询、告警 |
 | OpenTelemetry | 采集标准 | 应用埋点 SDK，产生 traces/metrics/logs |
 
+Backend 使用 OTLP/HTTP 向 `http://localhost:4318/v1/traces` 发送 Trace。日志中的 `traceId` 与请求 Span 的 OpenTelemetry traceId 一致。M2-05 的 Collector 使用 debug exporter，M2-06 再接 Tempo 持久化。
+
 Sentry 不在 M2 范围，将在 M4 接入，用于前端异常聚合、Release 关联和 Source Map 反解。
 
 ### 三层知识系统边界
@@ -215,7 +217,7 @@ Sentry 不在 M2 范围，将在 M4 接入，用于前端异常聚合、Release 
 ### 环境变量
 
 在 `packages/env/` 中定义和校验：
-- **服务端** (`packages/env/src/server.ts`)：`PORT`、`DATABASE_URL`、`REDIS_URL`、`CORS_ORIGIN`、`MODEL_PROVIDER`、`OLLAMA_MODEL`、`NODE_ENV`、`LOG_FILE_PATH`
+- **服务端** (`packages/env/src/server.ts`)：`PORT`、`DATABASE_URL`、`REDIS_URL`、`CORS_ORIGIN`、`MODEL_PROVIDER`、`OLLAMA_MODEL`、`NODE_ENV`、`LOG_FILE_PATH`、`OTEL_TRACES_ENABLED`、`OTEL_EXPORTER_OTLP_TRACES_ENDPOINT`
 - **前端** (`packages/env/src/web.ts`)：`VITE_SERVER_URL`（前缀 `VITE_`）
 
 根目录 `.env.example` 展示了期望的变量结构。后端需要 `.env`（复制 `.env.example` 到 `apps/backend/.env`），前端同理。

@@ -19,7 +19,11 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "env": ["LOG_FILE_PATH"]
+      "env": [
+        "LOG_FILE_PATH",
+        "OTEL_TRACES_ENABLED",
+        "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"
+      ]
     },
     "db:push": {
       "cache": false

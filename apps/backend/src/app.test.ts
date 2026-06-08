@@ -4,6 +4,15 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 
+import {
+  SpanStatusCode,
+  type Tracer,
+} from "@opentelemetry/api";
+import {
+  InMemorySpanExporter,
+  SimpleSpanProcessor,
+  NodeTracerProvider,
+} from "@opentelemetry/sdk-trace-node";
 import type { Order } from "@opsagent/db/schema";
 import {
   OPS_API_ROUTE,
@@ -25,6 +34,7 @@ import {
 import { DEMO_BUSINESS } from "./business/constants";
 import type { DemoService } from "./business/demo";
 import { PROMETHEUS } from "./observability/constants";
+import { OPENTELEMETRY } from "./observability/constants";
 import {
   createRuntimeLogSink,
   type LogEntry,
@@ -82,6 +92,23 @@ function createFakeOrderService(): OrderService {
     async list() {
       return storedOrders;
     },
+  };
+}
+
+function createTestTracer(): {
+  exporter: InMemorySpanExporter;
+  provider: NodeTracerProvider;
+  tracer: Tracer;
+} {
+  const exporter = new InMemorySpanExporter();
+  const provider = new NodeTracerProvider({
+    spanProcessors: [new SimpleSpanProcessor(exporter)],
+  });
+
+  return {
+    exporter,
+    provider,
+    tracer: provider.getTracer(OPENTELEMETRY.INSTRUMENTATION_NAME),
   };
 }
 
@@ -294,6 +321,61 @@ test("error log for 400 includes stable errorCode", async () => {
   assert.equal(entry.level, "ERROR");
   assert.equal(entry.statusCode, 400);
   assert.equal(entry.errorCode, API_ERROR_CODE.INVALID_ORDER_INPUT);
+});
+
+test("structured log trace ID matches the OpenTelemetry span", async () => {
+  const lines: string[] = [];
+  const { exporter, provider, tracer } = createTestTracer();
+
+  try {
+    const app = createApp(
+      createFakeOrderService(),
+      undefined,
+      (message) => lines.push(message),
+      tracer,
+    );
+    const response = await app.request(OPS_API_ROUTE.ORDER_HEALTH);
+    const entry = JSON.parse(requireSingleLogLine(lines)) as LogEntry;
+    const spans = exporter.getFinishedSpans();
+
+    assert.equal(spans.length, 1);
+    assert.equal(entry.traceId, spans[0]?.spanContext().traceId);
+    assert.equal(
+      response.headers.get(OPS_HTTP_HEADER.TRACE_ID),
+      entry.traceId,
+    );
+    assert.match(entry.traceId, /^[0-9a-f]{32}$/);
+  } finally {
+    await provider.shutdown();
+  }
+});
+
+test("500 request span includes error status and stable error code", async () => {
+  const { exporter, provider, tracer } = createTestTracer();
+
+  try {
+    const app = createApp(
+      createFakeOrderService(),
+      undefined,
+      () => {},
+      tracer,
+    );
+    await app.request(OPS_API_ROUTE.DEMO_FAIL_500, {
+      method: OPS_HTTP_METHOD.POST,
+    });
+    const spans = exporter.getFinishedSpans();
+    const span = spans[0];
+
+    assert.equal(spans.length, 1);
+    assert.equal(span?.status.code, SpanStatusCode.ERROR);
+    assert.equal(
+      span?.attributes[OPENTELEMETRY.SPAN_ATTRIBUTE.ERROR_CODE],
+      API_ERROR_CODE.DEMO_FORCED_FAILURE,
+    );
+    assert.equal(span?.attributes["http.response.status_code"], 500);
+  } finally {
+    await provider.shutdown();
+  }
 });
 
 test("runtime log sink keeps console output when file logging is disabled", () => {

@@ -95,6 +95,24 @@ services:
       retries: 5
     restart: unless-stopped
 
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.153.0
+    container_name: opsagent-otel-collector
+    command:
+      - "--config=/etc/otelcol-contrib/config.yml"
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "13133:13133"
+    volumes:
+      - ./observability/otel/collector-config.yml:/etc/otelcol-contrib/config.yml:ro
+    healthcheck:
+      test: ["CMD", "/otelcol-contrib", "validate", "--config=/etc/otelcol-contrib/config.yml"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
 volumes:
   opsagent_postgres_data:
   opsagent_redis_data:

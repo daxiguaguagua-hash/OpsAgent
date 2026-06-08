@@ -46,7 +46,7 @@ function resolveTraceId(candidate?: string): string {
 
 function createStructuredLogger(sink: LogSink = console.log) {
   return async (c: Context, next: Next) => {
-    const traceId = resolveTraceId(
+    const traceId = c.get("traceId") ?? resolveTraceId(
       c.req.header(OBSERVABILITY.TRACE_ID_HEADER),
     );
     c.set("traceId", traceId);

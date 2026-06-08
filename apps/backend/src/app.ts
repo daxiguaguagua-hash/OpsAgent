@@ -9,6 +9,7 @@ import {
 } from "@opsagent/shared";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import type { Tracer } from "@opentelemetry/api";
 import { PROMETHEUS } from "./observability/constants";
 import { createStructuredLogger } from "./observability/logger";
 import type { LogSink } from "./observability/logger";
@@ -17,6 +18,7 @@ import {
   getMetricsContent,
   METRICS_ROUTE,
 } from "./observability/metrics";
+import { createTracingMiddleware } from "./observability/tracing";
 
 import {
   createOrderInputSchema,
@@ -40,9 +42,11 @@ export function createApp(
   orders: OrderService = orderService,
   demo: DemoService = demoService,
   logSink: LogSink = console.log,
+  tracer?: Tracer,
 ) {
   const app = new Hono();
 
+  app.use(createTracingMiddleware(tracer));
   app.use(createStructuredLogger(logSink));
   app.use(createMetricsMiddleware());
   app.use(

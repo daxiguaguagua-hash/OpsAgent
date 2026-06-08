@@ -6,6 +6,19 @@ export const OBSERVABILITY = {
   TRACE_ID_MAX_LENGTH: 128,
 } as const;
 
+export const OPENTELEMETRY = {
+  SERVICE_NAME: "opsagent-backend",
+  INSTRUMENTATION_NAME: "opsagent-backend-http",
+  DEFAULT_OTLP_HTTP_ENDPOINT: "http://localhost:4318/v1/traces",
+  SPAN_ATTRIBUTE: {
+    ERROR_CODE: "opsagent.error.code",
+  },
+  SIGNAL: {
+    INTERRUPT: "SIGINT",
+    TERMINATE: "SIGTERM",
+  },
+} as const;
+
 export const LOG_LEVEL = {
   INFO: "INFO",
   ERROR: "ERROR",

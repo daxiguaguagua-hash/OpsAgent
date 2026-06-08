@@ -8,9 +8,20 @@
 | `loki/` | Loki | 3100 | 日志聚合与查询 |
 | `alloy/` | Grafana Alloy | — | 日志采集（替代已 EOL 的 Promtail） |
 | `grafana/` | Grafana | 3000 | 统一可视化看板，自动 provisioning 注册 Prometheus 和 Loki 数据源 |
-| `otel/` | OpenTelemetry | — | 采集标准配置（M2-05） |
+| `otel/` | OpenTelemetry Collector | 4317 / 4318 / 13133 | 接收 OTLP Trace，并在 M2-05 使用 debug exporter 验证 |
 
 Grafana 默认语言由 `GRAFANA_DEFAULT_LANGUAGE` 控制，演示配置使用 `zh-Hans`（简体中文）。个人 Profile（个人资料）语言设置优先于全局默认值。
+
+## OpenTelemetry Trace
+
+Backend（后端）为每个 HTTP 请求创建服务端 Span（链路片段），并通过 OTLP/HTTP 发送到 `http://localhost:4318/v1/traces`。结构化日志、响应头和 Span 使用同一个标准 OpenTelemetry traceId。
+
+Collector 当前使用 debug exporter（调试输出器）把收到的 Span 打印到容器日志。M2-06 接入 Tempo 后，再增加持久化 Trace exporter（导出器）。
+
+```bash
+docker compose up -d otel-collector
+docker logs -f opsagent-otel-collector
+```
 
 ## Loki + Alloy 日志采集
 
