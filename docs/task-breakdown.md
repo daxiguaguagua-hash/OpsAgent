@@ -154,10 +154,10 @@ flowchart TD
 | M2-02 | 增加 Prometheus 配置 | sre-team | P0 | `observability/prometheus/` | 已完成：Prometheus 可以启动，Target 状态为 `up`，可查询 200 与 500 请求指标 |
 | M2-03 | 增加 Loki 配置 | sre-team | P0 | `observability/loki/`、`observability/alloy/` | 已完成：Alloy 采集 JSONL，Loki ready，可按 `traceId` 查询 500 日志 |
 | M2-04 | 增加 Grafana datasource | sre-team | P0 | `observability/grafana/datasources/` | 已完成：Grafana 自动接入 Prometheus 和 Loki，provisioning 注册数据源 |
-| M2-05 | 增加 OpenTelemetry Collector | sre-team | P1 | `observability/otel/`、Backend Trace 埋点 | 实现与自动化测试已完成；待 Collector 镜像拉取后执行真实接收验收 |
-| M2-06 | 增加 Jaeger 或 Tempo | sre-team | P1 | Compose 服务 | 可以查看 Trace（链路追踪） |
-| M2-07 | 增加基础 Dashboard | sre-team | P0 | Grafana dashboard JSON | 展示请求量、错误率、延迟 |
-| M2-08 | 增加 SLO 配置草案 | sre-team | P1 | `observability/slo.yml` | 写明成功率和 P95 延迟目标 |
+| M2-05 | 增加 OpenTelemetry Collector | sre-team | P1 | `observability/otel/`、Backend Trace 埋点 | 已完成：OTLP/HTTP 接收 Trace，debug + otlp_http 双导出，Collector 健康检查 |
+| M2-06 | 增加 Tempo 持久化 Trace | sre-team | P1 | `observability/tempo/`、Compose 服务、`/api/traces/:traceId` 代理 | 已完成：OTel Collector → Tempo 完整链路，Tempo API 可查 Trace，后端代理端点已测试 |
+| M2-07 | 增加基础 Dashboard | sre-team | P0 | Grafana dashboard JSON | 已完成：8 个面板（请求量 stat、错误数 stat、错误率 stat、P95 stat、请求率 timeseries、错误率 timeseries、延迟百分位、状态码分布） |
+| M2-08 | 增加 SLO 配置草案 | sre-team | P1 | `observability/slo.yml` | 已完成：可用性 99.9%、P95<500ms、P99<2000ms，排除演示接口 |
 
 ## 7. M3 Mastra Agent 分析闭环
 
@@ -281,20 +281,24 @@ flowchart TD
 
 ## 13. 当前下一步
 
-M0 项目骨架、工作流治理和 M1 最小业务系统已经完成，下一步进入 M2：
+M0 项目骨架、M1 最小业务系统和 M2 可观测性基础闭环已经完成，下一步进入 M3：
 
 ```mermaid
 flowchart LR
-  A[M1 业务闭环] --> B[M2 可观测性基础]
-  B --> C[结构化日志]
-  C --> D[Prometheus 指标]
-  D --> E[Trace 链路追踪]
+  A[M2 可观测性完成] --> B[M3 Mastra Agent 分析闭环]
+  B --> C[模型 Provider 抽象]
+  C --> D[Prometheus/Loki/Tempo Tools]
+  D --> E[Incident Report 生成]
 ```
 
 立即可执行任务：
 
 - [x] M1-01 至 M1-12 完成并通过业务、双 Agent 和治理门禁验收
-- [ ] M2-01 后端输出结构化日志
-- [ ] M2-02 增加 Prometheus（指标系统）配置
-- [ ] M2-03 增加 Loki（日志系统）配置
-- [ ] M2-04 增加 Grafana（可视化看板）数据源
+- [x] M2-01 后端输出结构化日志
+- [x] M2-02 增加 Prometheus（指标系统）配置
+- [x] M2-03 增加 Loki（日志系统）配置
+- [x] M2-04 增加 Grafana（可视化看板）数据源
+- [x] M2-05 增加 OpenTelemetry Collector
+- [x] M2-06 接入 Tempo 持久化 Trace
+- [x] M2-07 增加基础 Dashboard
+- [x] M2-08 增加 SLO 配置草案
