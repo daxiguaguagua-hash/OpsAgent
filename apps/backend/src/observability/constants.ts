@@ -43,3 +43,9 @@ export const PROMETHEUS = {
 } as const;
 
 export const TRACE_ID_PATTERN = /^[A-Za-z0-9._:-]+$/;
+
+export const TEMPO = {
+  DEFAULT_QUERY_ENDPOINT: "http://localhost:3200",
+  API_PATH: "/api/traces",
+  ACCEPT_HEADER: "application/json",
+} as const;

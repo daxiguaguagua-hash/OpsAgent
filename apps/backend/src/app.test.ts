@@ -516,3 +516,112 @@ test("unexpected errors use a stable code without leaking exception details", as
   assert.equal(raw.includes("database password"), false);
   assert.equal(raw.includes("stack"), false);
 });
+
+const FIXTURE_TRACE_ID = "abcdef0123456789abcdef0123456789";
+
+const FIXTURE_TRACE_BODY = JSON.stringify({
+  batches: [
+    {
+      resourceSpans: [
+        {
+          scopeSpans: [
+            {
+              spans: [
+                {
+                  traceId: FIXTURE_TRACE_ID,
+                  spanId: "0123456789abcdef",
+                  name: "GET /api/orders/health",
+                  status: { code: 1 },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+});
+
+function createFakeTraceProxy(overrides?: {
+  status?: number;
+  body?: string;
+  throwOnFetch?: boolean;
+}) {
+  const status = overrides?.status ?? 200;
+  const body = overrides?.body ?? FIXTURE_TRACE_BODY;
+  const throwOnFetch = overrides?.throwOnFetch ?? false;
+
+  return {
+    async fetchTrace(_traceId: string) {
+      if (throwOnFetch) {
+        throw new TypeError("fetch failed");
+      }
+      return new Response(body, {
+        status,
+        headers: { "content-type": "application/json" },
+      });
+    },
+  };
+}
+
+test("trace proxy returns span tree for a valid traceId", async () => {
+  const proxy = createFakeTraceProxy();
+  const app = createApp(
+    createFakeOrderService(),
+    undefined,
+    () => {},
+    undefined,
+    proxy,
+  );
+
+  const response = await app.request(
+    `${OPS_API_ROUTE.TRACES}/${FIXTURE_TRACE_ID}`,
+  );
+
+  assert.equal(response.status, 200);
+  const body = await response.json() as { batches: unknown[] };
+  assert.ok(Array.isArray(body.batches), "response contains batches");
+  assert.equal(body.batches.length, 1);
+});
+
+test("trace proxy returns 404 for an unknown traceId", async () => {
+  const proxy = createFakeTraceProxy({ status: 404, body: "" });
+  const app = createApp(
+    createFakeOrderService(),
+    undefined,
+    () => {},
+    undefined,
+    proxy,
+  );
+
+  const response = await app.request(
+    `${OPS_API_ROUTE.TRACES}/${FIXTURE_TRACE_ID}`,
+  );
+  const body = await response.json() as {
+    error: { code: string; message: string };
+  };
+
+  assert.equal(response.status, HTTP_STATUS.NOT_FOUND);
+  assert.equal(body.error.code, API_ERROR_CODE.TRACE_NOT_FOUND);
+});
+
+test("trace proxy returns 503 when Tempo is unavailable", async () => {
+  const proxy = createFakeTraceProxy({ throwOnFetch: true });
+  const app = createApp(
+    createFakeOrderService(),
+    undefined,
+    () => {},
+    undefined,
+    proxy,
+  );
+
+  const response = await app.request(
+    `${OPS_API_ROUTE.TRACES}/${FIXTURE_TRACE_ID}`,
+  );
+  const body = await response.json() as {
+    error: { code: string; message: string };
+  };
+
+  assert.equal(response.status, HTTP_STATUS.SERVICE_UNAVAILABLE);
+  assert.equal(body.error.code, API_ERROR_CODE.TEMPO_UNAVAILABLE);
+});

@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import path from "node:path";
 import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
-import { getRepoRoot, resolveFromRoot } from "./repo-root.ts";
+import { getRepoRoot, resolveFromRoot } from "./repo-root.js";
 
 // 环境变量继承：CWD .env 优先，根 .env 补充未设的变量
 // dotenv path 数组默认行为：第一个文件的值优先
@@ -36,6 +36,7 @@ export const env = createEnv({
     OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: z.url().default(
       "http://localhost:4318/v1/traces",
     ),
+    TEMPO_ENDPOINT: z.url().default("http://localhost:3200"),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

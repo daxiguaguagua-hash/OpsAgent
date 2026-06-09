@@ -1,0 +1,62 @@
+# OpsAgent v0.1 SLO (Service Level Objectives) 配置草案
+#
+# 本文件定义 v0.1 的服务等级目标，为 M6 稳定性工程增强提供基础。
+# 当前为草案，不强制执行 Error Budget 策略，仅用于度量和告警参考。
+
+service: opsagent-backend
+
+slos:
+  - name: availability
+    description: "后端接口成功率（排除业务故障演示接口）"
+    target: 99.9
+    window: 30d
+    indicator:
+      type: ratio
+      good: |
+        sum(rate(http_requests_total{status_code!~"5.."}[30d]))
+      total: |
+        sum(rate(http_requests_total[30d]))
+    error_budget:
+      formula: "1 - (1 - target)"
+      example: "99.9% SLO → 每月允许 43.2 分钟不可用"
+
+  - name: latency_p95
+    description: "P95 请求延迟"
+    target_ms: 500
+    window: 5m
+    indicator:
+      type: threshold
+      query: |
+        histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))
+    error_budget:
+      formula: "P95 < 500ms"
+      example: "超过 500ms 的请求占比不应超过 5%"
+
+  - name: latency_p99
+    description: "P99 请求延迟"
+    target_ms: 2000
+    window: 5m
+    indicator:
+      type: threshold
+      query: |
+        histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))
+    error_budget:
+      formula: "P99 < 2000ms"
+      example: "超过 2s 的请求占比不应超过 1%"
+
+exclusions:
+  - description: "故障演示接口不纳入可用性 SLO"
+    routes:
+      - "/api/demo/fail-500"
+      - "/api/demo/slow"
+    reason: "这些接口设计为产生错误或高延迟，用于演示和测试"
+
+alerting:
+  burn_rate:
+    - severity: critical
+      multiplier: 14.4
+      description: "14.4x burn rate → 1 小时内消耗 1% Error Budget"
+    - severity: warning
+      multiplier: 6
+      description: "6x burn rate → 1 小时内消耗 0.42% Error Budget"
+  note: "告警规则暂不配置到 Prometheus alerting rules，作为 M6 稳定性工程的预留设计"

@@ -19,6 +19,11 @@ import {
   METRICS_ROUTE,
 } from "./observability/metrics";
 import { createTracingMiddleware } from "./observability/tracing";
+import {
+  createTraceProxy,
+  createTraceProxyHandler,
+} from "./observability/traceProxy";
+import type { TraceProxy } from "./observability/traceProxy";
 
 import {
   createOrderInputSchema,
@@ -43,6 +48,7 @@ export function createApp(
   demo: DemoService = demoService,
   logSink: LogSink = console.log,
   tracer?: Tracer,
+  traceProxy: TraceProxy = createTraceProxy(),
 ) {
   const app = new Hono();
 
@@ -123,6 +129,8 @@ export function createApp(
       thresholdMs: DEMO_BUSINESS.SLOW_THRESHOLD_MS,
     });
   });
+
+  app.get(`${OPS_API_ROUTE.TRACES}/:traceId`, createTraceProxyHandler(traceProxy));
 
   app.onError((error, context) => {
     if (error instanceof DemoForcedFailureError) {

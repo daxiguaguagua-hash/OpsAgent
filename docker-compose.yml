@@ -84,10 +84,13 @@ services:
       - GF_USERS_DEFAULT_LANGUAGE=${GRAFANA_DEFAULT_LANGUAGE:-zh-Hans}
     volumes:
       - ./observability/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./observability/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
       - opsagent_grafana_data:/var/lib/grafana
     depends_on:
       - prometheus
       - loki
+      - tempo
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
       interval: 10s
@@ -106,11 +109,25 @@ services:
       - "13133:13133"
     volumes:
       - ./observability/otel/collector-config.yml:/etc/otelcol-contrib/config.yml:ro
+    depends_on:
+      - tempo
     healthcheck:
       test: ["CMD", "/otelcol-contrib", "validate", "--config=/etc/otelcol-contrib/config.yml"]
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+
+  tempo:
+    image: grafana/tempo:2.9.1
+    container_name: opsagent-tempo
+    command:
+      - "-config.file=/etc/tempo/tempo.yml"
+    ports:
+      - "3200:3200"
+    volumes:
+      - ./observability/tempo/tempo.yml:/etc/tempo/tempo.yml:ro
+      - opsagent_tempo_data:/var/tempo
     restart: unless-stopped
 
 volumes:
@@ -120,3 +137,4 @@ volumes:
   opsagent_loki_data:
   opsagent_alloy_data:
   opsagent_grafana_data:
+  opsagent_tempo_data:

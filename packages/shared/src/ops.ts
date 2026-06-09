@@ -3,6 +3,7 @@ export const OPS_API_ROUTE = {
   ORDER_HEALTH: "/api/orders/health",
   DEMO_FAIL_500: "/api/demo/fail-500",
   DEMO_SLOW: "/api/demo/slow",
+  TRACES: "/api/traces",
 } as const;
 
 export const OPS_HTTP_METHOD = {
