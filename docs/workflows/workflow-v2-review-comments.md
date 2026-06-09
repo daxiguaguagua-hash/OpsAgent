@@ -197,3 +197,59 @@ v0.1 验收标准（`docs/task-breakdown.md` 第 21-31 行）的 7 项全部是�
 - **不删除 v2 文档**：保留作为决策链证据
 - **不动 v1 源码**：与第 6 节边界一致
 - **不在 M2 收尾期做任何工作流相关改动**：M2 的 Jaeger/Tempo、Dashboard、SLO 优先
+
+### 7.7 待决策项已闭环（2026-06-09）
+
+| 决策项 | 选择 | 备注 |
+|---|---|---|
+| 决策 1：面试叙事路径 | **A. 架构选型决策叙事** | "我评估过自研消息总线，但评估后选择 OpenHands"——强调工程判断力 |
+| 决策 2：v2 文档长期处置 | **C. 作为 OpenHands 评估 baseline** | v2 设计的功能清单反向推导 OpenHands 配置项；同时保留 `frozen` 标签 |
+
+两项决策已写入第 8 节，作为 V3 架构最终决策的一部分。
+
+## 8. V3 架构最终决策（2026-06-09）
+
+### 8.1 决策结论
+
+在 v2 frozen 的基础上，经过一轮完整的架构重选，收敛到 **三层收敛 + 方案 A**：
+
+| 层 | 选型 | 语言 |
+|---|---|---|
+| 顶层 编排 | **OpenHands**（Conversation + EventLog） | Python |
+| 中层 小任务执行 | **OpenHands 自带 Agent**（方案 A） | Python |
+| 底层 业务代码 + M3 故障分析 Agent | **Mastra** + React + Node | TypeScript |
+| 底层 可观测栈 | Prometheus + Loki + Grafana + Tempo | 各自原生 |
+
+### 8.2 否决的方案
+
+- **方案 B：OpenHands + LangGraph** — 两套 Python Agent 栈并存，OpsAgent 工作流是线性状态机用不到 LangGraph 的循环图能力
+- **方案 C：OpenHands + Mastra 中层** — 跨栈调用复杂度高，收益不大
+- **引入 LangChain** — Mastra + OpenHands 已覆盖其能力，再加是冗余
+
+### 8.3 完整 V3 文档
+
+详见 [`docs/architecture/architecture-v3-candidacy.md`](../architecture/architecture-v3-candidacy.md)，包含：
+- 三层架构图与职责划分
+- 方案 A / B / C 的详细对比与否决理由
+- 自定义 Agent 子类设计示例
+- Conversation 编排示例
+- "可控性"的四个机制
+- 与 v0.1 验收标准的逐项映射
+- 演进路径（V3.1 / V3.2 / V3.3 中层升级选项）
+- 明确的"不做的事"边界
+
+### 8.4 后续动作
+
+| 时机 | 动作 |
+|---|---|
+| M2 收尾期 | 不动 v1 源码，继续完成 M2-06 / M2-07 / M2-08 |
+| M2 验收后 | 项目 owner 完成 Python 基础学习；启动 OpenHands spike |
+| M3 启动时 | 顶层 OpenHands 与底层 Mastra 通过 HTTP / MCP 集成 |
+
+### 8.5 决策链证据（完整）
+
+1. [`workflow-v2-design.md`](workflow-v2-design.md) — v2 自研设计（已 `frozen`）
+2. 本文件第 1-6 节 — v2 评审意见 + 5 个待决问题（已作废）
+3. 本文件第 7 节 — 架构方向转向的触发 + 价值层级澄清
+4. 本文件第 8 节 — V3 决策结论
+5. [`architecture-v3-candidacy.md`](../architecture/architecture-v3-candidacy.md) — V3 完整架构

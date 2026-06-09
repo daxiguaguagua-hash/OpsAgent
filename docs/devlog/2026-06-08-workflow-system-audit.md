@@ -3,6 +3,8 @@
 日期：2026-06-08
 
 > 后续：基于本审计产出了 [`workflow-v2-design.md`](../workflows/workflow-v2-design.md) 与 [`workflow-v2-review-comments.md`](../workflows/workflow-v2-review-comments.md)（评审意见，2026-06-09）。
+>
+> 2026-06-09 架构方向转向：放弃 v2 自研，收敛到 OpenHands + Mastra 三层架构，详见 [`architecture-v3-candidacy.md`](../architecture/architecture-v3-candidacy.md)。
 
 ## 背景
 
