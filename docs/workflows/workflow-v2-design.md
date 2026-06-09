@@ -2,6 +2,8 @@
 
 日期：2026-06-08
 
+> **状态：`frozen`（2026-06-09）** — 本设计不再进入实施，保留仅作过程思考存档。详见 [`workflow-v2-review-comments.md`](workflow-v2-review-comments.md) 第 7 节"架构方向转向：从 v2 自研转向 OpenHands 评估"。
+
 ## 1. 背景
 
 当前 `workflow-gates` (v1) 存在四个结构问题：
