@@ -233,16 +233,19 @@ v0.1 验收标准（`docs/task-breakdown.md` 第 21-31 行）的 7 项全部是�
 - 方案 A / B / C 的详细对比与否决理由
 - 自定义 Agent 子类设计示例
 - Conversation 编排示例
-- "可控性"的四个机制
+- "可控性"的五个机制（含测试纪律强制）
 - 与 v0.1 验收标准的逐项映射
 - 演进路径（V3.1 / V3.2 / V3.3 中层升级选项）
 - 明确的"不做的事"边界
+
+配套文档：
+- [`test-discipline-checklist.md`](test-discipline-checklist.md) — AI Agent 测试纪律的工程化强制规则，对应 V3 中层的 TestStrategistAgent 强制节点
 
 ### 8.4 后续动作
 
 | 时机 | 动作 |
 |---|---|
-| M2 收尾期 | 不动 v1 源码，继续完成 M2-06 / M2-07 / M2-08 |
+| M2 收尾期 | 不动 v1 源码，继续完成 M2-06 / M2-07 / M2-08；**已落地测试纪律清单**（2026-06-09） |
 | M2 验收后 | 项目 owner 完成 Python 基础学习；启动 OpenHands spike |
 | M3 启动时 | 顶层 OpenHands 与底层 Mastra 通过 HTTP / MCP 集成 |
 

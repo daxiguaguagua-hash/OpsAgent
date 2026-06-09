@@ -250,9 +250,9 @@ class OpsAgentConversation(Conversation):
 | 模型层 | OpenRouter / 直连 OpenAI / DeepSeek API | 协议层 | 通过 provider 接入 | — |
 | 代码智能 | CodeGraph MCP | TypeScript CLI | 已接入 | [CodeGraph](https://github.com/sourcegraph/codegraph) |
 
-## 8. "可控性"的四个机制
+## 8. "可控性"的五个机制
 
-你担心"拆分出来的小任务怎么可控"，在方案 A 里通过四个机制保证：
+你担心"拆分出来的小任务怎么可控"，在方案 A 里通过五个机制保证：
 
 | 机制 | 实现 | 作用 |
 |---|---|---|
@@ -260,8 +260,36 @@ class OpsAgentConversation(Conversation):
 | **Docker sandbox** | OpenHands Runtime 隔离执行 | Agent 不能访问宿主文件系统 |
 | **EventLog 审计** | 每次 Action / Observation 都记录 | 任务做完可完整回放"它干了什么" |
 | **Human-in-the-loop** | `AgentFinishAction` 前强制暂停等人类 | architect / approver 必须显式批准 |
+| **测试纪律强制** ⭐ | `TestStrategistAgent` 强制位于 `ImplementerAgent` 和 `TesterAgent` 之间，强制回答"测试影响三问" | 防止 AI Agent 默认不主动想测试的行为缺陷 |
 
-这四个机制覆盖了 v1 工作流里"hook 门禁 + 角色权限 + 测试审批"的所有能力，且更优雅。
+前四个机制覆盖了 v1 工作流里"hook 门禁 + 角色权限 + 测试审批"的能力。第五个机制是 2026-06-09 讨论新增的，详见 [`test-discipline-checklist.md`](../workflows/test-discipline-checklist.md)。
+
+### 8.1 测试纪律强制：为什么单独强调
+
+AI Agent（包括 DeepSeek、Codex、Claude、Qoder）普遍存在"改代码 + 写文档但不会主动想测试"的默认行为。这不是能力问题，是默认行为问题，必须通过工程化强制。
+
+**强制机制实现**（在 `OpsAgentConversation` 里）：
+
+```
+ImplementerAgent 写完代码
+   ↓
+TestStrategistAgent（强制）
+   ├── 读 EventLog 看 implementer 改了哪些文件
+   ├── 回答测试影响三问：
+   │     Q1: 这次改动影响哪些现有测试？
+   │     Q2: 这次改动需要新增哪些测试？
+   │     Q3: 是否需要加入回归测试清单？
+   └── 发 event: {type: "test_impact", action: "add/update/none", rationale: ...}
+   ↓
+architect / approver 审批 test_impact
+   ↓
+TesterAgent 按 test_impact 执行测试
+```
+
+**强制规则**：
+- `OpsAgentConversation.next_agent()` 在 `event_log.has("implementation_done") and not event_log.has("test_impact")` 时**只返回 TestStrategistAgent**，不能跳过
+- 人类审批 `test_impact` 前，TesterAgent 不会被 spawn
+- ImplementerAgent 提交代码时**必须同时提交测试变更**，不允许"代码先提交，测试后面补"
 
 ## 9. 与 v0.1 验收标准的映射
 
@@ -290,6 +318,7 @@ class OpsAgentConversation(Conversation):
 | 底层故障分析 | Mastra（TypeScript） | 2026-06-09 |
 | 是否引入 LangChain | ❌ 不引入，Mastra 已覆盖其能力 | 2026-06-09 |
 | 是否引入 LangGraph | ❌ 暂不引入，方案 A 足够 | 2026-06-09 |
+| 测试纪律 | TestStrategistAgent 强制位于 Implementer 和 Tester 之间，遵守 [`test-discipline-checklist.md`](../workflows/test-discipline-checklist.md) | 2026-06-09 |
 
 ### 10.2 否决过的方案与理由
 
