@@ -524,3 +524,21 @@ printf "%s" "$payload" | node --experimental-strip-types \
 8. 更新根 `package.json` scripts 指向 v2
 9. 更新 `.agent/role-policy.json` 和 `.agent/actor-registry.json` 为新格式
 10. v1 `workflow-gates` 保留不动，待验证后删除
+
+## 12. 待决问题与评审意见
+
+本节列出 v2 落地前必须澄清的开放问题，详细论证见 [`workflow-v2-review-comments.md`](workflow-v2-review-comments.md)。
+
+| # | 问题 | 建议动作 |
+|---|---|---|
+| 1 | devlog 的"立即第一步"（`claude-code-new-context` 替换 Codex）被 v2 架空（v2 用 `claude-code-readonly`），两条路径并存会造成执行歧义 | 明确决策：直接进 v2，或先落地 devlog 第一步作为过渡 |
+| 2 | `orchestration.ts` 加 `bus.send()` 后，编排引擎与消息总线形成双向依赖 | 明确 bus 的依赖方向，避免状态机变更与消息发送深度耦合 |
+| 3 | 6.3 节状态机只列了 5 个状态，需对照 v1 `taskState.ts` 的 transitions 做一次 diff，确认未遗漏 `blocked` / `waiting_approval` 等状态 | 补一份 v1 → v2 状态映射表 |
+| 4 | `claude-code-readonly` 的 `allowedTools` 未包含 `mcp__codegraph__*`；CodeGraph MCP 已接入 | actor-registry.json 的只读 actor 应显式放行 CodeGraph MCP 工具 |
+| 5 | 11 节迁移步骤缺验收标准和回退方案 | 加一条"M2 收尾期冻结 v2 切换"或"M3 第一个任务用 v2 跑完整闭环" |
+
+## 13. 落地时机建议
+
+- **当前分支 `M2-06-edit-by-ClaudeCode` 期间**：只讨论、只沉淀文档，不动 v1 源码、不动工作流脚本、不动 role-policy。
+- **M2 里程碑验收通过后**：在 M3 启动会上正式决策"直接进 v2 vs 先落 devlog 第一步"，并将决策写入 M3 issue 文件。
+- **M3 第一个任务**：若选择直接进 v2，作为 M3-01 的配套前置工作；若选择先落第一步，则作为 M3 前的 5 分钟独立提交。

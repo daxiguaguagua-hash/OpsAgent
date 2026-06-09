@@ -2,6 +2,8 @@
 
 日期：2026-06-08
 
+> 后续：基于本审计产出了 [`workflow-v2-design.md`](../workflows/workflow-v2-design.md) 与 [`workflow-v2-review-comments.md`](../workflows/workflow-v2-review-comments.md)（评审意见，2026-06-09）。
+
 ## 背景
 
 Codex 因额度限制暂时不可用。Codex 在当前系统中承担 `test-strategist` 角色（测试影响分析、用例设计、测试修改审批）。这不是"少了一个 CLI 工具"的问题——`role-policy.json`、`taskState.ts` 默认值、`rolePolicy.ts` hook 校验三层都与 Codex 耦合。本次审计逐层排查依赖链，并给出解耦方案。
