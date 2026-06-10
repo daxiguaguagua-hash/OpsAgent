@@ -59,6 +59,7 @@
   "devDependencies": {
     "@opsagent/config": "workspace:*",
     "@types/node": "catalog:",
+    "tsx": "catalog:",
     "turbo": "^2.8.12",
     "typescript": "catalog:"
   },

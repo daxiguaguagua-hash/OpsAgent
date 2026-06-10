@@ -7,9 +7,12 @@
     "build": "tsc -b",
     "check-types": "tsc -b --pretty false",
     "dev": "tsx watch src/index.ts",
-    "start": "node dist/index.js"
+    "start": "tsx src/index.ts"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^3.0.69",
+    "@ai-sdk/provider": "^3.0.10",
+    "@mastra/core": "^1.41.0",
     "@opsagent/env": "workspace:*",
     "@opsagent/shared": "workspace:*",
     "dotenv": "catalog:",
@@ -18,8 +21,6 @@
   "devDependencies": {
     "@opsagent/config": "workspace:*",
     "@types/node": "catalog:",
-    "tsx": "^4.19.2",
     "typescript": "catalog:"
   }
 }
-

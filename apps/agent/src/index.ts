@@ -1,23 +1,38 @@
-import { env } from "@opsagent/env/server";
+import { createOpsAgent } from "./agents/index.js";
+import { createModel, getModelConfigFromEnv } from "./model-provider.js";
 import type { IncidentReport } from "@opsagent/shared";
 
-const report: IncidentReport = {
-  id: "m0-smoke-incident",
-  severity: "low",
-  summary: "OpsAgent agent service is ready for the first AI Ops loop.",
-  evidence: [
-    {
-      source: "agent",
-      message: `MODEL_PROVIDER=${env.MODEL_PROVIDER}`,
-    },
-  ],
-  recommendations: [
-    {
-      title: "Keep M0 focused",
-      description: "Use mock analysis until observability data sources are wired.",
-    },
-  ],
-};
+async function main() {
+  // M3-02: Model provider abstraction (openai/ollama/mock)
+  const modelConfig = getModelConfigFromEnv();
+  const model = createModel(modelConfig);
 
-console.log(JSON.stringify(report, null, 2));
+  const opsAgent = createOpsAgent({
+    model,
+  });
 
+  const report: IncidentReport = {
+    id: "m3-01-mastra-init",
+    severity: "low",
+    summary: "Mastra agent framework initialized successfully.",
+    evidence: [
+      {
+        source: "agent",
+        message: `Agent name: ${opsAgent.name}`,
+      },
+    ],
+    recommendations: [
+      {
+        title: "Proceed to M3-02",
+        description: "Implement model provider abstraction (openai/ollama/mock).",
+      },
+    ],
+  };
+
+  console.log(JSON.stringify(report, null, 2));
+}
+
+main().catch((error) => {
+  console.error("Agent initialization failed:", error);
+  process.exit(1);
+});
