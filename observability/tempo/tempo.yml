@@ -8,18 +8,18 @@ distributor:
         http:
           endpoint: 0.0.0.0:4318
         grpc:
-          endpoint: 0.0.0.0:4317
+          endpoint: 0.0.0.0:4317 # 接收 OTLP 协议的 gRPC 请求
 
 ingester:
   max_block_duration: 5m
 
 compactor:
   compaction:
-    block_retention: 1h
+    block_retention: 24h
 
 storage:
   trace:
-    backend: local
+    backend: local # 使用本地存储,也可以选择其他存储后端，如 S3、GCS 等。这里是开发环境，够用了。
     wal:
       path: /var/tempo/wal
     local:

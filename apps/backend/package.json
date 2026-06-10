@@ -7,7 +7,7 @@
     "cache:verify": "tsx src/verifyCache.ts",
     "check-types": "tsc -b",
     "dev": "tsx watch src/index.ts",
-    "test": "tsx --test src/*.test.ts",
+    "test": "tsx --test 'src/**/*.test.ts'",
     "start": "node dist/index.mjs"
   },
   "dependencies": {
