@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc -b",
     "check-types": "tsc -b --pretty false",
-    "test": "node --experimental-strip-types --test src/*.test.ts",
+    "test": "tsx --test src/*.test.ts",
     "task": "node --experimental-strip-types src/taskCli.ts",
     "pre-tool": "node --experimental-strip-types src/preToolGuard.ts",
     "stop": "node --experimental-strip-types src/stopCheck.ts"
@@ -13,6 +13,7 @@
   "devDependencies": {
     "@opsagent/config": "workspace:*",
     "@types/node": "catalog:",
+    "tsx": "catalog:",
     "typescript": "catalog:"
   }
 }

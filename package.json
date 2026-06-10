@@ -52,6 +52,7 @@
     "db:down": "turbo -F @opsagent/db db:down"
   },
   "dependencies": {
+    "2": "^3.0.0",
     "@opsagent/env": "workspace:*",
     "dotenv": "catalog:",
     "zod": "catalog:"
