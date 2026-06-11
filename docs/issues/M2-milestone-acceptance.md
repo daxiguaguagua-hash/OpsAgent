@@ -58,7 +58,7 @@ M2 全程按"任务卡 → 实施 → 独立测试 → 提交关联任务号"推
 3. 提交 `eda9f1d`：M2 收官复盘 + M3 评估 + M4 新增 OTel Web SDK 任务。
 4. 提交 `34e98f8`：M2 最终收官，M2-06/07/08 与 Trace 代理端点一次性合入。
 
-期间还沉淀了 workflow v2 设计草案（`docs/workflows/workflow-v2-design.md`）与评审意见（`docs/workflows/workflow-v2-review-comments.md`），并最终决定 workflow v2 冻结、转向 OpenHands 评估方向（`docs/architecture/architecture-v3-candidacy.md`）。这些讨论与 M2 代码改动解耦，不影响 M2 验收。
+期间还沉淀了 workflow v2 设计草案（`docs/archive/workflow-v2-design.md`）与评审意见（`docs/archive/workflow-v2-review-comments.md`），并最终决定 workflow v2 冻结、转向 OpenHands 评估方向（`docs/architecture/architecture-v3-candidacy.md`）。这些讨论与 M2 代码改动解耦，不影响 M2 验收。
 
 ## 5. 已知警告
 
