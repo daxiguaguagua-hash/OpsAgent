@@ -54,6 +54,7 @@ export const env = createEnv({
       .url()
       .default("http://localhost:4318/v1/traces"),
     TEMPO_ENDPOINT: z.url().default("http://localhost:3200"),
+    PROMETHEUS_URL: z.url().default("http://localhost:9090"),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
