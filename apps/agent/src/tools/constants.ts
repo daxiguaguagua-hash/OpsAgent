@@ -49,3 +49,27 @@ export type PrometheusToolErrorCode =
 
 export type PrometheusUnit =
   (typeof PROMETHEUS_TOOL.UNIT)[keyof typeof PROMETHEUS_TOOL.UNIT];
+
+export const LOKI_TOOL = {
+  ID: "loki",
+  DESCRIPTION:
+    "Query Loki for log entries within a time window (LogQL). Use this to retrieve error logs and traceIds as evidence for an incident report.",
+  DEFAULT_ENDPOINT: "http://localhost:3100",
+  API_PATH: {
+    QUERY_RANGE: "/loki/api/v1/query_range",
+    QUERY: "/loki/api/v1/query",
+  },
+  DEFAULT_LIMIT: 100,
+  MIN_LIMIT: 1,
+  MAX_LIMIT: 1000,
+  DEFAULT_LOOKBACK_SECONDS: 3600,
+  TIMEOUT_MS: 15_000,
+  ERROR: {
+    FETCH_FAILED: "FETCH_FAILED",
+    INVALID_RESPONSE: "INVALID_RESPONSE",
+    LOKI_ERROR: "LOKI_ERROR",
+  },
+} as const;
+
+export type LokiToolErrorCode =
+  (typeof LOKI_TOOL.ERROR)[keyof typeof LOKI_TOOL.ERROR];
