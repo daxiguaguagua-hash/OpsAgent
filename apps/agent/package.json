@@ -8,7 +8,8 @@
     "check-types": "tsc -b --pretty false",
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
-    "test": "tsx --test 'src/**/*.test.ts'"
+    "test": "tsx --test 'src/**/*.test.ts' 'gbrain/**/*.test.ts'",
+    "gbrain:sync": "tsx gbrain/sync.ts"
   },
   "dependencies": {
     "@ai-sdk/alibaba": "^1.0.26",
@@ -19,6 +20,7 @@
     "@opsagent/env": "workspace:*",
     "@opsagent/shared": "workspace:*",
     "dotenv": "catalog:",
+    "yaml": "^2.8.1",
     "zod": "catalog:"
   },
   "devDependencies": {

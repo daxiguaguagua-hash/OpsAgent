@@ -94,7 +94,7 @@ M1-02 ~ M1-10 的事实由 `M1-milestone-acceptance.md` §2 任务状态表统�
 | [M3-09-frontend-report.md](M3-09-frontend-report.md) | 前端展示 AI 分析结果 | frontend-team | `done` |
 | [M3-10-incident-lifecycle.md](M3-10-incident-lifecycle.md) | Incident Lifecycle 字段 | ai-agent-team | `done` |
 | [M3-11-knowledge-base.md](M3-11-knowledge-base.md) | 整理 Agent 知识库文档 | docs-team + ai-agent-team | `done` |
-| [M3-12-gbrain-sources.md](M3-12-gbrain-sources.md) | 注册 GBrain Sources | ai-agent-team | `planned` |
+| [M3-12-gbrain-sources.md](M3-12-gbrain-sources.md) | 注册 GBrain Sources | ai-agent-team | `done` |
 | [M3-13-gbrain-mcp.md](M3-13-gbrain-mcp.md) | 接入 GBrain MCP | ai-agent-team | `planned` |
 | [M3-14-pre-execution-rag.md](M3-14-pre-execution-rag.md) | Agent 执行前 RAG | ai-agent-team | `planned` |
 | [M3-15-knowledge-capture.md](M3-15-knowledge-capture.md) | 任务完成后知识沉淀 | ai-agent-team + docs-team | `planned` |
