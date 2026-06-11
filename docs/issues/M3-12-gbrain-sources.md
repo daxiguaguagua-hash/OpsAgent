@@ -1,7 +1,7 @@
 # M3-12 注册 GBrain Sources
 
 日期：2026-06-11
-状态：`done`
+状态：`done`（提交 `ce039c5`）
 前置任务：M3-11
 负责人：ai-agent-team
 
