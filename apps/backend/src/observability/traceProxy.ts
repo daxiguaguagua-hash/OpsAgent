@@ -1,4 +1,4 @@
-import { env } from "@opsagent/env/server";
+import { env } from "@opsagent/env";
 import type { Context } from "hono";
 import {
   API_ERROR_CODE,

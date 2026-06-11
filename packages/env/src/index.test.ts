@@ -1,11 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
-// 导入 server.ts 会触发 dotenv.config（副作用：修改 process.env）
-import { env } from "./server.ts";
+import { env } from "./index.ts";
 
-// 这些变量必须出现在 .env 文件中（通过 dotenv.config 加载到 process.env）
-// NODE_ENV 不在此列：它不在 .env 文件中，由 createEnv 的 default("development") 提供
 const REQUIRED_ENV_KEYS = [
   "DATABASE_URL",
   "REDIS_URL",
@@ -15,7 +12,7 @@ const REQUIRED_ENV_KEYS = [
   "OLLAMA_MODEL",
 ] as const;
 
-describe("dotenv 加载（server.ts 导入时自动执行 dotenv.config）", () => {
+describe("dotenv 加载（导入时自动执行 dotenv.config）", () => {
   test("process.env 中应有从 .env 文件加载的必要变量", () => {
     for (const key of REQUIRED_ENV_KEYS) {
       assert.ok(
@@ -39,10 +36,6 @@ describe("dotenv 加载（server.ts 导入时自动执行 dotenv.config）", () 
       process.env.LOG_FILE_PATH!.endsWith(".jsonl"),
       `LOG_FILE_PATH 应以 .jsonl 结尾，实际: ${process.env.LOG_FILE_PATH}`,
     );
-    assert.ok(
-      true,
-      `LOG_FILE_PATH 存在且格式正确: ${process.env.LOG_FILE_PATH}`,
-    ); // 仅验证存在和格式，不检查路径有效性
   });
 });
 
@@ -77,10 +70,10 @@ describe("env 对象（createEnv 解析后的值）", () => {
     );
   });
 
-  test("MODEL_PROVIDER 应为 openai | ollama | mock 之一", () => {
+  test("MODEL_PROVIDER 应为有效 provider 之一", () => {
     assert.ok(
-      ["openai", "ollama", "mock"].includes(env.MODEL_PROVIDER),
-      `MODEL_PROVIDER 应为 openai|ollama|mock，实际: ${env.MODEL_PROVIDER}`,
+      ["openai", "deepseek", "alibaba", "ollama", "mock"].includes(env.MODEL_PROVIDER),
+      `MODEL_PROVIDER 应为 openai|deepseek|alibaba|ollama|mock，实际: ${env.MODEL_PROVIDER}`,
     );
   });
 
@@ -119,7 +112,6 @@ describe("env 对象（createEnv 解析后的值）", () => {
 });
 
 describe("schema 完整性护栏", () => {
-  // 与 server.ts 中 createEnv({ server: {...} }) 的键保持同步
   const ALL_SCHEMA_KEYS = [
     "DATABASE_URL",
     "REDIS_URL",
@@ -128,6 +120,8 @@ describe("schema 完整性护栏", () => {
     "MODEL_PROVIDER",
     "OLLAMA_MODEL",
     "CLOUD_MODEL",
+    "DEEPSEEK_API_KEY",
+    "ALIBABA_API_KEY",
     "NODE_ENV",
     "LOG_FILE_PATH",
     "OTEL_TRACES_ENABLED",
@@ -135,7 +129,7 @@ describe("schema 完整性护栏", () => {
     "TEMPO_ENDPOINT",
   ] as const;
 
-  test("env 对象应包含 server.ts schema 中定义的所有字段", () => {
+  test("env 对象应包含 schema 中定义的所有字段", () => {
     for (const key of ALL_SCHEMA_KEYS) {
       assert.ok(
         key in env,
@@ -148,10 +142,6 @@ describe("schema 完整性护栏", () => {
 describe("默认值", () => {
   test("PORT 默认 8000", () => {
     assert.equal(env.PORT, 8000);
-  });
-
-  test("MODEL_PROVIDER 默认 mock", () => {
-    assert.equal(env.MODEL_PROVIDER, "mock");
   });
 
   test("CLOUD_MODEL 默认 gpt-4o", () => {

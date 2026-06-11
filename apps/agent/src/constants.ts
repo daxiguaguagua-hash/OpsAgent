@@ -1,5 +1,7 @@
 export const MODEL_PROVIDER = {
   OPENAI: "openai",
+  DEEPSEEK: "deepseek",
+  ALIBABA: "alibaba",
   OLLAMA: "ollama",
   MOCK: "mock",
 } as const;

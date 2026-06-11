@@ -1,5 +1,7 @@
-import { env } from "@opsagent/env/server";
+import { env } from "@opsagent/env";
 import { openai } from "@ai-sdk/openai";
+import { deepseek } from "@ai-sdk/deepseek";
+import { alibaba } from "@ai-sdk/alibaba";
 import {
   MODEL_PROVIDER,
   type ModelProvider,
@@ -16,6 +18,10 @@ export function createModel(config: ModelConfig) {
   switch (config.provider) {
     case MODEL_PROVIDER.OPENAI:
       return openai(config.modelName || env.CLOUD_MODEL);
+    case MODEL_PROVIDER.DEEPSEEK:
+      return deepseek(config.modelName || "deepseek-chat");
+    case MODEL_PROVIDER.ALIBABA:
+      return alibaba(config.modelName || "qwen-max");
     case MODEL_PROVIDER.OLLAMA:
       throw new Error("Ollama provider requires @ai-sdk/ollama package");
     case MODEL_PROVIDER.MOCK:
@@ -61,7 +67,10 @@ export function getModelConfigFromEnv(): ModelConfig {
   const modelName =
     provider === MODEL_PROVIDER.OLLAMA
       ? env.OLLAMA_MODEL
-      : env.CLOUD_MODEL;
+      : provider === MODEL_PROVIDER.DEEPSEEK ||
+          provider === MODEL_PROVIDER.ALIBABA
+        ? ""
+        : env.CLOUD_MODEL;
 
   return {
     provider,

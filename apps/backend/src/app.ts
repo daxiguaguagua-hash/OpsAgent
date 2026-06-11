@@ -1,7 +1,7 @@
 import { trpcServer } from "@hono/trpc-server";
 import { createContext } from "@opsagent/api/context";
 import { appRouter } from "@opsagent/api/routers/index";
-import { env } from "@opsagent/env/server";
+import { env } from "@opsagent/env";
 import {
   OPS_API_ROUTE,
   OPS_HTTP_METHOD,

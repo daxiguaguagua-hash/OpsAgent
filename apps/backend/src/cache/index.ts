@@ -1,4 +1,4 @@
-import { env } from "@opsagent/env/server";
+import { env } from "@opsagent/env";
 import { createClient } from "redis";
 
 type RedisClient = ReturnType<typeof createClient>;
