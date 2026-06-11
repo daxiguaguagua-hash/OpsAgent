@@ -98,7 +98,7 @@ M1-02 ~ M1-10 的事实由 `M1-milestone-acceptance.md` §2 任务状态表统�
 | [M3-13-gbrain-mcp.md](M3-13-gbrain-mcp.md) | 接入 GBrain MCP | ai-agent-team | `done` |
 | [M3-14-pre-execution-rag.md](M3-14-pre-execution-rag.md) | Agent 执行前 RAG | ai-agent-team | `done` |
 | [M3-15-knowledge-capture.md](M3-15-knowledge-capture.md) | 任务完成后知识沉淀 | ai-agent-team + docs-team | `done` |
-| [M3-16-rag-evaluation.md](M3-16-rag-evaluation.md) | RAG Evaluation 与引用审计 | qa-team + ai-agent-team | `planned` |
+| [M3-16-rag-evaluation.md](M3-16-rag-evaluation.md) | RAG Evaluation 与引用审计 | qa-team + ai-agent-team | `done` |
 
 ## 7. 状态更新纪律
 

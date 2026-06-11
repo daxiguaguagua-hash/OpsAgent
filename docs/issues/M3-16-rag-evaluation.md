@@ -1,7 +1,7 @@
 # M3-16 RAG Evaluation 与引用审计
 
-日期：2026-06-10
-状态：`planned`
+日期：2026-06-11
+状态：`done`
 前置任务：M3-14 / M3-15
 负责人：qa-team + ai-agent-team
 
