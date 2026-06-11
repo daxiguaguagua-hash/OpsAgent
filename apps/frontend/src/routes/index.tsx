@@ -11,6 +11,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import {
   Activity,
   AlertTriangle,
+  BrainCircuit,
   CheckCircle2,
   Clock3,
   Database,
@@ -21,6 +22,12 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+
+import { AnalysisReport, type AnalysisState } from "@/components/AnalysisReport";
+import {
+  requestAnalysis,
+  type AnalysisResponseDto,
+} from "@/lib/analysisApi";
 
 import {
   EXECUTION_STATUS,
@@ -95,6 +102,7 @@ function HomeComponent() {
     cache: string;
     orderCount: number;
   }>();
+  const [analysis, setAnalysis] = useState<AnalysisState>({ kind: "idle" });
 
   const refreshHealth = useCallback(async () => {
     try {
@@ -108,6 +116,26 @@ function HomeComponent() {
       setHealth(undefined);
     }
   }, []);
+
+  async function runAnalysis() {
+    setAnalysis({ kind: "loading" });
+    try {
+      const report: AnalysisResponseDto = await requestAnalysis(
+        env.VITE_SERVER_URL,
+      );
+      setAnalysis({ kind: "success", report });
+      toast.success(`Incident ${report.incidentId} 已生成`);
+    } catch (error) {
+      const message =
+        error instanceof OpsApiError
+          ? `${error.code} · HTTP ${error.status} · ${error.message}`
+          : error instanceof Error
+            ? error.message
+            : "未知错误";
+      setAnalysis({ kind: "error", message });
+      toast.error(`AI 分析失败：${message}`);
+    }
+  }
 
   useEffect(() => {
     void refreshHealth();
@@ -282,6 +310,32 @@ function HomeComponent() {
               );
             })}
           </div>
+        </section>
+
+        <section>
+          <div className="mb-3 flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-sm font-semibold">AI Analysis（AI 分析）</h2>
+              <p className="text-xs text-muted-foreground">
+                Agent 汇总 Prometheus / Loki / Tempo / Git 证据后生成 Incident Report。
+              </p>
+            </div>
+            <Button
+              disabled={analysis.kind === "loading"}
+              onClick={() => void runAnalysis()}
+              size="sm"
+              variant="default"
+            >
+              {analysis.kind === "loading"
+                ? <Loader2 className="animate-spin" />
+                : <BrainCircuit />}
+              {analysis.kind === "loading" ? "生成中…" : "AI 分析"}
+            </Button>
+          </div>
+          <AnalysisReport
+            state={analysis}
+            onRetry={() => void runAnalysis()}
+          />
         </section>
 
         <section className="min-h-64 border bg-background">
