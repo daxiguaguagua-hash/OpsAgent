@@ -92,7 +92,7 @@ M1-02 ~ M1-10 的事实由 `M1-milestone-acceptance.md` §2 任务状态表统�
 | [M3-07-git-context-tool.md](M3-07-git-context-tool.md) | Git Context Tool | ai-agent-team | `done` |
 | [M3-08-incident-report-template.md](M3-08-incident-report-template.md) | Incident Report 模板 | docs-team | `planned` |
 | [M3-09-frontend-report.md](M3-09-frontend-report.md) | 前端展示 AI 分析结果 | frontend-team | `planned` |
-| [M3-10-incident-lifecycle.md](M3-10-incident-lifecycle.md) | Incident Lifecycle 字段 | ai-agent-team | `planned` |
+| [M3-10-incident-lifecycle.md](M3-10-incident-lifecycle.md) | Incident Lifecycle 字段 | ai-agent-team | `done` |
 | [M3-11-knowledge-base.md](M3-11-knowledge-base.md) | 整理 Agent 知识库文档 | docs-team + ai-agent-team | `planned` |
 | [M3-12-gbrain-sources.md](M3-12-gbrain-sources.md) | 注册 GBrain Sources | ai-agent-team | `planned` |
 | [M3-13-gbrain-mcp.md](M3-13-gbrain-mcp.md) | 接入 GBrain MCP | ai-agent-team | `planned` |

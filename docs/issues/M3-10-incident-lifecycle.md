@@ -1,7 +1,7 @@
 # M3-10 Incident Lifecycle 字段
 
-日期：2026-06-10
-状态：`planned`
+日期：2026-06-11
+状态：`done`
 前置任务：M3-08
 负责人：ai-agent-team
 
