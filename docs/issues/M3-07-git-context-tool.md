@@ -1,7 +1,7 @@
 # M3-07 Git Context Tool
 
 日期：2026-06-10
-状态：`done`
+状态：`done`（提交 `fd50103`）
 前置任务：M3-01
 负责人：ai-agent-team
 
