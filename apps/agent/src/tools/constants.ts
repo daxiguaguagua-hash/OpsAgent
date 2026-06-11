@@ -73,3 +73,31 @@ export const LOKI_TOOL = {
 
 export type LokiToolErrorCode =
   (typeof LOKI_TOOL.ERROR)[keyof typeof LOKI_TOOL.ERROR];
+
+export const TRACE_TOOL = {
+  ID: "trace",
+  DESCRIPTION:
+    "Retrieve a single trace by traceId from Tempo (span tree, root service, total duration). Use this to locate the slow or failing span within a request.",
+  DEFAULT_ENDPOINT: "http://localhost:3200",
+  API_PATH: "/api/traces",
+  TIMEOUT_MS: 10_000,
+  TRACE_ID_PATTERN: /^[A-Za-z0-9._:-]+$/,
+  STATUS: {
+    OK: "OK",
+    ERROR: "ERROR",
+    UNSET: "UNSET",
+  },
+  ERROR: {
+    FETCH_FAILED: "FETCH_FAILED",
+    INVALID_RESPONSE: "INVALID_RESPONSE",
+    TEMPO_ERROR: "TEMPO_ERROR",
+    INVALID_TRACE_ID: "INVALID_TRACE_ID",
+    TRACE_NOT_FOUND: "TRACE_NOT_FOUND",
+  },
+} as const;
+
+export type TraceToolErrorCode =
+  (typeof TRACE_TOOL.ERROR)[keyof typeof TRACE_TOOL.ERROR];
+
+export type TraceSpanStatus =
+  (typeof TRACE_TOOL.STATUS)[keyof typeof TRACE_TOOL.STATUS];

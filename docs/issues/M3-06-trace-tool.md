@@ -1,7 +1,7 @@
 # M3-06 Trace Tool
 
-日期：2026-06-10
-状态：`planned`
+日期：2026-06-11
+状态：`done`
 前置任务：M3-01 / M2-06
 负责人：ai-agent-team
 
