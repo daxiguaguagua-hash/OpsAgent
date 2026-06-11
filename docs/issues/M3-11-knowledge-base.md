@@ -1,7 +1,7 @@
 # M3-11 整理 Agent Knowledge Base 文档
 
 日期：2026-06-11
-状态：`done`
+状态：`done`（提交 `cdbadd1`）
 前置任务：M2 验收
 负责人：docs-team + ai-agent-team
 

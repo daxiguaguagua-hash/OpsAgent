@@ -187,7 +187,7 @@ flowchart LR
 | [M3-08](issues/M3-08-incident-report-template.md) | 设计 Incident Report 模板 | docs-team | P0 | `done`（`52187b7`） | Markdown 模板 | 包含影响范围、证据、根因、建议、人类审核 |
 | [M3-09](issues/M3-09-frontend-report.md) | 前端展示 AI 分析结果 | frontend-team | P0 | `done`（`0020590`） | 报告展示组件 | 点击分析后能看到报告 |
 | [M3-10](issues/M3-10-incident-lifecycle.md) | 输出 Incident Lifecycle（故障生命周期） | ai-agent-team | P1 | `done`（`ed70cba`） | 生命周期字段 | 报告能区分发现、诊断、缓解、复盘 |
-| [M3-11](issues/M3-11-knowledge-base.md) | 整理 Agent Knowledge Base（智能体知识库）文档 | docs-team + ai-agent-team | P0 | `done` | `docs/architecture/`、`docs/decisions/`、`docs/knowledge/` 等知识目录 | 明确稳定知识、过程记录和历史归档边界，过期文档不会污染默认检索 |
+| [M3-11](issues/M3-11-knowledge-base.md) | 整理 Agent Knowledge Base（智能体知识库）文档 | docs-team + ai-agent-team | P0 | `done`（`cdbadd1`） | `docs/architecture/`、`docs/decisions/`、`docs/knowledge/` 等知识目录 | 明确稳定知识、过程记录和历史归档边界，过期文档不会污染默认检索 |
 | [M3-12](issues/M3-12-gbrain-sources.md) | 注册 GBrain Sources（数据源） | ai-agent-team | P0 | `planned` | GBrain 多数据源配置和同步命令 | 可以按文档目录独立同步，并能追踪检索结果来源 |
 | [M3-13](issues/M3-13-gbrain-mcp.md) | 接入 GBrain MCP（模型上下文协议） | ai-agent-team | P0 | `planned` | GBrain MCP 接入配置 | Codex 和 Claude Code 能通过受控工具查询同一个项目知识库 |
 | [M3-14](issues/M3-14-pre-execution-rag.md) | 实现 Agent 执行前 RAG（检索增强生成） | ai-agent-team | P0 | `planned` | 检索策略和上下文组装逻辑 | 执行者能同时读取任务事实、历史知识和当前代码上下文，且来源边界清晰 |
