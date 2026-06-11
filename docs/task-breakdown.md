@@ -182,7 +182,7 @@ flowchart LR
 | [M3-03](issues/M3-03-mock-report.md) | 实现 Mock 报告模式 | ai-agent-team | P0 | `done`（`23ee4ad`） | mock analyzer | 无模型也能返回固定报告 |
 | [M3-04](issues/M3-04-prometheus-tool.md) | 实现 Prometheus Tool（工具） | ai-agent-team | P0 | `done`（`c490ea8`） | 查询指标工具 | 能查询错误率和延迟 |
 | [M3-05](issues/M3-05-loki-tool.md) | 实现 Loki Tool（工具） | ai-agent-team | P0 | `done`（`309012d`） | 查询日志工具 | 能按时间窗口查询错误日志 |
-| [M3-06](issues/M3-06-trace-tool.md) | 实现 Trace Tool（工具） | ai-agent-team | P1 | `done` | 查询链路工具 | 能按 `traceId` 查询链路 |
+| [M3-06](issues/M3-06-trace-tool.md) | 实现 Trace Tool（工具） | ai-agent-team | P1 | `done`（`5cba6e0`） | 查询链路工具 | 能按 `traceId` 查询链路 |
 | [M3-07](issues/M3-07-git-context-tool.md) | 实现 Git Context Tool（源码上下文工具） | ai-agent-team | P1 | `done` | 读取文件和 commit（提交） | 能关联最近提交 |
 | [M3-08](issues/M3-08-incident-report-template.md) | 设计 Incident Report 模板 | docs-team | P0 | `planned` | Markdown 模板 | 包含影响范围、证据、根因、建议、人类审核 |
 | [M3-09](issues/M3-09-frontend-report.md) | 前端展示 AI 分析结果 | frontend-team | P0 | `planned` | 报告展示组件 | 点击分析后能看到报告 |
