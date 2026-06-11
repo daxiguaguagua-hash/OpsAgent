@@ -86,7 +86,7 @@ M1-02 ~ M1-10 的事实由 `M1-milestone-acceptance.md` §2 任务状态表统�
 | [M3-01-mastra-project.md](M3-01-mastra-project.md) | 搭建 Mastra 项目 | ai-agent-team | `done` |
 | [M3-02-model-provider.md](M3-02-model-provider.md) | 模型 Provider 抽象 | ai-agent-team | `done` |
 | [M3-03-mock-report.md](M3-03-mock-report.md) | Mock 报告模式 | ai-agent-team | `done` |
-| [M3-04-prometheus-tool.md](M3-04-prometheus-tool.md) | Prometheus Tool | ai-agent-team | `planned` |
+| [M3-04-prometheus-tool.md](M3-04-prometheus-tool.md) | Prometheus Tool | ai-agent-team | `done` |
 | [M3-05-loki-tool.md](M3-05-loki-tool.md) | Loki Tool | ai-agent-team | `planned` |
 | [M3-06-trace-tool.md](M3-06-trace-tool.md) | Trace Tool | ai-agent-team | `planned` |
 | [M3-07-git-context-tool.md](M3-07-git-context-tool.md) | Git Context Tool | ai-agent-team | `done` |
