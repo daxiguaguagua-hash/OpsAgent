@@ -1,7 +1,22 @@
-export type IncidentSeverity = "low" | "medium" | "high" | "critical";
+export const INCIDENT_SEVERITY = {
+  LOW: "low",
+  MEDIUM: "medium",
+  HIGH: "high",
+  CRITICAL: "critical",
+} as const;
+
+export type IncidentSeverity = (typeof INCIDENT_SEVERITY)[keyof typeof INCIDENT_SEVERITY];
+
+export const EVIDENCE_SOURCE = {
+  FRONTEND: "frontend",
+  BACKEND: "backend",
+  AGENT: "agent",
+  OBSERVABILITY: "observability",
+  GIT: "git",
+} as const;
 
 export interface Evidence {
-  source: "frontend" | "backend" | "agent" | "observability" | "git";
+  source: (typeof EVIDENCE_SOURCE)[keyof typeof EVIDENCE_SOURCE];
   message: string;
   metadata?: Record<string, string>;
 }

@@ -1,7 +1,11 @@
 import { env } from "@opsagent/env/server";
 import { openai } from "@ai-sdk/openai";
+import {
+  MODEL_PROVIDER,
+  type ModelProvider,
+} from "./constants.js";
 
-export type ModelProvider = "openai" | "ollama" | "mock";
+export type { ModelProvider };
 
 export interface ModelConfig {
   provider: ModelProvider;
@@ -10,26 +14,21 @@ export interface ModelConfig {
 
 export function createModel(config: ModelConfig) {
   switch (config.provider) {
-    case "openai":
-      return openai(config.modelName || "gpt-4o");
-    case "ollama":
-      // TODO: Implement Ollama provider when needed
+    case MODEL_PROVIDER.OPENAI:
+      return openai(config.modelName || env.CLOUD_MODEL);
+    case MODEL_PROVIDER.OLLAMA:
       throw new Error("Ollama provider requires @ai-sdk/ollama package");
-    case "mock":
+    case MODEL_PROVIDER.MOCK:
       return createMockModel();
     default:
       throw new Error(`Unknown model provider: ${config.provider}`);
   }
 }
 
-/**
- * Creates a mock language model for testing without API calls.
- * Returns fixed responses for agent analysis.
- */
 function createMockModel() {
   return {
     specificationVersion: "v2" as const,
-    provider: "mock",
+    provider: MODEL_PROVIDER.MOCK,
     modelId: "mock-model",
     supportsUrl: () => false,
     doGenerate: async () => ({
@@ -58,8 +57,11 @@ function createMockModel() {
 }
 
 export function getModelConfigFromEnv(): ModelConfig {
-  const provider = (env.MODEL_PROVIDER as ModelProvider) || "mock";
-  const modelName = provider === "ollama" ? env.OLLAMA_MODEL : (env.OPENAI_MODEL || "gpt-4o");
+  const provider = (env.MODEL_PROVIDER as ModelProvider) || MODEL_PROVIDER.MOCK;
+  const modelName =
+    provider === MODEL_PROVIDER.OLLAMA
+      ? env.OLLAMA_MODEL
+      : env.CLOUD_MODEL;
 
   return {
     provider,

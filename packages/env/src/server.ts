@@ -9,9 +9,9 @@ import { getRepoRoot, resolveFromRoot } from "./repo-root.js";
 const repoRoot = getRepoRoot();
 dotenv.config({
   path: [
-    path.resolve(".env"),               // ① CWD 包级 .env（最高优先）
-    path.join(repoRoot, ".env"),        // ② 根 .env（补充）
-    path.join(repoRoot, ".env.example"),// ③ 根 .env.example（最后兜底）
+    path.resolve(".env"), // ① CWD 包级 .env（最高优先）
+    path.join(repoRoot, ".env"), // ② 根 .env（补充）
+    path.join(repoRoot, ".env.example"), // ③ 根 .env.example（最后兜底）
   ],
 });
 
@@ -27,15 +27,21 @@ export const env = createEnv({
     CORS_ORIGIN: z.url(),
     PORT: z.coerce.number().int().positive().default(8000),
     MODEL_PROVIDER: z.enum(["openai", "ollama", "mock"]).default("mock"),
-    OLLAMA_MODEL: z.string().default("qwen2.5-coder:14b"),
-    NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+    OLLAMA_MODEL: z
+      .string()
+      .default(process.env.OLLAMA_MODEL || "qwen2.5-coder:14b"),
+    CLOUD_MODEL: z.string().default("gpt-4o"),
+    NODE_ENV: z
+      .enum(["development", "production", "test"])
+      .default("development"),
     LOG_FILE_PATH: z.string().min(1).optional(),
-    OTEL_TRACES_ENABLED: z.enum(["true", "false"])
+    OTEL_TRACES_ENABLED: z
+      .enum(["true", "false"])
       .transform((value) => value === "true")
       .default(true),
-    OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: z.url().default(
-      "http://localhost:4318/v1/traces",
-    ),
+    OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: z
+      .url()
+      .default("http://localhost:4318/v1/traces"),
     TEMPO_ENDPOINT: z.url().default("http://localhost:3200"),
   },
   runtimeEnv: process.env,

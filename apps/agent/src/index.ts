@@ -1,6 +1,7 @@
 import { createOpsAgent } from "./agents/index.js";
 import { createModel, getModelConfigFromEnv } from "./model-provider.js";
 import type { IncidentReport } from "@opsagent/shared";
+import { INCIDENT_SEVERITY, EVIDENCE_SOURCE } from "@opsagent/shared";
 
 async function main() {
   // M3-02: Model provider abstraction (openai/ollama/mock)
@@ -13,11 +14,11 @@ async function main() {
 
   const report: IncidentReport = {
     id: "m3-01-mastra-init",
-    severity: "low",
+    severity: INCIDENT_SEVERITY.LOW,
     summary: "Mastra agent framework initialized successfully.",
     evidence: [
       {
-        source: "agent",
+        source: EVIDENCE_SOURCE.AGENT,
         message: `Agent name: ${opsAgent.name}`,
       },
     ],

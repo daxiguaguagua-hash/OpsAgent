@@ -101,6 +101,48 @@ describe("env 对象（createEnv 解析后的值）", () => {
       `NODE_ENV 应为 development|production|test，实际: ${env.NODE_ENV}`,
     );
   });
+
+  test("CLOUD_MODEL 应为非空字符串", () => {
+    assert.equal(typeof env.CLOUD_MODEL, "string");
+    assert.ok(
+      env.CLOUD_MODEL.length > 0,
+      "CLOUD_MODEL 应有非空默认值（env 是模型名的唯一数据源）",
+    );
+  });
+
+  test("TEMPO_ENDPOINT 应为 http URL", () => {
+    assert.ok(
+      env.TEMPO_ENDPOINT.startsWith("http://"),
+      `TEMPO_ENDPOINT 应以 http:// 开头，实际: ${env.TEMPO_ENDPOINT}`,
+    );
+  });
+});
+
+describe("schema 完整性护栏", () => {
+  // 与 server.ts 中 createEnv({ server: {...} }) 的键保持同步
+  const ALL_SCHEMA_KEYS = [
+    "DATABASE_URL",
+    "REDIS_URL",
+    "CORS_ORIGIN",
+    "PORT",
+    "MODEL_PROVIDER",
+    "OLLAMA_MODEL",
+    "CLOUD_MODEL",
+    "NODE_ENV",
+    "LOG_FILE_PATH",
+    "OTEL_TRACES_ENABLED",
+    "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT",
+    "TEMPO_ENDPOINT",
+  ] as const;
+
+  test("env 对象应包含 server.ts schema 中定义的所有字段", () => {
+    for (const key of ALL_SCHEMA_KEYS) {
+      assert.ok(
+        key in env,
+        `env.${key} 应在 env 对象中存在（可能缺少 schema 定义或未加载）`,
+      );
+    }
+  });
 });
 
 describe("默认值", () => {
@@ -110,6 +152,10 @@ describe("默认值", () => {
 
   test("MODEL_PROVIDER 默认 mock", () => {
     assert.equal(env.MODEL_PROVIDER, "mock");
+  });
+
+  test("CLOUD_MODEL 默认 gpt-4o", () => {
+    assert.equal(env.CLOUD_MODEL, "gpt-4o");
   });
 
   test("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT 默认 localhost:4318", () => {
