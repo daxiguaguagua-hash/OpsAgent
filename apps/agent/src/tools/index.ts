@@ -1,1 +1,2 @@
-// Tools will be added in M3-04 to M3-07
+export { createGitContextTool } from "./git-context-tool.js";
+export type { GitContextDeps } from "./git-context-tool.js";

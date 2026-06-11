@@ -89,7 +89,7 @@ M1-02 ~ M1-10 的事实由 `M1-milestone-acceptance.md` §2 任务状态表统�
 | [M3-04-prometheus-tool.md](M3-04-prometheus-tool.md) | Prometheus Tool | ai-agent-team | `planned` |
 | [M3-05-loki-tool.md](M3-05-loki-tool.md) | Loki Tool | ai-agent-team | `planned` |
 | [M3-06-trace-tool.md](M3-06-trace-tool.md) | Trace Tool | ai-agent-team | `planned` |
-| [M3-07-git-context-tool.md](M3-07-git-context-tool.md) | Git Context Tool | ai-agent-team | `planned` |
+| [M3-07-git-context-tool.md](M3-07-git-context-tool.md) | Git Context Tool | ai-agent-team | `done` |
 | [M3-08-incident-report-template.md](M3-08-incident-report-template.md) | Incident Report 模板 | docs-team | `planned` |
 | [M3-09-frontend-report.md](M3-09-frontend-report.md) | 前端展示 AI 分析结果 | frontend-team | `planned` |
 | [M3-10-incident-lifecycle.md](M3-10-incident-lifecycle.md) | Incident Lifecycle 字段 | ai-agent-team | `planned` |

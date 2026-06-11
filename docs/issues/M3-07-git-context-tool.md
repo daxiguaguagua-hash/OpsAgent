@@ -1,7 +1,7 @@
 # M3-07 Git Context Tool
 
 日期：2026-06-10
-状态：`planned`
+状态：`done`
 前置任务：M3-01
 负责人：ai-agent-team
 
@@ -23,9 +23,12 @@
 {
   "path": "apps/backend/src/business/orders.ts",
   "content": "...",
+  "truncated": false,
+  "originalSizeBytes": 2048,
   "recentCommits": [
     { "hash": "abc1234", "author": "...", "date": "...", "message": "..." }
-  ]
+  ],
+  "warnings": []
 }
 ```
 
@@ -39,8 +42,11 @@
 
 | 文件 | 说明 |
 |---|---|
-| `apps/agent/src/tools/git-context-tool.ts` | 读文件 + `git log` 调用封装 |
-| `apps/agent/src/tools/git-context-tool.test.ts` | 覆盖路径逃逸、文件缺失、commit 解析 |
+| `apps/agent/src/tools/git-context-tool.ts` | 读文件 + `git log` 调用封装，`createGitContextTool(deps)` 工厂 |
+| `apps/agent/src/tools/constants.ts` | `GIT_CONTEXT_TOOL` 领域常量（ID、描述、阈值、错误码） |
+| `apps/agent/src/tools/git-context-tool.test.ts` | 覆盖路径逃逸、文件缺失、commit 解析、git 降级、zod 校验（8 用例） |
+| `apps/agent/src/tools/index.ts` | 新增 `createGitContextTool` 桶导出 |
+| `apps/agent/src/agents/index.ts` | `AgentConfig.tools?` 透传给 `new Agent({ tools })` |
 
 ## 6. 验收标准
 
@@ -50,6 +56,12 @@
 | 路径逃逸 | 返回权限错误 |
 | 文件不存在 | 返回结构化错误 |
 | 大文件 | 截断并标记 |
+
+## 测试证据
+
+- `pnpm --filter @opsagent/agent exec tsx --test src/tools/git-context-tool.test.ts`：`pass 8 / fail 0`
+- `turbo check-types --filter=@opsagent/agent`：0 errors
+- `turbo check-types test`：12/12 tasks 成功（全量回归）
 
 ## 7. 不做的事（边界）
 
