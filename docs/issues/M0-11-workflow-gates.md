@@ -1,5 +1,10 @@
 # M0-11 Workflow Gates 工作流门禁 TS 化
 
+日期：2026-06-06
+状态：`done`（M0-17 验收通过）
+前置任务：M0-10
+负责人：sre-team
+
 ## 1. 目标
 
 M0-11 的目标是把 Claude Code hooks（钩子）里的复杂判断迁移到 TypeScript（类型脚本），让规则更容易阅读、测试和扩展。

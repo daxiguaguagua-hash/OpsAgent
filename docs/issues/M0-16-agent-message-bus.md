@@ -1,5 +1,10 @@
 # M0-16 Agent Message Bus 智能体消息总线
 
+日期：2026-06-06
+状态：`done`（M0-17 验收通过）
+前置任务：M0-15
+负责人：ai-agent-team
+
 ## 1. 目标
 
 M0-16 为 Codex 和 Claude Code + DeepSeek 建立文件型异步通信通道。消息可以投递、读取、回复、解决和归档，并被下一次 Actor Runtime（执行者运行时）调用注入 Prompt（提示词）。

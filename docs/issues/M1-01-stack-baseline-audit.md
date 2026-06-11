@@ -1,5 +1,9 @@
 # M1-01 技术栈确认与基线审计
 
+日期：2026-06-07
+状态：`done`（M1 验收通过）
+负责人：Vincent Huang
+
 ## 1. 结论
 
 OpsAgent 沿用 better-t-stack（全栈脚手架）生成的 TypeScript（类型脚本）技术栈，不重新搭建前后端。

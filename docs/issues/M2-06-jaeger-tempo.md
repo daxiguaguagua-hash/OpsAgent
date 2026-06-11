@@ -1,7 +1,7 @@
 # M2-06 Jaeger / Tempo 链路追踪
 
 日期：2026-06-09
-状态：`planned`
+状态：`done`（提交 `34e98f8`）
 前置任务：M2-01 / M2-02 / M2-03 / M2-04 / M2-05
 依赖文档：
 - [`test-discipline-checklist.md`](../workflows/test-discipline-checklist.md)（必须遵守）

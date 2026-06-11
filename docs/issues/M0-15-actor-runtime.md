@@ -1,5 +1,10 @@
 # M0-15 Actor Runtime 执行者运行时
 
+日期：2026-06-06
+状态：`done`（M0-17 验收通过）
+前置任务：M0-14
+负责人：ai-agent-team
+
 ## 1. 目标
 
 M0-15 把 M0-14 生成的 Execution Brief（执行简报）转换为可执行的 Execution Request（执行请求），并通过 Claude Code Adapter（适配器）调用本机 Claude Code CLI（命令行工具）。

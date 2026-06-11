@@ -1,5 +1,10 @@
 # M0-12 Role and Test Governance 角色与测试治理
 
+日期：2026-06-06
+状态：`done`（M0-17 验收通过）
+前置任务：M0-11
+负责人：qa-team
+
 ## 1. 目标
 
 M0-12 把 Architect（架构角色）、Implementer（实现角色）、Test Strategist（测试策略角色）、Tester（测试角色）、Reviewer（审查角色）和 Human Approver（人类批准角色）的职责写成机器可读策略。
