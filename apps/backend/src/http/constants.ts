@@ -1,6 +1,7 @@
 export const HTTP_ROUTE = {
   ROOT: "/",
   TRPC: "/trpc/*",
+  ANALYSIS: "/api/analysis",
 } as const;
 
 export const HTTP_STATUS = {
@@ -22,6 +23,7 @@ export const API_ERROR_CODE = {
   INTERNAL_SERVER_ERROR: "INTERNAL_SERVER_ERROR",
   TRACE_NOT_FOUND: "TRACE_NOT_FOUND",
   TEMPO_UNAVAILABLE: "TEMPO_UNAVAILABLE",
+  ANALYSIS_FAILED: "ANALYSIS_FAILED",
 } as const;
 
 export const API_MESSAGE = {
@@ -31,4 +33,5 @@ export const API_MESSAGE = {
   INTERNAL_SERVER_ERROR: "An unexpected server error occurred.",
   TRACE_NOT_FOUND: "The requested trace was not found.",
   TEMPO_UNAVAILABLE: "The tracing backend (Tempo) is currently unavailable.",
+  ANALYSIS_FAILED: "Incident analysis could not be generated.",
 } as const;

@@ -36,6 +36,10 @@ import {
   type DemoService,
 } from "./business/demo";
 import {
+  createDefaultAnalysisService,
+  type AnalysisResponse,
+} from "./business/analysis";
+import {
   API_ERROR_CODE,
   API_MESSAGE,
   HTTP_ROUTE,
@@ -43,12 +47,17 @@ import {
 } from "./http/constants";
 import { DemoForcedFailureError } from "./http/errors";
 
+export interface AnalysisService {
+  generate(): Promise<AnalysisResponse>;
+}
+
 export function createApp(
   orders: OrderService = orderService,
   demo: DemoService = demoService,
   logSink: LogSink = console.log,
   tracer?: Tracer,
   traceProxy: TraceProxy = createTraceProxy(),
+  analysis: AnalysisService = createDefaultAnalysisService(),
 ) {
   const app = new Hono();
 
@@ -131,6 +140,25 @@ export function createApp(
   });
 
   app.get(`${OPS_API_ROUTE.TRACES}/:traceId`, createTraceProxyHandler(traceProxy));
+
+  app.post(HTTP_ROUTE.ANALYSIS, async (context) => {
+    try {
+      const result = await analysis.generate();
+      return context.json(result, HTTP_STATUS.CREATED);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      context.set("errorCode", API_ERROR_CODE.ANALYSIS_FAILED);
+      return context.json(
+        {
+          error: {
+            code: API_ERROR_CODE.ANALYSIS_FAILED,
+            message: `${API_MESSAGE.ANALYSIS_FAILED} (${message})`,
+          },
+        },
+        HTTP_STATUS.SERVICE_UNAVAILABLE,
+      );
+    }
+  });
 
   app.onError((error, context) => {
     if (error instanceof DemoForcedFailureError) {

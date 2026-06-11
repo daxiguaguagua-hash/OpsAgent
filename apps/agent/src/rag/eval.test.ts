@@ -18,7 +18,7 @@ import type {
   GBrainSource,
   KnowledgeChunk,
   SearchOptions,
-} from "../../gbrain/types.js";
+} from "../gbrain/types.js";
 import {
   auditCitations,
   checkReportCoverage,

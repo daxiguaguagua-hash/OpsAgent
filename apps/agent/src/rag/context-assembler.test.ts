@@ -14,7 +14,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
-import type { KnowledgeChunk } from "../../gbrain/types.js";
+import type { KnowledgeChunk } from "../gbrain/types.js";
 import {
   assembleContext,
   renderPrompt,

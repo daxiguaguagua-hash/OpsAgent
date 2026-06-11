@@ -1,4 +1,4 @@
-import type { GBrainClient, KnowledgeChunk } from "../../gbrain/types.js";
+import type { GBrainClient, KnowledgeChunk } from "../gbrain/types.js";
 
 export interface CitationAuditResult {
   valid: string[];

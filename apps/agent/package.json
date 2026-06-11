@@ -8,8 +8,8 @@
     "check-types": "tsc -b --pretty false",
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
-    "test": "tsx --test 'src/**/*.test.ts' 'gbrain/**/*.test.ts'",
-    "gbrain:sync": "tsx gbrain/sync.ts"
+    "test": "tsx --test 'src/**/*.test.ts'",
+    "gbrain:sync": "tsx src/gbrain/sync.ts"
   },
   "dependencies": {
     "@ai-sdk/alibaba": "^1.0.26",

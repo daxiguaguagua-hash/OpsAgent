@@ -97,14 +97,14 @@ export class InMemoryGBrainClient implements GBrainClient {
 
   private walk(dir: string): string[] {
     const out: string[] = [];
-    let entries: ReturnType<typeof readdirSync> = [];
+    let entries: string[] = [];
     try {
-      entries = readdirSync(dir);
+      entries = readdirSync(dir, { withFileTypes: false }) as string[];
     } catch {
       return out;
     }
     for (const name of entries) {
-      const full = join(dir, name);
+      const full = join(dir, name as string);
       let stat;
       try {
         stat = statSync(full);

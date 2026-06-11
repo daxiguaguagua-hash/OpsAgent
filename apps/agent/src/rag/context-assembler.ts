@@ -1,4 +1,4 @@
-import type { KnowledgeChunk } from "../../gbrain/types.js";
+import type { KnowledgeChunk } from "../gbrain/types.js";
 
 export type ContextSourceKind = "task" | "knowledge" | "code";
 
