@@ -1,7 +1,7 @@
 # M3-13 接入 GBrain MCP
 
 日期：2026-06-11
-状态：`done`
+状态：`done`（提交 `b8f2f3f`）
 前置任务：M3-12
 负责人：ai-agent-team
 
