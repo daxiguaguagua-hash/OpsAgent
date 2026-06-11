@@ -5,6 +5,8 @@
 前置任务：M0-15
 负责人：ai-agent-team
 
+> ⚠️ **已废弃**：自建消息总线（`messageBus.ts` / `messageCli.ts` / `messageBus.test.ts`）已在 M3 阶段移除，根 `package.json` 的 7 个 `msg:*` 脚本与 `taskTypes.ts` 的 `AgentMessageType` 等类型一并删除。多 Agent 协作已转向 `docs/workflows/agent-execution-workflow.md` 描述的编排引擎 + Actor Runtime。本卡片保留作为 M0 设计过程的历史记录。
+
 ## 1. 目标
 
 M0-16 为 Codex 和 Claude Code + DeepSeek 建立文件型异步通信通道。消息可以投递、读取、回复、解决和归档，并被下一次 Actor Runtime（执行者运行时）调用注入 Prompt（提示词）。

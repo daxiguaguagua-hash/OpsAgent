@@ -58,7 +58,7 @@ pnpm db:watch         # 监听 schema 变化自动推送
 
 `packages/workflow-gates/` 提供多角色任务管理命令，任务数据存储在 `.agent/` 目录：
 
-> 所有 `task:*` 和 `msg:*` 命令通过 `node --experimental-strip-types` 直接运行 TypeScript 源码，无需预编译。
+> 所有 `task:*` 命令通过 `node --experimental-strip-types` 直接运行 TypeScript 源码，无需预编译。
 
 ```bash
 # 创建和定义当前任务
@@ -86,18 +86,6 @@ pnpm task:validate                               # 校验当前任务门禁
 pnpm task:review                                 # 标记进入审查
 pnpm task:finish                                 # 标记任务完成
 pnpm task:close                                  # 归档任务
-```
-
-### Agent 消息总线
-
-```bash
-pnpm msg:send -- <任务ID> <from> <to> <类型> "<主题>" "<内容>"
-pnpm msg:inbox -- <actor名>                       # 查看收件箱
-pnpm msg:outbox -- <actor名>                      # 查看发件箱
-pnpm msg:show -- <接收者> <消息ID>                # 查看消息详情
-pnpm msg:read -- <接收者> <消息ID>                # 标记已读
-pnpm msg:reply -- <接收者> <消息ID> <发送者> <类型> "<回复内容>" # 回复消息
-pnpm msg:resolve -- <接收者> <消息ID>             # 标记已解决
 ```
 
 ### 单包命令
@@ -142,7 +130,7 @@ packages/env/     → @t3-oss/env-core + Zod 环境变量校验（server.ts / we
 packages/shared/  → 共享类型：IncidentReport、Evidence、Recommendation，以及 OPS_API_ROUTE 等常量
 packages/ui/      → shadcn/ui 组件 + Tailwind v4 + CVA
 packages/config/         → 共享 tsconfig.base.json
-packages/workflow-gates/ → 多角色任务状态机、消息总线、Actor 运行时、编排引擎
+packages/workflow-gates/ → 多角色任务状态机、Actor 运行时、编排引擎
 observability/           → Prometheus/Loki/Tempo/Grafana/OTel 配置（M2 建设中）
 ```
 
@@ -151,9 +139,8 @@ observability/           → Prometheus/Loki/Tempo/Grafana/OTel 配置（M2 建�
 `packages/workflow-gates/` 实现了一个模拟多 Agent 协作的本地工作流系统：
 
 - **`taskState.ts`** — 任务状态机：`planned` → `implementing` → `testing` → `ready_for_review` → `completed`
-- **`taskTypes.ts`** — 核心类型：`ActiveTask`、`RolePolicy`、`ExecutionBrief`、`AgentMessage`
+- **`taskTypes.ts`** — 核心类型：`ActiveTask`、`RolePolicy`、`ExecutionBrief`、`ExecutionResult`
 - **`orchestration.ts`** — 编排引擎：根据角色策略生成下一步执行指令
-- **`messageBus.ts`** — Agent 间消息总线：支持 `task_assignment`、`execution_result`、`test_change_request`、`review_request`、`decision`、`clarification` 消息类型
 - **`actorRuntime.ts`** — Actor 执行运行时：将 `ExecutionRequest` 转化为实际 CLI 调用
 - **`rolePolicy.ts`** — 角色策略：定义 architect/implementer/tester/test-strategist/reviewer/approver 分工
 
@@ -260,9 +247,7 @@ Agent 通过 `MODEL_PROVIDER` 环境变量支持三种模式：
 | `active-task.example.json` | 任务声明模板 |
 | `role-policy.schema.json` | role-policy 的 JSON Schema |
 | `actor-registry.schema.json` | actor-registry 的 JSON Schema |
-| `message.schema.json` | Agent 消息的 JSON Schema |
 | `history/` | 已完成任务的归档 |
-| `messages/` | Agent 间消息持久化存储 |
 
 `.claude/active-goal` 文件已被 **gitignore**，属于开发者本地状态。开始新阶段时创建此文件，一行写入阶段名即可（如 `M1`）。完成后删除或归档。
 
