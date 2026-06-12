@@ -10,14 +10,14 @@ OpsAgent 是一个 **AI Ops 智能运维本地演示项目**，基于 Docker Com
 
 ## 里程碑路线图
 
-当前阶段由 `.claude/active-goal` 控制（当前：**M2**）。
+当前阶段由 `.claude/active-goal` 控制（当前：**M3**）。
 
 | 里程碑 | 内容 | 状态 |
 |---|---|---|
 | M0 | 治理框架、多 Agent 工作流、消息总线、任务状态机 | 已完成 |
 | M1 | 最小业务系统（订单 CRUD）与智能体工作流验收 | 已完成 |
-| M2 | 可观测性基础闭环（Prometheus + Loki + Tempo + Grafana） | 进行中（M2-01 至 M2-05 已完成；M2-06 将接入 Tempo 持久化 Trace） |
-| M3 | AI 分析 + GBrain RAG 文档知识检索 | 规划中 |
+| M2 | 可观测性基础闭环（Prometheus + Loki + Tempo + Grafana） | 已完成 |
+| M3 | AI 分析 + GBrain RAG 文档知识检索 + Incident Report | 已完成（16 卡闭环） |
 | M4 | 前端源码定位（Sentry + 简化自研反解） | 规划中 |
 
 ## 大仓常用命令
@@ -33,6 +33,10 @@ pnpm check-types      # 对所有包做类型检查
 # 单包测试（各包使用自身配置的测试运行器）
 pnpm -F backend test
 pnpm -F @opsagent/db test
+pnpm -F @opsagent/agent test    # Mastra agent 工具和模块测试
+
+# Agent 特定命令
+pnpm -F @opsagent/agent gbrain:sync   # 同步 GBrain 知识库源码索引
 
 # 单应用开发
 pnpm dev:frontend     # turbo -F frontend dev (Vite, 端口 3001)
@@ -114,9 +118,14 @@ pnpm compose:config                     # 校验 docker-compose.yml 语法
 本项目已初始化 `.codegraph/`（基于 tree-sitter AST 的代码索引）。查找符号、追踪调用链、分析变更影响时，优先使用 `codegraph_*` MCP 工具，不要以 grep/Read 起步。详细规则见 `docs/codegraph.md` 和用户级 `CLAUDE.md`。
 
 ```
-apps/agent/       → Mastra AI Agent（仅做 mock 冒烟测试）
+apps/agent/       → Mastra AI Agent（M3: 可观测性工具 + GBrain RAG + Incident Report）
+  src/tools/      → Mastra 工具函数（Prometheus 指标、Loki 日志、Tempo Trace、Git 源码定位）
+  src/agents/     → Mastra Agent 定义
+  src/gbrain/     → GBrain MCP Server + Sources 同步 + 内存搜索客户端
+  src/rag/        → RAG Context Assembler（检索增强）、Knowledge Writer（知识沉淀）、Citation Audit（引用审计）、Eval（评估）
+  src/report/     → IncidentReport Schema（Zod 校验）+ Lifecycle 管理
 apps/backend/     → Hono HTTP 服务 + tRPC 端点
-  src/business/   → 业务服务层（orders.ts、demo.ts）—— 每个子目录有独立的 constants.ts
+  src/business/   → 业务服务层（orders.ts、analysis.ts、demo.ts）—— 每个子目录有独立的 constants.ts
   src/cache/      → Redis 缓存客户端（懒加载单例）
   src/http/       → HTTP 路由常量、状态码、错误类
   src/observability/ → 结构化 JSON 日志、OpenTelemetry Trace、traceId 关联、Prometheus 指标
@@ -131,7 +140,7 @@ packages/shared/  → 共享类型：IncidentReport、Evidence、Recommendation�
 packages/ui/      → shadcn/ui 组件 + Tailwind v4 + CVA
 packages/config/         → 共享 tsconfig.base.json
 packages/workflow-gates/ → 多角色任务状态机、Actor 运行时、编排引擎
-observability/           → Prometheus/Loki/Tempo/Grafana/OTel 配置（M2 建设中）
+observability/           → Prometheus/Loki/Tempo/Grafana/OTel 配置（M2 已完成）
 ```
 
 ### 多 Agent 工作流层
@@ -209,15 +218,32 @@ Sentry 不在 M2 范围，将在 M4 接入，用于前端异常聚合、Release 
 
 根目录 `.env.example` 展示了期望的变量结构。后端需要 `.env`（复制 `.env.example` 到 `apps/backend/.env`），前端同理。
 
+### ### Mastra Agent 工具层（M3）
+
+Agent 通过 Mastra 工具函数接入可观测性数据，5 个工具：
+
+| 工具 | 文件 | 功能 |
+|---|---|---|
+| `prometheusTool` | `tools/prometheus-tool.ts` | 即时查询 Prometheus 指标（PromQL） |
+| `lokiTool` | `tools/loki-tool.ts` | 按 traceId 或时间范围查询 Loki 日志 |
+| `traceTool` | `tools/trace-tool.ts` | 按 traceId 查询 Tempo 链路追踪详情 |
+| `gitContextTool` | `tools/git-context-tool.ts` | 按文件路径+行号定位 Git 历史中的相关代码 |
+| `gbrainSearchTool` | `gbrain/mcp-tools.ts` | GBrain MCP 知识库语义搜索 |
+
+工具由 `tools/index.ts` 统一导出，供 Mastra Agent 注册使用。
+
 ### Agent 模型策略
 
-Agent 通过 `MODEL_PROVIDER` 环境变量支持三种模式：
+Agent 基于 Mastra 框架（`@mastra/core` v1.41+），通过 `MODEL_PROVIDER` 环境变量选择模型提供商：
 
 | 值 | 行为 |
 |-------|----------|
 | `mock` | 返回预设结果（默认，无需网络） |
-| `openai` | 云端模型（需要 API Key） |
+| `openai` | OpenAI 云端模型（需要 `OPENAI_API_KEY`） |
+| `deepseek` | DeepSeek 云端模型（需要 `DEEPSEEK_API_KEY`） |
 | `ollama` | 本地 Ollama 推理（默认使用 `qwen2.5-coder:14b`） |
+
+依赖 `@ai-sdk/openai`、`@ai-sdk/deepseek`、`@ai-sdk/alibaba` 作为 AI SDK provider 适配层。
 
 ## Claude Code 治理钩子
 
@@ -318,7 +344,12 @@ Prometheus 抓取后端 `:8000/metrics` 端点，指标由 `prom-client` 库直�
 - `docs/task-breakdown.md` — 里程碑、任务卡片、交付物
 - `docs/team-ownership.md` — 模拟团队边界（frontend/backend/agent/sre/docs）
 - `docs/codegraph.md` — CodeGraph 使用规则与约束
+- `docs/testing-guide.md` — 测试指南
+- `docs/M2-06-tempo-testing-guide.md` — Tempo 链路测试指南
 - `docs/workflows/agent-execution-workflow.md` — `/goal` 命令、钩子门禁、完成汇报模板
 - `docs/workflows/agent-role-policy.md` — 多角色任务工作流、任务状态机、测试治理规则
-- `docs/issues/` — 各里程碑的详细 Issue 卡片（M0-11 ~ M0-17, M1-01 等）
+- `docs/issues/` — 各里程碑的详细 Issue 卡片
 - `docs/devlog/` — 开发决策日志
+- `docs/decisions/` — 架构决策记录（ADR）
+- `docs/knowledge/` — 知识库文档（GBrain 同步源）
+- `docs/2026-06-11-m3-closure.md` — M3 完工报告（16 卡闭环 + M4 入口）
