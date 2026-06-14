@@ -1,46 +1,170 @@
-# Decisions（架构决策记录，ADR）
+# ADR（Architecture Decision Records）索引
 
-本目录收纳项目的 Architecture Decision Records（架构决策记录，ADR）。
-每条 ADR 记录一次决策的背景、选项、结论与理由，作为团队长期共识。
+> **本文件是项目知识库的核心锚点。每次会话开始时，AI 必须先读本文件，再开始任何代码工作。**
+>
+> —— 见 `AGENTS.md` 的"文档阅读顺序"约定。
 
-## 当前文档
+---
 
-（暂无；首条 ADR 将在 M3-13 之后产生。）
+## 1. 什么是 ADR
 
-## ADR 模板
+ADR（Architecture Decision Record）是记录**架构决策**的轻量级文档模式，由 Michael Nygard 在 2011 年提出。每篇 ADR 记录一个决策的：
+
+- **Context**：为什么需要做这个决策（痛点）
+- **Decision**：决定做什么
+- **Consequences**：带来的结果（正/负/风险）
+
+详见：[ADR-0000（本项目的 ADR 采纳决策）](./0000-adopt-adr.md)
+
+## 2. ADR 列表（按编号排序）
+
+| 编号 | 标题 | 状态 | 日期 |
+|---|---|---|---|
+| [0000](./0000-adopt-adr.md) | 采用 ADR 模式管理知识库 | `accepted` | 2026-06-14 |
+
+> 批次 2（待执行）将新增：
+> - `0001-env-layer-design.md`（从 `docs/devlog/2026-06-10-env-default-ownership.md` 分流）
+> - `0002-error-tracking-strategy.md`（从 `docs/devlog/2026-06-06-observability-and-sentry.md` 分流）
+> - `0003-zod-schema-governance.md`（从 `docs/devlog/2026-06-10-zod-usage-audit.md` 分流）
+> - `0004-hook-bootstrap-strategy.md`（从 `docs/devlog/2026-06-05-hook-bootstrap-decision.md` 分流）
+> - `0005-workflow-v2-design.md`（从 `docs/devlog/2026-06-08-workflow-system-audit.md` 分流）
+
+## 3. ADR 文件模板（强制）
+
+每篇 ADR **必须**包含以下 6 节：
 
 ```markdown
-# ADR-<编号>: <标题>
+# ADR-NNNN: <简短标题>
 
-- **状态**：`proposed` / `accepted` / `deprecated` / `superseded`
-- **日期**：<YYYY-MM-DD>
-- **作者**：<team>
+- **日期**：YYYY-MM-DD
+- **状态**：`proposed` / `accepted` / `deprecated` / `superseded by ADR-XXXX`
+- **决策者**：<谁参与了决策>
+- **关联**：<相关 ADR / 文档 / 任务卡>
 
-## Context（背景）
+## Context
+<为什么需要做这个决策？当前痛点是什么？>
 
-<为什么需要这条决策>
+## Decision
+<决定做什么？>
 
-## Options（候选方案）
+## Consequences
+<这个决策带来的结果是什么？正面/负面都要写。>
 
-- A：
-- B：
-- C：
-
-## Decision（结论）
-
-<选择哪个方案，理由是什么>
-
-## Consequences（后果）
-
-<采用后会带来哪些变化>
+## 反向引用
+<哪些文档提到了本篇 ADR？每次新建文档引用本篇时，必须同步在这里追加一条。
+格式：`- <文档路径>：<引用上下文>`
+示例：
+- docs/milestones/M4/retrospective.md §2.1
+- docs/packages/env.md §设计原则
+若暂无，写"暂无"。>
 ```
 
-## 边界
+## 4. 双向链接纪律（核心规则）
 
-- 每条 ADR 一经 accepted，视为稳定知识，不轻改。
-- 被取代时改为 `superseded by ADR-<n>` 并新建一条 ADR。
-- 草案阶段放在 `docs/devlog/` 讨论。
+**每篇文档**（不限于 ADR）都要在文末维护两节：
 
-## 检索权重
+### `**关联**`（前向链接，写在文档顶部元数据区）
+- 我依赖了哪些文档
+- 我参考了哪些 ADR / 教训 / 包手册
 
-高 — GBrain 把本目录视为权威决策来源。
+### `## 反向引用`（后向链接，写在文档底部）
+- 哪些文档提到了我
+- **每次新建文档引用本篇时，必须同步在被引用文档的反向引用区追加一条**
+
+### 为什么手动维护（不用自动化工具）
+
+> 手动维护的价值不在链接本身，在于**强制作者思考"我依赖谁 + 谁依赖我"**。
+> 自动化工具（如 `llm-wiki-compiler`）生成的 backlinks 会包含噪音，且破坏"思考"过程。
+>
+> —— 见 ADR-0000 Consequences 节
+
+## 5. 命名规则
+
+- **目录**：`docs/decisions/`（ADR 专属，不混其他内容）
+- **文件名**：`NNNN-<kebab-slug>.md`（4 位编号 + 短横线分隔的英文 slug）
+- **编号**：从 `0000` 开始，顺序递增，不跳号
+- **状态取值**：
+  - `proposed`：讨论中，未决定
+  - `accepted`：已决定，执行中
+  - `deprecated`：已废弃，被新方案替代（必须写明"superseded by ADR-XXXX"）
+  - `superseded by ADR-XXXX`：被新 ADR 替代
+
+## 6. 工作流
+
+### 新建 ADR 时
+
+1. 找当前最大编号 N，新编号 = N+1
+2. 用上面模板创建 `docs/decisions/NNNN-<slug>.md`
+3. 在本文件 §2 的表格追加一行
+4. 如果引用了其他 ADR / 文档，去那些文档的 `## 反向引用` 区追加一条
+
+### 修改 ADR 时
+
+- 状态变更：更新 `**状态**` 字段
+- 内容变更：保持原结构，不破坏反向引用链
+
+### 引用 ADR 时
+
+- 其他文档写 `详见 ADR-NNNN（<标题>）` 或 `[ADR-NNNN](../decisions/NNNN-<slug>.md)`
+- **必须**在被引用 ADR 的 `## 反向引用` 区追加一条
+
+## 7. 与项目其他文档的关系
+
+| 文档类型 | 位置 | 与 ADR 的关系 |
+|---|---|---|
+| **AGENTS.md** | 项目根 | 必读约定，指向本 README |
+| **CLAUDE.md** | 项目根 | 项目全貌，引用 ADR 但不重复 |
+| **任务卡** | `docs/issues/M{N}-*.md` | 实施细节，引用 ADR 作为决策依据 |
+| **里程碑复盘** | `docs/milestones/M{N}/retrospective.md` | 教训可能沉淀为新 ADR |
+| **包手册** | `docs/packages/*.md` | 实现细节，引用 ADR 作为设计依据 |
+| **教训文档** | `docs/lessons/*.md` | 跨里程碑通用教训，可能催生 ADR |
+
+## 8. 验收检查清单（每篇 ADR 提交前过一遍）
+
+- [ ] 6 节结构完整（Context / Decision / Consequences / 反向引用）
+- [ ] `**关联**` 字段列出了所有依赖的文档
+- [ ] `## 反向引用` 字段已初始化（即使写"暂无"）
+- [ ] 文件名符合 `NNNN-<slug>.md` 规则
+- [ ] 本文件 §2 的表格已更新
+- [ ] 所有被引用的文档，其 `## 反向引用` 区已追加本 ADR 的条目
+- [ ] 状态字段为 `proposed` 或 `accepted`（不允许空白）
+
+## 9. 反模式（不要做的事）
+
+- ❌ **不要预创建空 ADR**：编号是"已有决策"的标记，不是占位符
+- ❌ **不要在 ADR 里写实施细节**：实施属于任务卡 / 包手册
+- ❌ **不要省略 Consequences 的负面/风险**：ADR 的价值在于"全面评估"，不是"为决策辩护"
+- ❌ **不要在 devlog 里写决策**：决策必须进 ADR，devlog 是流水账（已被分流）
+- ❌ **不要依赖自动化工具生成反向引用**：手动维护是思考过程，不是负担
+- ❌ **不要跳过本 README 的 §2 表格更新**：这是全项目 ADR 的唯一索引
+
+## 10. 边界与检索权重
+
+- 每条 ADR 一经 `accepted`，视为稳定知识，不轻改
+- 被取代时改为 `superseded by ADR-<n>` 并新建一条 ADR
+- 草案阶段在 `docs/devlog/` 讨论，定型后再进 `docs/decisions/`
+- **检索权重**：高 — GBrain 把本目录视为权威决策来源
+
+## 11. 历史与迁移
+
+### 已完成的迁移
+
+- 2026-06-14：ADR-0000 落盘，确立 ADR 模式（替代原散点式 devlog 模式）
+- 2026-06-14：ADR 模板加反向引用节（双向链接纪律）
+
+### 待执行的迁移（批次 2）
+
+- [ ] M4 相关文档迁到 `docs/milestones/M4/`：
+  - `docs/issues/M4-planning.md` → `docs/milestones/M4/planning.md`
+  - `docs/devlog/2026-06-14-m4-handoff.md` → `docs/milestones/M4/handoff.md`
+  - `docs/devlog/2026-06-14-m4-phaseA-retrospective.md` → `docs/milestones/M4/retrospective.md`
+- [ ] 5 篇高价值 devlog 分流为 ADR：
+  - `2026-06-10-env-default-ownership.md` → `decisions/0001-env-layer-design.md`
+  - `2026-06-06-observability-and-sentry.md` → `decisions/0002-error-tracking-strategy.md`
+  - `2026-06-10-zod-usage-audit.md` → `decisions/0003-zod-schema-governance.md`
+  - `2026-06-05-hook-bootstrap-decision.md` → `decisions/0004-hook-bootstrap-strategy.md`
+  - `2026-06-08-workflow-system-audit.md` → `decisions/0005-workflow-v2-design.md`
+- [ ] 分流后的 devlog 原文件删除（git 历史保留）
+- [ ] `AGENTS.md` / `CLAUDE.md` 中的 `docs/devlog/` 引用全部更新
+
+详见：`docs/devlog/2026-06-14-m4-handoff.md`（交接事项段）

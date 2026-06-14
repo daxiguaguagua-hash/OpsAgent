@@ -169,7 +169,10 @@ docs/
 
 ## 反向引用
 
-> 当前作为首篇 ADR，暂无历史文档反向引用。未来以下类型文档应在此追加：
-> - 里程碑交接文档（`docs/milestones/M{N}/handoff.md`）引用 ADR 模式时
-> - 包手册（`docs/packages/*.md`）引用"为什么要有 ADR"时
-> - 教训文档（`docs/lessons/*.md`）引用决策纪律时
+- `AGENTS.md`：在顶部必读清单 + "知识管理（ADR 模式）"节被引用
+- `docs/devlog/2026-06-14-m4-handoff.md`：在 §6.1 / §6.2 / §6.3 作为交接入口被引用
+- `docs/decisions/README.md`：作为本 ADR 的索引页（§2 列出本 ADR）
+- `docs/devlog/2026-06-14-m4-phaseA-retrospective.md`：在 §3"知识管理类教训"作为解决方案被引用
+- `docs/knowledge/2026-06-14-wiki-structure-blueprint.md`：在提案原文中被引用（ADR-0000 是其落地形式）
+
+> 未来新增引用本 ADR 的文档（如 `docs/milestones/M{N}/handoff.md`、`docs/packages/*.md`、`docs/lessons/*.md`），必须同步在此追加一条。
