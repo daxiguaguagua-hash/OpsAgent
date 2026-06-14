@@ -63,11 +63,14 @@
   },
   "dependencies": {
     "@opsagent/env": "workspace:*",
+    "@sentry/node": "catalog:",
+    "@sentry/react": "catalog:",
     "dotenv": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@opsagent/config": "workspace:*",
+    "@sentry/vite-plugin": "catalog:",
     "@types/node": "catalog:",
     "tsx": "catalog:",
     "turbo": "^2.8.12",
