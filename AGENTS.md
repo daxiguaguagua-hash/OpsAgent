@@ -3,6 +3,7 @@
 本文件约束 OpenCode 及其他读取 `AGENTS.md` 的 Agent。执行任务前还必须阅读：
 
 - `CLAUDE.md` — 完整架构、命令清单、里程碑路线图（必读）
+- `docs/decisions/README.md` — ADR 索引、模板、双向链接纪律（**每次会话开始必读**）
 - `docs/task-breakdown.md` — 里程碑任务卡片
 - `docs/workflows/agent-execution-workflow.md` — 任务工作流
 
@@ -57,6 +58,35 @@ if (task.status === TASK_STATUS.PLANNED) {}
 流程：先 `resolve-library-id("库名")`，再 `query_docs("/org/project", "具体问题")`。同一问题最多调用 3 次。
 
 不适用场景：本项目内部代码理解、业务逻辑重构调试、通用编程概念。
+
+## 知识管理（ADR 模式）
+
+项目采用 ADR（Architecture Decision Records）管理架构决策与跨里程碑教训，详见 `docs/decisions/README.md`。
+
+**触发 ADR 的场景**（必须新建 ADR）：
+
+- 选择或弃用某个技术栈 / 工具 / 协议
+- 确定某个跨模块的设计模式（如 env 层、错误处理、状态机）
+- 推翻之前的决策（用 `superseded by ADR-XXXX` 标记旧 ADR）
+- 沉淀跨里程碑的通用教训（也可放 `docs/lessons/`，由 ADR 引用）
+
+**不触发 ADR 的场景**：
+
+- 单个任务卡的实施细节（写任务卡）
+- 单个包的实现细节（写 `docs/packages/<pkg>.md`）
+- 里程碑内部交接（写 `docs/milestones/M{N}/handoff.md`）
+
+**双向链接纪律**（违反即为反模式）：
+
+- 每篇文档顶部 `**关联**` 字段：声明"我依赖谁"
+- 每篇文档底部 `## 反向引用` 节：记录"谁依赖我"
+- **新建文档引用其他文档时，必须同步在被引用文档的 `## 反向引用` 区追加一条**
+
+**反模式**：
+
+- ❌ 在 `docs/devlog/` 写决策（devlog 是流水账，决策必须进 ADR）
+- ❌ 用自动化工具生成反向引用（手动维护是思考过程）
+- ❌ 跳过 `docs/decisions/README.md` §2 表格更新（这是全项目 ADR 唯一索引）
 
 ## 仓库约定速查
 
