@@ -2,12 +2,12 @@
   "name": "@opsagent/agent",
   "private": true,
   "type": "module",
-  "main": "src/index.ts",
+  "main": "src/lib.ts",
   "scripts": {
     "build": "tsc -b",
     "check-types": "tsc -b --pretty false",
-    "dev": "tsx watch src/index.ts",
-    "start": "tsx src/index.ts",
+    "dev": "tsx watch src/cli.ts",
+    "start": "tsx src/cli.ts",
     "test": "tsx --test 'src/**/*.test.ts'",
     "gbrain:sync": "tsx src/gbrain/sync.ts"
   },

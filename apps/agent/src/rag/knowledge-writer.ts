@@ -1,3 +1,7 @@
+/**
+ * 任务完工时，自动生成一份 markdown 草稿文件到 docs/knowledge/tasks/ 目录。
+ */
+
 import { mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 

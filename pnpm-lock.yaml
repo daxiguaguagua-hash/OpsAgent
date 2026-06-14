@@ -78,9 +78,6 @@ importers:
 
   apps/agent:
     dependencies:
-      '2':
-        specifier: ^3.0.0
-        version: 3.0.0
       '@ai-sdk/alibaba':
         specifier: ^1.0.26
         version: 1.0.26(zod@4.4.3)
@@ -148,6 +145,9 @@ importers:
       '@opentelemetry/semantic-conventions':
         specifier: 1.41.1
         version: 1.41.1
+      '@opsagent/agent':
+        specifier: workspace:*
+        version: link:../agent
       '@opsagent/api':
         specifier: workspace:*
         version: link:../../packages/api

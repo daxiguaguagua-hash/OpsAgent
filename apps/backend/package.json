@@ -18,6 +18,7 @@
     "@opentelemetry/resources": "2.7.1",
     "@opentelemetry/sdk-trace-node": "2.7.1",
     "@opentelemetry/semantic-conventions": "1.41.1",
+    "@opsagent/agent": "workspace:*",
     "@opsagent/api": "workspace:*",
     "@opsagent/db": "workspace:*",
     "@opsagent/env": "workspace:*",
