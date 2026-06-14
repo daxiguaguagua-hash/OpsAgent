@@ -224,3 +224,7 @@ docs/
 - [ ] M4 复盘文档在 `07-milestones/M4/phase-A-retrospective.md`
 - [ ] gbrain 能按新目录结构索引（需要 gbrain 侧配合）
 - [ ] AI 接手 M5 时，能直接从 `docs/README.md` 出发，3 分钟内定位到所需上下文
+
+## 反向引用
+
+- `docs/decisions/0000-adopt-adr.md`（采用 ADR 模式）：在 `Context` 节作为提案原文被引用；在 `Decision` 节作为决策依据被引用

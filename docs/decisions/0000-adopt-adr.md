@@ -76,6 +76,14 @@ docs/
 
 ## Consequences
 <这个决策带来的结果是什么？正面/负面都要写。>
+
+## 反向引用
+<哪些文档提到了本篇 ADR？每次新建文档引用本篇时，必须同步在这里追加一条。
+格式：`- <文档路径>：<引用上下文>`
+示例：
+- docs/milestones/M4/retrospective.md §2.1
+- docs/packages/env.md §设计原则
+若暂无，写"暂无"。>
 ```
 
 ## Consequences
@@ -158,3 +166,10 @@ docs/
 - Michael Nygard, "Documenting architecture decisions", 2011-11-15
 - [Karpathy LLM Wiki Pattern](https://www.mindstudio.ai/blog/karpathy-llm-wiki-knowledge-base-pattern/)
 - [给 AI 一张地图，而不是一本手册——AGENTS.md 内容策略完全指南](https://blog.csdn.net/ID314846818/article/details/161839666)
+
+## 反向引用
+
+> 当前作为首篇 ADR，暂无历史文档反向引用。未来以下类型文档应在此追加：
+> - 里程碑交接文档（`docs/milestones/M{N}/handoff.md`）引用 ADR 模式时
+> - 包手册（`docs/packages/*.md`）引用"为什么要有 ADR"时
+> - 教训文档（`docs/lessons/*.md`）引用决策纪律时

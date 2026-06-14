@@ -126,3 +126,8 @@ Phase A 跑通了 Sentry SaaS 端到端：Vite 构建生成 source map → SDK �
 | 探针验证 | 误用根目录 + 硬编码 DSN，**本次复盘重点** |
 | Sentry 集成 | Vite `envDir: "../.."` + `lib/sentry.ts` + `ErrorBoundary` |
 | Phase A 通过 | 用户确认 Sentry Dashboard 可见事件 |
+
+## 反向引用
+
+- `docs/decisions/0000-adopt-adr.md`（采用 ADR 模式）：在 `Context` 节作为"知识库散点化的具体损失"证据被引用
+- `docs/knowledge/2026-06-14-wiki-structure-blueprint.md`（知识库蓝图提案）：在 §1.2"对 AI 的具体影响"作为案例被引用
