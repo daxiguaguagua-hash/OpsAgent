@@ -65,6 +65,21 @@ Zod 在 7 个包中声明为依赖，但实际 `import { z } from "zod"` 只出�
 
 - **测试护栏缺失**：目前 env 包有 `ALL_SCHEMA_KEYS` 完整性测试，但 `z.enum()` 值和 `MODEL_PROVIDER` 常量值一致性的测试还没写。如果漏补，重复的值会慢慢漂移
 
+### 个人看法
+
+```ts
+const MODEL_PROVIDER = {
+  OPENAI: "openai",
+  OLLAMA: "ollama",
+  MOCK: "mock",
+} as const;
+
+z.enum(["openai", "ollama", "mock"]);
+```
+
+- 意思就是这三个字符串："openai", "ollama", "mock"，被用了两次，这已经违背了设计初衷了。
+  所以使用z.enum(Object.values(MODEL_PROVIDER) as const)来统一，但是这种写法有些委屈zod的enum了，它是要做运行时校验的。
+
 ## 反向引用
 
 - [[0001-env-layer-design|ADR-0001]]：在 Consequences §风险 提到 `z.enum()` 和 `as const` 的张力

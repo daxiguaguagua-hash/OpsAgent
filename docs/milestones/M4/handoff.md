@@ -123,7 +123,7 @@ sentry-cli info  # 确认认证成功
 | 文件 | 说明 |
 |---|---|
 | `docs/issues/M4-planning.md` | **M4 规划主文档**，所有决策和讨论都在这里 |
-| `docs/devlog/2026-06-12-analysis-pipeline-integration.md` | Analysis Pipeline 实战记录 + GBrain 反思 |
+| `docs/milestones/M3/analysis-pipeline-integration.md` | Analysis Pipeline 实战记录 + GBrain 反思 |
 | `apps/agent/src/analysis-pipeline.ts` | 分析管道核心代码 |
 | `apps/backend/src/business/analysis.ts` | Backend 薄代理 |
 | `docs/issues/M3-17-analysis-pipeline-integration.md` | Pipeline 设计文档 |
