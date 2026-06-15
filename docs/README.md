@@ -57,7 +57,18 @@
 
 ### 运维手册（`docs/runbooks/`）
 
-基础设施 / 部署 / 故障处理手册（规划中）。
+基础设施 / 部署 / 故障处理手册：
+
+- [[ai-ops-demo-checklist|AI Ops 本地 Demo 清单]]：把企业级 AI Ops 架构压缩成本地可运行的演示系统（面试讲解用）
+
+## 项目级文档（`docs/` 根目录）
+
+不在任何子目录下的"顶层"文档：
+
+- [[task-breakdown|task-breakdown.md]]：里程碑任务卡总览与拆分
+- [[team-ownership|team-ownership.md]]：各个 package / app 的负责团队
+- [[testing-guide|testing-guide.md]]：通用测试指南
+- [[codegraph|codegraph.md]]：CodeGraph MCP 工具使用指南
 
 ## 工作流相关
 
