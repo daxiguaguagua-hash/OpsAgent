@@ -33,7 +33,7 @@ Promtail 已于 2026 年 3 月 2 日结束生命周期，因此新项目不再�
 开发命令在 `apps/backend` 目录执行，因此示例值为：
 
 ```dotenv
-LOG_FILE_PATH=../../logs/backend.jsonl
+LOG_FILE_PATH=../../../logs/backend.jsonl
 ```
 
 ## 真实闭环验收

@@ -276,7 +276,7 @@ git status --short
 
 ## 7. Agent 执行工作流
 
-通用流程见：[docs/workflows/agent-execution-workflow.md](../workflows/agent-execution-workflow.md)
+通用流程见：[docs/workflows/agent-execution-workflow.md](../../../workflows/agent-execution-workflow.md)
 
 使用 Claude Code 或 DeepSeek 执行 M0 时，推荐使用这个 `/goal`：
 

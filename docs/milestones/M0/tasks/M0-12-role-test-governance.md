@@ -38,5 +38,5 @@ flowchart LR
 
 完整执行规则参见：
 
-- [Agent Role Policy 智能体角色策略](../workflows/agent-role-policy.md)
-- [TDD 与测试治理开发日记](../devlog/2026-06-06-tdd-and-test-governance.md)
+- [Agent Role Policy 智能体角色策略](../../../workflows/agent-role-policy.md)
+- [[tdd-and-test-governance|TDD 与测试治理]]（`docs/lessons/tdd-and-test-governance.md`）

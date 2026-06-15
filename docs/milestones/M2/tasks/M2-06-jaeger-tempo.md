@@ -4,8 +4,8 @@
 状态：`done`（提交 `34e98f8`）
 前置任务：M2-01 / M2-02 / M2-03 / M2-04 / M2-05
 依赖文档：
-- [`test-discipline-checklist.md`](../workflows/test-discipline-checklist.md)（必须遵守）
-- [`architecture-v3-candidacy.md`](../architecture/architecture-v3-candidacy.md)（V3 架构背景）
+- [`test-discipline-checklist.md`](../../../workflows/test-discipline-checklist.md)（必须遵守）
+- [`architecture-v3-candidacy.md`](../../../architecture/architecture-v3-candidacy.md)（V3 架构背景）
 
 ## 1. 目标
 
@@ -90,7 +90,7 @@ flowchart LR
 - M2-04 Grafana 不退化：Prometheus + Loki 数据源仍然正常，新增 Tempo 数据源不冲突
 - M2-05 Collector 不退化：Collector 接收 Span 并路由到 Tempo，原有 debug exporter 行为不被破坏
 
-### 维度 10：测试（遵守 [`test-discipline-checklist.md`](../workflows/test-discipline-checklist.md)）
+### 维度 10：测试（遵守 [`test-discipline-checklist.md`](../../../workflows/test-discipline-checklist.md)）
 
 见第 4 节。
 
