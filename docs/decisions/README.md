@@ -19,17 +19,14 @@ ADR（Architecture Decision Record）是记录**架构决策**的轻量级文档
 
 ## 2. ADR 列表（按编号排序）
 
-| 编号                        | 标题                    | 状态       | 日期       |
-| --------------------------- | ----------------------- | ---------- | ---------- |
-| [[0000-adopt-adr|0000]] | 采用 ADR 模式管理知识库 | `accepted` | 2026-06-14 |
-
-> 批次 2（待执行）将新增：
->
-> - `0001-env-layer-design.md`（从 `docs/devlog/2026-06-10-env-default-ownership.md` 分流）
-> - `0002-error-tracking-strategy.md`（从 `docs/devlog/2026-06-06-observability-and-sentry.md` 分流）
-> - `0003-zod-schema-governance.md`（从 `docs/devlog/2026-06-10-zod-usage-audit.md` 分流）
-> - `0004-hook-bootstrap-strategy.md`（从 `docs/devlog/2026-06-05-hook-bootstrap-decision.md` 分流）
-> - `0005-workflow-v2-design.md`（从 `docs/devlog/2026-06-08-workflow-system-audit.md` 分流）
+| 编号 | 标题 | 状态 | 日期 |
+| --- | --- | --- | --- |
+| [[0000-adopt-adr\|0000]] | 采用 ADR 模式管理知识库 | `accepted` | 2026-06-14 |
+| [[0001-env-layer-design\|0001]] | 环境变量默认值由 `@opsagent/env` 单一持有 | `accepted` | 2026-06-10 |
+| [[0002-error-tracking-strategy\|0002]] | 错误监控采用 Prometheus+Loki+Tempo+Sentry 分层栈 | `accepted` | 2026-06-06 |
+| [[0003-zod-schema-governance\|0003]] | Zod 只在系统边界做运行时校验 | `accepted` | 2026-06-10 |
+| [[0004-hook-bootstrap-strategy\|0004]] | 工作流门禁采用 shell 先行 + TypeScript 渐进接管 | `accepted` | 2026-06-05 |
+| [[0005-workflow-v2-design\|0005]] | 测试策略师角色从 Codex 解耦到 claude-code-new-context | `accepted` | 2026-06-08 |
 
 ## 3. ADR 文件模板（强制）
 

@@ -38,7 +38,7 @@
 
 ## 2. M4 规划文档
 
-**文件位置**：`docs/issues/M4-planning.md`
+**文件位置**：[[planning|M4 规划主文档]]（`docs/milestones/M4/planning.md`）
 
 ### 2.1 已决定的事项（5 项）
 

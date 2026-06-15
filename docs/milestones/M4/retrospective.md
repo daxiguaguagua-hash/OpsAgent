@@ -29,7 +29,7 @@ Phase A 跑通了 Sentry SaaS 端到端：Vite 构建生成 source map → SDK �
 - 前端代码统一 `import { clientEnv } from "@opsagent/env"`，禁止直接用 `import.meta.env.VITE_*`
 - `import.meta.env.MODE` / `DEV` / `PROD` 这类 Vite 内建状态量除外
 
-**详见**：`docs/decisions/2026-06-14-client-env-schema.md`（待建卡）
+**行动项**：给 `@opsagent/env` 补 `clientEnv` schema（P0，待建 ADR）
 
 ### 2.2 临时探针脚本污染根目录
 

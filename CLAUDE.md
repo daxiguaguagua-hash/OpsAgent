@@ -349,7 +349,7 @@ Prometheus 抓取后端 `:8000/metrics` 端点，指标由 `prom-client` 库直�
 - `docs/workflows/agent-execution-workflow.md` — `/goal` 命令、钩子门禁、完成汇报模板
 - `docs/workflows/agent-role-policy.md` — 多角色任务工作流、任务状态机、测试治理规则
 - `docs/issues/` — 各里程碑的详细 Issue 卡片
-- `docs/devlog/` — 开发决策日志
-- `docs/decisions/` — 架构决策记录（ADR）
+- `docs/devlog/` — 开发流水账（M4 起的关键决策已分流到 `docs/decisions/`，剩余历史条目将逐步归档）
+- `docs/decisions/` — 架构决策记录（ADR，详见 `docs/decisions/README.md`）
 - `docs/knowledge/` — 知识库文档（GBrain 同步源）
-- `docs/2026-06-11-m3-closure.md` — M3 完工报告（16 卡闭环 + M4 入口）
+- `docs/devlog/2026-06-11-m3-closure.md` — M3 完工报告（16 卡闭环 + M4 入口）
