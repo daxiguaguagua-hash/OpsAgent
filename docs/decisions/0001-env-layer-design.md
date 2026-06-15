@@ -53,6 +53,10 @@
 
 - **z.enum() 和 as const 对象的张力未解决**：`z.enum(["openai", "ollama", "mock"])` 和 `MODEL_PROVIDER` 常量值重复，但 zod 的 `z.enum()` 要求字符串数组字面量，不能直接引用 TS 常量（除非用 `Object.values()` 转型）。这是 zod 和 TS 类型系统的天然张力，暂不处理，接受 enum 字面量和 `as const` 对象并存，详见 [[0003-zod-schema-governance|ADR-0003]]
 
+### 个人看法
+- 当前结构是 backend 里面有一个 .env，frontend 里面有一个 .env，根目录下面还有一个 .env。那么同名变量的覆盖顺序为：backend/frontend下的 .env中的变量，覆盖根目录下的 .env 中的变量。
+- 根目录中的 .env 最先加载，包目录中的 .env 后加载，覆盖前者。确保每个包都能有自己的环境变量，同时又能共享根目录的变量。
+
 ## 反向引用
 
-暂无
+- [[2026-06-15-monorepo-env-governance|Monorepo 环境变量治理教训]]：在 §3 作为"中央统一 vs 包自治"张力的案例引用

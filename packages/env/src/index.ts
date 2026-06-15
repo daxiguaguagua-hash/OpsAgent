@@ -23,19 +23,40 @@ function collectEnvFiles(): string[] {
   return files.reverse();
 }
 
+// 根目录中的 .env 最先加载，包目录中的 .env 后加载，覆盖前者。确保每个包都能有自己的环境变量，同时又能共享根目录的变量。
 dotenv.config({ override: true, path: collectEnvFiles() });
 
+// 这是一个临时的目录，最终会上传到docker中或者云端。
 if (process.env.LOG_FILE_PATH) {
   process.env.LOG_FILE_PATH = resolveFromRoot(process.env.LOG_FILE_PATH);
 }
 
+/**
+ * env 包的统一范围（当前）：
+ *   - 中央 schema（本文件）：跨包复用的 server 端变量
+ *   - client schema（web.ts）：前端 VITE_* 变量
+ *
+ * 包专属变量约定：
+ *   - 用包名短形式作前缀（WG_* / AGENT_* / BACKEND_* / FRONTEND_*）
+ *   - 详见 AGENTS.md §环境变量命名约定
+ *
+ * 已知未解决的架构张力：
+ *   - 中央 schema 在 monorepo 规模扩张时会遇到天花板
+ *   - 包专属变量（如 WG_ALLOW_DESTRUCTIVE）塞进中央 schema 会让 schema 膨胀
+ *   - 演进策略（命名约定 → 注册表测试 → per-package schema 聚合）详见：
+ *     docs/lessons/2026-06-15-monorepo-env-governance.md
+ *
+ * 关联 ADR：[[0001-env-layer-design|ADR-0001]]（env 做唯一数据源）
+ */
 export const env = createEnv({
   server: {
     DATABASE_URL: z.string().min(1),
     REDIS_URL: z.url().default("redis://localhost:6379"),
     CORS_ORIGIN: z.url(),
     PORT: z.coerce.number().int().positive().default(8000),
-    MODEL_PROVIDER: z.enum(["openai", "deepseek", "alibaba", "ollama", "mock"]).default("mock"),
+    MODEL_PROVIDER: z
+      .enum(["openai", "deepseek", "alibaba", "ollama", "mock"])
+      .default("mock"),
     OLLAMA_MODEL: z
       .string()
       .default(process.env.OLLAMA_MODEL || "qwen2.5-coder:14b"),
