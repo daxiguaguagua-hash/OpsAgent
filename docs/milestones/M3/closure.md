@@ -55,7 +55,7 @@
 | **`POST /api/analysis` 后端接口** | 前端已接好按钮与 loading/error/success 态，但 backend 尚未实现该端点（返回 404）。下一步需要：backend 新增路由 → 调 Mastra Agent → 调四个 Tool → 走 `assembleContext` → 让 LLM 生成 markdown → 校验 IncidentReportSchema |
 | **`pnpm gbrain:sync`** | CLI 已就绪，但 `InMemoryGBrainClient` 不持久化索引；未来接 pgvector 时需要扩展 |
 | **`pnpm gbrain:mcp`** | `.qoder/mcp.json` 注册的命令入口未写；需要在 `apps/agent/package.json` 加 `gbrain:mcp` script，并写 `gbrain/mcp-stdio.ts` 包装 stdio transport |
-| **M2-milestone-acceptance.md** | 已修复归档路径引用，但其他文档的链接审计未全覆盖 |
+| **[[M2/milestone-acceptance|M2-milestone-acceptance.md]]** | 已修复归档路径引用，但其他文档的链接审计未全覆盖 |
 | **git-context-tool 集成测试** | 上一会话遗留决策点（A/B/C/D），仍未拍板 |
 
 ## 5. M4 入口建议（Source Map 前端源码定位）

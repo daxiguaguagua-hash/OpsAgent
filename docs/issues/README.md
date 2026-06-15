@@ -6,9 +6,9 @@
 
 | 里程碑 | 任务卡位置 | 里程碑验收 |
 |---|---|---|
-| M0 | [[M0/tasks/|docs/milestones/M0/tasks/]] | `M0-17-milestone-acceptance.md` |
-| M1 | [[M1/tasks/|docs/milestones/M1/tasks/]] | `M1-milestone-acceptance.md` |
-| M2 | [[M2/tasks/|docs/milestones/M2/tasks/]] | `M2-milestone-acceptance.md` |
+| M0 | [[M0/tasks/|docs/milestones/M0/tasks/]] | [[M0/milestone-acceptance|M0-milestone-acceptance.md]] |
+| M1 | [[M1/tasks/|docs/milestones/M1/tasks/]] | [[M1/milestone-acceptance|M1-milestone-acceptance.md]] |
+| M2 | [[M2/tasks/|docs/milestones/M2/tasks/]] | [[M2/milestone-acceptance|M2-milestone-acceptance.md]] |
 | M3 | [[M3/tasks/|docs/milestones/M3/tasks/]] | （M3 验收文档待补） |
 | M4 | [[M4/tasks/|docs/milestones/M4/tasks/]] | （M4 进行中） |
 

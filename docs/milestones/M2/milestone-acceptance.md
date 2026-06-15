@@ -2,7 +2,7 @@
 
 日期：2026-06-09
 状态：`accepted`
-准入依据：M1-milestone-acceptance.md §6 M2 准入
+准入依据：[[M1/milestone-acceptance|M1-milestone-acceptance.md]] §6 M2 准入
 
 ## 1. 验收结论
 

@@ -83,7 +83,7 @@ flowchart TD
 
 目标：让仓库先像一个正规项目。
 
-闭环文档：[docs/issues/M0-project-scaffold.md](issues/M0-project-scaffold.md)
+闭环文档：[docs/milestones/M0/tasks/M0-project-scaffold.md](milestones/M0/tasks/M0-project-scaffold.md)
 
 | 任务 ID | 任务 | 负责人 | 优先级 | 交付物 | 验收标准 |
 |---|---|---|---:|---|---|
@@ -150,15 +150,15 @@ flowchart TD
 
 | 任务 ID | 任务 | 负责人 | 优先级 | 状态 | 交付物 | 验收标准 |
 |---|---|---|---:|---|---|---|
-| [M2-01](issues/M2-01-structured-logging.md) | 后端输出结构化日志 | backend-team | P0 | `done` | JSON 日志 | 日志包含 `traceId`、接口、状态码、耗时和稳定错误码 |
-| [M2-02](issues/M2-02-prometheus-metrics.md) | 增加 Prometheus 配置 | sre-team | P0 | `done` | `observability/prometheus/` | Prometheus 可以启动，Target 状态为 `up`，可查询 200 与 500 请求指标 |
-| [M2-03](issues/M2-03-loki-alloy-logging.md) | 增加 Loki 配置 | sre-team | P0 | `done` | `observability/loki/`、`observability/alloy/` | Alloy 采集 JSONL，Loki ready，可按 `traceId` 查询 500 日志 |
-| [M2-04](issues/M2-04-grafana-datasources.md) | 增加 Grafana datasource | sre-team | P0 | `done` | `observability/grafana/datasources/` | Grafana 自动接入 Prometheus 和 Loki，provisioning 注册数据源 |
-| [M2-05](issues/M2-05-opentelemetry-collector.md) | 增加 OpenTelemetry Collector | sre-team | P1 | `done` | `observability/otel/`、Backend Trace 埋点 | OTLP/HTTP 接收 Trace，debug + otlp_http 双导出，Collector 健康检查 |
-| [M2-06](issues/M2-06-jaeger-tempo.md) | 增加 Tempo 持久化 Trace | sre-team | P1 | `done`（`34e98f8`） | `observability/tempo/`、Compose 服务、`/api/traces/:traceId` 代理 | OTel Collector → Tempo 完整链路，Tempo API 可查 Trace，后端代理端点已测试 |
-| [M2-07](issues/M2-07-grafana-dashboard.md) | 增加基础 Dashboard | sre-team | P0 | `done` | Grafana dashboard JSON | 8 个面板（请求量 stat、错误数 stat、错误率 stat、P95 stat、请求率 timeseries、错误率 timeseries、延迟百分位、状态码分布） |
-| [M2-08](issues/M2-08-slo-config.md) | 增加 SLO 配置草案 | sre-team | P1 | `done` | `observability/slo.yml` | 可用性 99.9%、P95<500ms、P99<2000ms，排除演示接口 |
-| [M2 验收](issues/M2-milestone-acceptance.md) | 执行 M2 Milestone Acceptance | sre-team + qa-team | P0 | `accepted` | 验收记录、验证证据和 M3 准入结论 | M2-01 至 M2-08 全部 `done`，核心闭环通过 |
+| [M2-01](milestones/M2/tasks/M2-01-structured-logging.md) | 后端输出结构化日志 | backend-team | P0 | `done` | JSON 日志 | 日志包含 `traceId`、接口、状态码、耗时和稳定错误码 |
+| [M2-02](milestones/M2/tasks/M2-02-prometheus-metrics.md) | 增加 Prometheus 配置 | sre-team | P0 | `done` | `observability/prometheus/` | Prometheus 可以启动，Target 状态为 `up`，可查询 200 与 500 请求指标 |
+| [M2-03](milestones/M2/tasks/M2-03-loki-alloy-logging.md) | 增加 Loki 配置 | sre-team | P0 | `done` | `observability/loki/`、`observability/alloy/` | Alloy 采集 JSONL，Loki ready，可按 `traceId` 查询 500 日志 |
+| [M2-04](milestones/M2/tasks/M2-04-grafana-datasources.md) | 增加 Grafana datasource | sre-team | P0 | `done` | `observability/grafana/datasources/` | Grafana 自动接入 Prometheus 和 Loki，provisioning 注册数据源 |
+| [M2-05](milestones/M2/tasks/M2-05-opentelemetry-collector.md) | 增加 OpenTelemetry Collector | sre-team | P1 | `done` | `observability/otel/`、Backend Trace 埋点 | OTLP/HTTP 接收 Trace，debug + otlp_http 双导出，Collector 健康检查 |
+| [M2-06](milestones/M2/tasks/M2-06-jaeger-tempo.md) | 增加 Tempo 持久化 Trace | sre-team | P1 | `done`（`34e98f8`） | `observability/tempo/`、Compose 服务、`/api/traces/:traceId` 代理 | OTel Collector → Tempo 完整链路，Tempo API 可查 Trace，后端代理端点已测试 |
+| [M2-07](milestones/M2/tasks/M2-07-grafana-dashboard.md) | 增加基础 Dashboard | sre-team | P0 | `done` | Grafana dashboard JSON | 8 个面板（请求量 stat、错误数 stat、错误率 stat、P95 stat、请求率 timeseries、错误率 timeseries、延迟百分位、状态码分布） |
+| [M2-08](milestones/M2/tasks/M2-08-slo-config.md) | 增加 SLO 配置草案 | sre-team | P1 | `done` | `observability/slo.yml` | 可用性 99.9%、P95<500ms、P99<2000ms，排除演示接口 |
+| [M2 验收](milestones/M2/milestone-acceptance.md) | 执行 M2 Milestone Acceptance | sre-team + qa-team | P0 | `accepted` | 验收记录、验证证据和 M3 准入结论 | M2-01 至 M2-08 全部 `done`，核心闭环通过 |
 
 ## 7. M3 Mastra Agent 分析闭环
 
@@ -177,22 +177,22 @@ flowchart LR
 
 | 任务 ID | 任务 | 负责人 | 优先级 | 状态 | 交付物 | 验收标准 |
 |---|---|---|---:|---|---|---|
-| [M3-01](issues/M3-01-mastra-project.md) | 搭建 Mastra 项目 | ai-agent-team | P0 | `done`（`23ee4ad`） | `agent/` | Agent 服务可以本地启动 |
-| [M3-02](issues/M3-02-model-provider.md) | 实现模型 Provider（提供方）抽象 | ai-agent-team | P0 | `done`（`775cc55`） | `openai`、`deepseek`、`alibaba`、`ollama`、`mock` | 通过 `MODEL_PROVIDER` 切换 |
-| [M3-03](issues/M3-03-mock-report.md) | 实现 Mock 报告模式 | ai-agent-team | P0 | `done`（`23ee4ad`） | mock analyzer | 无模型也能返回固定报告 |
-| [M3-04](issues/M3-04-prometheus-tool.md) | 实现 Prometheus Tool（工具） | ai-agent-team | P0 | `done`（`c490ea8`） | 查询指标工具 | 能查询错误率和延迟 |
-| [M3-05](issues/M3-05-loki-tool.md) | 实现 Loki Tool（工具） | ai-agent-team | P0 | `done`（`309012d`） | 查询日志工具 | 能按时间窗口查询错误日志 |
-| [M3-06](issues/M3-06-trace-tool.md) | 实现 Trace Tool（工具） | ai-agent-team | P1 | `done`（`5cba6e0`） | 查询链路工具 | 能按 `traceId` 查询链路 |
-| [M3-07](issues/M3-07-git-context-tool.md) | 实现 Git Context Tool（源码上下文工具） | ai-agent-team | P1 | `done`（`fd50103`） | 读取文件和 commit（提交） | 能关联最近提交 |
-| [M3-08](issues/M3-08-incident-report-template.md) | 设计 Incident Report 模板 | docs-team | P0 | `done`（`52187b7`） | Markdown 模板 | 包含影响范围、证据、根因、建议、人类审核 |
-| [M3-09](issues/M3-09-frontend-report.md) | 前端展示 AI 分析结果 | frontend-team | P0 | `done`（`0020590`） | 报告展示组件 | 点击分析后能看到报告 |
-| [M3-10](issues/M3-10-incident-lifecycle.md) | 输出 Incident Lifecycle（故障生命周期） | ai-agent-team | P1 | `done`（`ed70cba`） | 生命周期字段 | 报告能区分发现、诊断、缓解、复盘 |
-| [M3-11](issues/M3-11-knowledge-base.md) | 整理 Agent Knowledge Base（智能体知识库）文档 | docs-team + ai-agent-team | P0 | `done`（`cdbadd1`） | `docs/architecture/`、`docs/decisions/`、`docs/knowledge/` 等知识目录 | 明确稳定知识、过程记录和历史归档边界，过期文档不会污染默认检索 |
-| [M3-12](issues/M3-12-gbrain-sources.md) | 注册 GBrain Sources（数据源） | ai-agent-team | P0 | `done`（`ce039c5`） | GBrain 多数据源配置和同步命令 | 可以按文档目录独立同步，并能追踪检索结果来源 |
-| [M3-13](issues/M3-13-gbrain-mcp.md) | 接入 GBrain MCP（模型上下文协议） | ai-agent-team | P0 | `done`（`b8f2f3f`） | GBrain MCP 接入配置 | Codex 和 Claude Code 能通过受控工具查询同一个项目知识库 |
-| [M3-14](issues/M3-14-pre-execution-rag.md) | 实现 Agent 执行前 RAG（检索增强生成） | ai-agent-team | P0 | `done`（`3b724ec`） | 检索策略和上下文组装逻辑 | 执行者能同时读取任务事实、历史知识和当前代码上下文，且来源边界清晰 |
-| [M3-15](issues/M3-15-knowledge-capture.md) | 实现任务完成后的知识沉淀 | ai-agent-team + docs-team | P1 | `done`（`710ac97`） | 任务摘要、架构决策、故障经验写入流程 | 有价值的结论进入 GBrain，原始聊天噪声不会直接进入知识库 |
-| [M3-16](issues/M3-16-rag-evaluation.md) | 建立 RAG Evaluation（检索评估）与引用审计 | qa-team + ai-agent-team | P1 | `done`（`d770a64`） | 项目问题集、命中率记录和来源引用 | 检索结果可复现、可追溯，并能验证中文项目文档的召回质量 |
+| [M3-01](milestones/M3/tasks/M3-01-mastra-project.md) | 搭建 Mastra 项目 | ai-agent-team | P0 | `done`（`23ee4ad`） | `agent/` | Agent 服务可以本地启动 |
+| [M3-02](milestones/M3/tasks/M3-02-model-provider.md) | 实现模型 Provider（提供方）抽象 | ai-agent-team | P0 | `done`（`775cc55`） | `openai`、`deepseek`、`alibaba`、`ollama`、`mock` | 通过 `MODEL_PROVIDER` 切换 |
+| [M3-03](milestones/M3/tasks/M3-03-mock-report.md) | 实现 Mock 报告模式 | ai-agent-team | P0 | `done`（`23ee4ad`） | mock analyzer | 无模型也能返回固定报告 |
+| [M3-04](milestones/M3/tasks/M3-04-prometheus-tool.md) | 实现 Prometheus Tool（工具） | ai-agent-team | P0 | `done`（`c490ea8`） | 查询指标工具 | 能查询错误率和延迟 |
+| [M3-05](milestones/M3/tasks/M3-05-loki-tool.md) | 实现 Loki Tool（工具） | ai-agent-team | P0 | `done`（`309012d`） | 查询日志工具 | 能按时间窗口查询错误日志 |
+| [M3-06](milestones/M3/tasks/M3-06-trace-tool.md) | 实现 Trace Tool（工具） | ai-agent-team | P1 | `done`（`5cba6e0`） | 查询链路工具 | 能按 `traceId` 查询链路 |
+| [M3-07](milestones/M3/tasks/M3-07-git-context-tool.md) | 实现 Git Context Tool（源码上下文工具） | ai-agent-team | P1 | `done`（`fd50103`） | 读取文件和 commit（提交） | 能关联最近提交 |
+| [M3-08](milestones/M3/tasks/M3-08-incident-report-template.md) | 设计 Incident Report 模板 | docs-team | P0 | `done`（`52187b7`） | Markdown 模板 | 包含影响范围、证据、根因、建议、人类审核 |
+| [M3-09](milestones/M3/tasks/M3-09-frontend-report.md) | 前端展示 AI 分析结果 | frontend-team | P0 | `done`（`0020590`） | 报告展示组件 | 点击分析后能看到报告 |
+| [M3-10](milestones/M3/tasks/M3-10-incident-lifecycle.md) | 输出 Incident Lifecycle（故障生命周期） | ai-agent-team | P1 | `done`（`ed70cba`） | 生命周期字段 | 报告能区分发现、诊断、缓解、复盘 |
+| [M3-11](milestones/M3/tasks/M3-11-knowledge-base.md) | 整理 Agent Knowledge Base（智能体知识库）文档 | docs-team + ai-agent-team | P0 | `done`（`cdbadd1`） | `docs/architecture/`、`docs/decisions/`、`docs/knowledge/` 等知识目录 | 明确稳定知识、过程记录和历史归档边界，过期文档不会污染默认检索 |
+| [M3-12](milestones/M3/tasks/M3-12-gbrain-sources.md) | 注册 GBrain Sources（数据源） | ai-agent-team | P0 | `done`（`ce039c5`） | GBrain 多数据源配置和同步命令 | 可以按文档目录独立同步，并能追踪检索结果来源 |
+| [M3-13](milestones/M3/tasks/M3-13-gbrain-mcp.md) | 接入 GBrain MCP（模型上下文协议） | ai-agent-team | P0 | `done`（`b8f2f3f`） | GBrain MCP 接入配置 | Codex 和 Claude Code 能通过受控工具查询同一个项目知识库 |
+| [M3-14](milestones/M3/tasks/M3-14-pre-execution-rag.md) | 实现 Agent 执行前 RAG（检索增强生成） | ai-agent-team | P0 | `done`（`3b724ec`） | 检索策略和上下文组装逻辑 | 执行者能同时读取任务事实、历史知识和当前代码上下文，且来源边界清晰 |
+| [M3-15](milestones/M3/tasks/M3-15-knowledge-capture.md) | 实现任务完成后的知识沉淀 | ai-agent-team + docs-team | P1 | `done`（`710ac97`） | 任务摘要、架构决策、故障经验写入流程 | 有价值的结论进入 GBrain，原始聊天噪声不会直接进入知识库 |
+| [M3-16](milestones/M3/tasks/M3-16-rag-evaluation.md) | 建立 RAG Evaluation（检索评估）与引用审计 | qa-team + ai-agent-team | P1 | `done`（`d770a64`） | 项目问题集、命中率记录和来源引用 | 检索结果可复现、可追溯，并能验证中文项目文档的召回质量 |
 
 GBrain 接入边界：
 
