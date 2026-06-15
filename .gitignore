@@ -52,3 +52,6 @@ temp/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# Obsidian vault state (workspace is user-specific, others shared)
+**/.obsidian/workspace.json
