@@ -38,7 +38,11 @@
 
 ### 教训（`docs/lessons/`）
 
-跨里程碑的通用教训（规划中，积累 3 篇以上时建立）。
+跨里程碑的通用工程方法论与架构思考（与 ADR 互补：ADR 记录"决定做什么"，lessons 记录"思考过程"）：
+
+- [[tdd-and-test-governance|TDD 与测试治理]]：为什么选 Codex 做 test-strategist，测试治理决策流程
+- [[gbrain-rag-and-document-governance|GBrain RAG 与文档治理]]：知识库方法论，为 M4+OpenHands 准备
+- [[2026-06-15-monorepo-env-governance|Monorepo 环境变量治理]]：中央 schema vs 包自治的架构张力（含面试表达 3 层次）
 
 ### 运维手册（`docs/runbooks/`）
 
