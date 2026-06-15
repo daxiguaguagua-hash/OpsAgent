@@ -2,7 +2,8 @@
 
 > **本文件是项目知识库的核心锚点。每次会话开始时，AI 必须先读本文件，再开始任何代码工作。**
 >
-> —— 见 `AGENTS.md` 的"文档阅读顺序"约定。
+> —— 见 [根目录下的 AGENTS.md 文档](../../AGENTS.md) 的"文档阅读顺序"约定。
+> 本结构采用的是 卡帕西的wiki 结构，打开双向链接请使用 Obsidian 软件。
 
 ---
 
@@ -18,11 +19,12 @@ ADR（Architecture Decision Record）是记录**架构决策**的轻量级文档
 
 ## 2. ADR 列表（按编号排序）
 
-| 编号 | 标题 | 状态 | 日期 |
-|---|---|---|---|
+| 编号                        | 标题                    | 状态       | 日期       |
+| --------------------------- | ----------------------- | ---------- | ---------- |
 | [0000](./0000-adopt-adr.md) | 采用 ADR 模式管理知识库 | `accepted` | 2026-06-14 |
 
 > 批次 2（待执行）将新增：
+>
 > - `0001-env-layer-design.md`（从 `docs/devlog/2026-06-10-env-default-ownership.md` 分流）
 > - `0002-error-tracking-strategy.md`（从 `docs/devlog/2026-06-06-observability-and-sentry.md` 分流）
 > - `0003-zod-schema-governance.md`（从 `docs/devlog/2026-06-10-zod-usage-audit.md` 分流）
@@ -39,37 +41,58 @@ ADR（Architecture Decision Record）是记录**架构决策**的轻量级文档
 - **日期**：YYYY-MM-DD
 - **状态**：`proposed` / `accepted` / `deprecated` / `superseded by ADR-XXXX`
 - **决策者**：<谁参与了决策>
-- **关联**：<相关 ADR / 文档 / 任务卡>
+- **关联**：
+  - [[XXXX-slug|ADR-XXXX 标题]]
+  - [[slug|其他文档 显示名]]
+  若暂无，写"暂无"。
+  格式说明：项目内文档一律用 Obsidian `[[slug|显示名]]` 语法；仅外部 URL 用 `[text](url)`。
 
 ## Context
+
 <为什么需要做这个决策？当前痛点是什么？>
 
 ## Decision
+
 <决定做什么？>
 
 ## Consequences
+
 <这个决策带来的结果是什么？正面/负面都要写。>
 
 ## 反向引用
+
 <哪些文档提到了本篇 ADR？每次新建文档引用本篇时，必须同步在这里追加一条。
-格式：`- <文档路径>：<引用上下文>`
-示例：
-- docs/milestones/M4/retrospective.md §2.1
-- docs/packages/env.md §设计原则
-若暂无，写"暂无"。>
+格式（纯 Obsidian `[[]]`）：
+
+- [[slug|显示名]]：<引用上下文>
+  示例：
+- [[2026-06-14-m4-phaseA-retrospective|M4 复盘]]：§2.1
+- [[env|env 包手册]]：§设计原则
+  若暂无，写"暂无"。>
 ```
 
 ## 4. 双向链接纪律（核心规则）
 
-**每篇文档**（不限于 ADR）都要在文末维护两节：
+**每篇文档**（不限于 ADR）都要在文末维护两节。项目内文档链接**一律用 Obsidian `[[]]` 语法**；仅外部 URL（如博客、论文、官方文档）用 markdown `[]()`。
 
 ### `**关联**`（前向链接，写在文档顶部元数据区）
+
 - 我依赖了哪些文档
 - 我参考了哪些 ADR / 教训 / 包手册
+- 格式：`[[slug|显示名]]`
 
 ### `## 反向引用`（后向链接，写在文档底部）
+
 - 哪些文档提到了我
+- 格式：`- [[slug|显示名]]：<引用上下文>`
 - **每次新建文档引用本篇时，必须同步在被引用文档的反向引用区追加一条**
+
+### 为什么纯 `[[]]`（不是双写，也不是纯 `[]()`）
+
+- **Obsidian 是项目知识库的规范阅读器**：用 Obsidian 打开 `docs/` 才能看到完整的 backlinks 视图
+- 双写会让文档显得臃肿（每条链接重复两次）
+- 纯 `[]()` 没有反向链接能力
+- GitHub / VS Code 预览虽然不渲染 `[[]]`，但**原始文本仍可阅读**；真正需要点击跳转的场景都在 Obsidian 里完成
 
 ## 5. 命名规则
 
@@ -103,14 +126,14 @@ ADR（Architecture Decision Record）是记录**架构决策**的轻量级文档
 
 ## 7. 与项目其他文档的关系
 
-| 文档类型 | 位置 | 与 ADR 的关系 |
-|---|---|---|
-| **AGENTS.md** | 项目根 | 必读约定，指向本 README |
-| **CLAUDE.md** | 项目根 | 项目全貌，引用 ADR 但不重复 |
-| **任务卡** | `docs/issues/M{N}-*.md` | 实施细节，引用 ADR 作为决策依据 |
-| **里程碑复盘** | `docs/milestones/M{N}/retrospective.md` | 教训可能沉淀为新 ADR |
-| **包手册** | `docs/packages/*.md` | 实现细节，引用 ADR 作为设计依据 |
-| **教训文档** | `docs/lessons/*.md` | 跨里程碑通用教训，可能催生 ADR |
+| 文档类型       | 位置                                    | 与 ADR 的关系                   |
+| -------------- | --------------------------------------- | ------------------------------- |
+| **AGENTS.md**  | 项目根                                  | 必读约定，指向本 README         |
+| **CLAUDE.md**  | 项目根                                  | 项目全貌，引用 ADR 但不重复     |
+| **任务卡**     | `docs/issues/M{N}-*.md`                 | 实施细节，引用 ADR 作为决策依据 |
+| **里程碑复盘** | `docs/milestones/M{N}/retrospective.md` | 教训可能沉淀为新 ADR            |
+| **包手册**     | `docs/packages/*.md`                    | 实现细节，引用 ADR 作为设计依据 |
+| **教训文档**   | `docs/lessons/*.md`                     | 跨里程碑通用教训，可能催生 ADR  |
 
 ## 8. 验收检查清单（每篇 ADR 提交前过一遍）
 

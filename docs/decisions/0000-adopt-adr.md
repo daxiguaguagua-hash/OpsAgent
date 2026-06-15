@@ -3,7 +3,9 @@
 - **日期**：2026-06-14
 - **状态**：`accepted`
 - **决策者**：项目维护者 + AI agent
-- **关联**：`docs/knowledge/2026-06-14-wiki-structure-blueprint.md`（提案原文）
+- **关联**：
+  - [[2026-06-14-wiki-structure-blueprint|Wiki 结构蓝图]]（提案原文）
+  - [[2026-06-14-m4-phaseA-retrospective|M4 Phase A 复盘]]（知识库散点化的具体损失证据）
 
 ## Context
 
@@ -169,10 +171,9 @@ docs/
 
 ## 反向引用
 
-- `AGENTS.md`：在顶部必读清单 + "知识管理（ADR 模式）"节被引用
-- `docs/devlog/2026-06-14-m4-handoff.md`：在 §6.1 / §6.2 / §6.3 作为交接入口被引用
-- `docs/decisions/README.md`：作为本 ADR 的索引页（§2 列出本 ADR）
-- `docs/devlog/2026-06-14-m4-phaseA-retrospective.md`：在 §3"知识管理类教训"作为解决方案被引用
-- `docs/knowledge/2026-06-14-wiki-structure-blueprint.md`：在提案原文中被引用（ADR-0000 是其落地形式）
+- [[AGENTS|AGENTS.md]]：顶部必读清单 + §知识管理
+- [[2026-06-14-m4-handoff|M4 handoff]]：§6.1 / §6.2 / §6.3 交接入口
+- [[README|ADR 索引]]：§2 ADR 列表
+- [[2026-06-14-m4-phaseA-retrospective|M4 复盘]]：§3 知识管理类教训
 
-> 未来新增引用本 ADR 的文档（如 `docs/milestones/M{N}/handoff.md`、`docs/packages/*.md`、`docs/lessons/*.md`），必须同步在此追加一条。
+> 未来新增引用本 ADR 的文档（如 `docs/milestones/M{N}/handoff.md`、`docs/packages/*.md`、`docs/lessons/*.md`），必须同步在此追加一条，且严格遵循 `[[slug|显示名]]` 格式。

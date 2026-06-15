@@ -129,5 +129,5 @@ Phase A 跑通了 Sentry SaaS 端到端：Vite 构建生成 source map → SDK �
 
 ## 反向引用
 
-- `docs/decisions/0000-adopt-adr.md`（采用 ADR 模式）：在 `Context` 节作为"知识库散点化的具体损失"证据被引用
-- `docs/knowledge/2026-06-14-wiki-structure-blueprint.md`（知识库蓝图提案）：在 §1.2"对 AI 的具体影响"作为案例被引用
+- [[0000-adopt-adr|ADR-0000]]：`Context` 节作为"知识库散点化的具体损失"证据
+- [[2026-06-14-wiki-structure-blueprint|Wiki 结构蓝图]]：§1.2"对 AI 的具体影响"作为案例
