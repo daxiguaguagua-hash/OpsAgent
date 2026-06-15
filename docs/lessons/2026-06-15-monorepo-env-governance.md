@@ -199,6 +199,86 @@ env 名字冲突是**静默 bug**，没有任何 TypeScript / zod 能提前抓�
 | 包数量 ≥ 10 | 评估思路 C（per-package schema 聚合） |
 | 中央 env 包 schema > 50 个 key | 评估思路 C 或拆分中央 schema |
 | M5 之前 | 完成思路 A（命名约定）+ client schema 补全 |
+| **团队有成员具备 monorepo env 重构经验** | **跳过渐进演进，直接采用 Turborepo 模式**（详见 §9） |
+
+## 9. 来自真实项目的洞察（项目维护者经验）
+
+> 本节由项目维护者基于**前东家项目组真实实践**补充。这部分洞察比纯理论调研更有说服力，因为已经过生产环境验证。
+
+### 9.1 核心洞察：中央 .env 的价值被高估了
+
+> "我之前的项目组就是这么干的。而且确实总包的 .env 里面的变量就是一个共享变量，也没什么用。"
+
+这句话戳到了当前设计的一个盲点：**我们项目的中央 `.env` 里那 15 个变量，严格说全是"基础设施共享变量"**——它们不是"中央业务配置"，而是"所有包都恰好需要的基础设施连接信息"。
+
+### 9.2 三种变量的本质区别
+
+| 类型 | 例子 | 该在哪 |
+|---|---|---|
+| **基础设施共享** | DB 连接、Redis、OTel endpoint | 中央（每个包都读） |
+| **业务配置** | `MODEL_PROVIDER`、`CLOUD_MODEL` | 应用级（只有 `apps/agent` 用） |
+| **包专属开关** | `WG_ALLOW_DESTRUCTIVE` | 包内（只有 `workflow-gates` 用） |
+
+**当前设计问题**：我们把"业务配置"和"包专属开关"都塞进了中央 schema，违背了 Turborepo 的"显式共享"原则。比如 `MODEL_PROVIDER` 其实只有 `apps/agent` 真正消费，但被放在了中央 env 里——这让 schema 看起来"什么都管"，实际语义聚焦不够。
+
+### 9.3 如果重新设计：Turborepo 模式的具体落地
+
+```
+.env 分布：
+├── .env                          # 只剩基础设施共享（~5 个）
+│                                  # DATABASE_URL / REDIS_URL / CORS_ORIGIN
+│                                  # OTel endpoint / NODE_ENV
+├── apps/backend/.env             # backend 专属（PORT / BACKEND_*）
+├── apps/agent/.env               # agent 专属（MODEL_PROVIDER / AGENT_*）
+├── apps/frontend/.env            # frontend 专属（VITE_*）
+└── packages/workflow-gates/.env  # 包专属（WG_*）
+
+@opsagent/env 的 schema 拆分：
+├── src/shared.ts    # 基础设施共享 schema（精简到 ~5 个）
+├── src/server.ts    # 后端 server schema（PORT / CORS 相关）
+├── src/agent.ts     # agent schema（MODEL_* / 工具 endpoint）
+├── src/client.ts    # frontend schema（VITE_*）
+└── src/index.ts     # 导出所有子 schema
+```
+
+**每个包只导入自己关心的子 schema**：
+
+```typescript
+// apps/agent/src/index.ts
+import { sharedEnv, agentEnv } from "@opsagent/env";
+
+sharedEnv.DATABASE_URL;   // ✅ 基础设施共享
+agentEnv.MODEL_PROVIDER;  // ✅ agent 专属
+// serverEnv.PORT;        // ❌ 编译期就拦下来（agent 不该看 backend 的 PORT）
+```
+
+### 9.4 这种设计的 4 个好处
+
+1. **语义聚焦**：每个 schema 只描述"我这个包真正关心的变量"，不会让 agent 包看到 `PORT`、frontend 包看到 `DATABASE_URL`
+2. **类型隔离**：跨包越界访问在**编译期**就拦下来（不是运行时才发现）
+3. **加载优化**：每个包只加载自己需要的 schema，不需要把所有 zod schema 都实例化
+4. **符合 Turborepo 最佳实践**：root .env 精简为纯基础设施，业务变量下沉到应用包
+
+### 9.5 与"渐进演进"策略的关系
+
+之前的 §5 推荐"思路 E（A + B + D 组合）"作为演进路径——这是**假设团队没有经验、从零摸索**的保守策略。
+
+但如果团队已经有成员具备 monorepo env 重构的**真实项目经验**（如项目维护者），就可以**跳过渐进演进，直接采用 Turborepo 模式**。理由：
+
+- 经验已经验证过方案的可行性（不是纸上谈兵）
+- 演进路径的"触发条件"本质上是为了**降低风险**——有经验背书，风险可控
+- 一次性到位的重构成本 < 多次渐进演进的累积成本（在团队有经验的前提下）
+
+## 10. 面试表达升级版（含真实项目经验）
+
+> "我们调研了 Turborepo / Nx / t3-env 三家对 monorepo env 治理的最佳实践，发现 Turborepo 官方明确把 root .env 列为反模式。更重要的是，**我之前的项目组就是这么干的**——中央 .env 里只有基础设施共享变量（DB / Redis / OTel），业务变量全部下沉到应用包的 .env。
+>
+> 我们当前项目的设计是把所有变量塞进中央 schema（用 t3-env 做类型化 + 校验），这比业界平均水平走得更远，但也遇到了'中央 schema 膨胀 + 包专属变量无处安放'的天花板。
+>
+> 如果重新设计，我会直接采用 Turborepo 模式：中央 .env 精简到 ~5 个基础设施变量，中央 schema 拆成 shared / server / agent / client 四个子 schema，每个包只导入自己关心的子 schema，跨包越界访问在编译期就拦下来。这种设计同时做到了'显式共享'（Turborepo 推荐）+ '类型隔离'（TypeScript 强项）+ '语义聚焦'（工程可读性）。"
+
+**加分句**：
+> "这种'调研业界方案 + 结合真实项目经验 + 给出重新设计方案'的思考过程，比单纯'落地某个方案'更能体现架构师的能力。"
 
 ## 反向引用
 
