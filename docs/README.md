@@ -54,6 +54,7 @@
 - [[tdd-and-test-governance|TDD 与测试治理]]：为什么选 Codex 做 test-strategist，测试治理决策流程
 - [[gbrain-rag-and-document-governance|GBrain RAG 与文档治理]]：知识库方法论，为 M4+OpenHands 准备
 - [[2026-06-15-monorepo-env-governance|Monorepo 环境变量治理]]：中央 schema vs 包自治的架构张力（含面试表达 3 层次）
+- [[2026-06-15-knowledge-base-restructure-cleanup|知识库重构收尾记录]]：M4-PhaseA 期间"后来才做的"重构，含 19 个 commit 清单 + 下一会话提示词
 
 ### 运维手册（`docs/runbooks/`）
 
