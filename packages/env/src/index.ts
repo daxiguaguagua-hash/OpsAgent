@@ -77,6 +77,11 @@ export const env = createEnv({
     TEMPO_ENDPOINT: z.url().default("http://localhost:3200"),
     PROMETHEUS_URL: z.url().default("http://localhost:9090"),
     LOKI_URL: z.url().default("http://localhost:3100"),
+    // Sentry Source Map 上传（M4 Phase B / ADR-0006）
+    // 三个字段均为 optional：本地开发未配置时 vite build 静默跳过上传；CI 环境由 CI 层做必填校验
+    SENTRY_AUTH_TOKEN: z.string().min(1).optional(),
+    SENTRY_ORG: z.string().min(1).optional(),
+    SENTRY_PROJECT: z.string().min(1).optional(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

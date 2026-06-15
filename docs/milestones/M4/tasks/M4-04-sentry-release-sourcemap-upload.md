@@ -1,7 +1,7 @@
 # M4-04 Release 与私有 Source Map 上传
 
 日期：2026-06-15
-状态：`planned`
+状态：`done`（代码完工；Sentry 真实上传验证作为 P1 待办，由项目维护者填凭证后补）
 前置任务：M4-01 / M4-02 / M4-03
 负责人：frontend-team + sre-team
 
@@ -73,13 +73,43 @@ flowchart LR
 - **不做** Agent `sentry-tool` 整合——那是 M4-09 的范围
 - **不做** GlitchTip 兼容性验证——Phase B 先跑通 Sentry SaaS，GlitchTip 留到 M4 Phase D
 
-## 7. 测试证据（完工后填写）
+## 7. 测试证据
 
-> 实施阶段补：贴 Sentry Dashboard 截图 URL、`pnpm build` 日志关键行、`pnpm test` 结果。
+### 已验证（本地构建）
 
-## 8. 工作流记录（完工后填写）
+- **`pnpm --filter frontend check-types`**：0 errors，输出包含 `vite build` + `tsc --noEmit` 两段成功
+- **降级行为（token 空时静默跳过）**：`pnpm --filter frontend build` 输出 warning `[vite] SENTRY_AUTH_TOKEN 未配置，跳过 @sentry/vite-plugin（Source Map 不会上传到 Sentry）。详见 ADR-0006 / docs/milestones/M4/tasks/M4-04-sentry-release-sourcemap-upload.md`，构建仍然成功
+- **Source Map 生成（M4-01 回归）**：`dist/assets/index-*.js.map` 和 `routes-*.js.map` 均存在（962 KB + 3966 KB）
+- **Source Map 不公开（M4-02 回归）**：`grep -l sourceMappingURL dist/assets/*.js` 无输出——`.js` 文件不含 `//# sourceMappingURL=` 注释，浏览器 DevTools 无法定位 `.map`
+- **类型检查**：`vite.config.ts` 引入 `@sentry/vite-plugin` 类型正确，无 TS 报错
 
-> 实施阶段补：每步 commit sha、遇到的意外、决策变更。
+### 待验证（P1 待办，需填凭证）
+
+由项目维护者在 `.env` 填入 `SENTRY_AUTH_TOKEN` / `SENTRY_ORG` / `SENTRY_PROJECT` 后，跑：
+
+```bash
+pnpm --filter frontend build
+```
+
+预期：
+- 构建日志出现 "@sentry/vite-plugin" 上传相关输出（非 warning）
+- Sentry Dashboard 的 Release 列表出现 `0.0.0-<git-sha>` 条目（`package.version-git-sha` 格式，符合 ADR-0006 §2）
+- Sentry Issue 堆栈显示 `apps/frontend/src/**/*.tsx` 源码文件和行号（不是 `index-*.js`）
+
+验证后把截图 URL / Release 名 / 真实 commit sha 回填到这里。
+
+## 8. 工作流记录
+
+| 步骤 | 结果 |
+|---|---|
+| ADR-0006 状态转换 | `proposed → accepted`（项目维护者确认 Release 命名策略 `package.version-git-sha`） |
+| 依赖安装 | `@sentry/vite-plugin` 已在 catalog（`^5.3.0`）和 frontend devDependencies（`catalog:`），无需新增 package.json 改动 |
+| `@opsagent/env` server schema | 追加 `SENTRY_AUTH_TOKEN` / `SENTRY_ORG` / `SENTRY_PROJECT`（optional，构建时校验） |
+| `vite.config.ts` 集成 | 动态注册 `@sentry/vite-plugin`；token 空时 plugin 不注册 + console.warn 提醒 |
+| Release 命名实现 | `readFileSync(package.json).version` + `git rev-parse --short HEAD`（git 不可用时 fallback 到纯 version） |
+| `.env.example` 更新 | 追加 `SENTRY_ORG=` / `SENTRY_PROJECT=` 占位，与 ADR-0006 §4 对齐 |
+| 本地构建验证 | 通过（详见 §7 已验证段） |
+| Sentry 真实上传 | **未完成**——需项目维护者填凭证后补验证（P1 待办） |
 
 ## 反向引用
 

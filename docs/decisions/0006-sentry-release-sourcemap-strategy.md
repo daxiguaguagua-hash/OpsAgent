@@ -1,7 +1,7 @@
 # ADR-0006: Sentry Release 命名与 Source Map 上传策略
 
 - **日期**：2026-06-15
-- **状态**：`proposed`（§3 Release 命名策略待验证后改 `accepted`）
+- **状态**：`accepted`
 - **决策者**：项目维护者 + AI agent
 - **关联**：
   - [[0002-error-tracking-strategy|ADR-0002]]：错误监控分层栈（Sentry 定位）
@@ -46,9 +46,7 @@ M4 Phase B 的核心交付就是补齐这两个能力，对应任务卡 M4-04。
 | `package.version`               | `1.2.3`                | 同一版本多次部署会覆盖 Source Map，热修复时定位不准                  |
 | ISO 时间戳                         | `2026-06-15T10:30:00Z` | 语义弱，Sentry 排序不友好                                 |
 
-**结论（待验证）**：采用 `package.version-git-sha`。实施时在 `vite.config.ts` 里用 Node.js `child_process.execSync("git rev-parse --short HEAD")` + `package.json` 的 `version` 字段拼接。
-
-**状态说明**：本决策当前为 `proposed`，因为项目维护者明确说"Release 命名策略需要验证"。验证通过后改 `accepted`；如果被推翻，新建 ADR-NNNN 替代。
+**结论**：采用 `package.version-git-sha`。实施时在 `vite.config.ts` 里用 Node.js `child_process.execSync("git rev-parse --short HEAD")` + `package.json` 的 `version` 字段拼接。
 
 ### 3. Source Map 不公开：Vite `sourcemap: "hidden"` + 部署侧兜底
 
