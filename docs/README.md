@@ -28,9 +28,20 @@
 
 每个里程碑一个目录，包含规划、任务卡、交接、复盘、教训：
 
-- `M4/`（进行中）：[[planning|规划]] / [[handoff|交接]] / [[retrospective|复盘]]
-
-> M0-M3 的任务卡仍在 `docs/issues/`，待批次 3 迁移。
+- **M0/**：项目脚手架（任务卡 8 张 + milestone-acceptance）
+- **M1/**：技术栈基线审计
+  - [[M1/planning|planning]] / [[M1/retrospective|retrospective]]
+  - [[M1/tasks/|tasks/]]（2 张）
+- **M2/**：可观测性基础闭环（Prometheus + Loki + Tempo + Grafana）
+  - [[M2/planning|planning]] / [[M2/retrospective|retrospective]]
+  - [[M2/tasks/|tasks/]]（9 张）
+- **M3/**：AI Agent 整合（Mastra + GBrain + Analysis Pipeline）
+  - [[M3/planning|planning]] / [[M3/retrospective|retrospective]]
+  - [[M3/handoff|handoff]] / [[M3/closure|closure]]
+  - [[M3/tasks/|tasks/]]（17 张）
+- **M4/**（进行中）：前端错误定位（Sentry + Source Map）
+  - [[M4/planning|planning]] / [[M4/handoff|handoff]] / [[M4/retrospective|retrospective]]
+  - [[M4/tasks/|tasks/]]
 
 ### 包手册（`docs/packages/`）
 
