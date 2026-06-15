@@ -66,6 +66,8 @@ M4 Phase B 的核心交付就是补齐这两个能力，对应任务卡 M4-04。
 
 **注意**：这与 M4 Phase A 复盘 §2.1 识别的 P0 问题（前端 `clientEnv` 缺失）是两件事。本 ADR 的 token 是 Node.js 构建时读取，不需要 client schema。
 
+**Token 最小权限**：Sentry Personal Token 需要 `Project: Admin` + `Release: Admin` + `Organization: Read`，其他权限保持 `No Access`。详见 [[2026-06-16-Sentry的TOKEN配置|Sentry Token 配置]]。
+
 ## Consequences
 
 ### 正面
@@ -88,4 +90,7 @@ M4 Phase B 的核心交付就是补齐这两个能力，对应任务卡 M4-04。
 
 ## 反向引用
 
-暂无（新建时同步追加到 ADR-0002 的反向引用区）
+- [[M4-04-sentry-release-sourcemap-upload|M4-04 任务卡]]：§1 目标 / §6 边界
+- [[planning|M4 规划]]：§3.1 上传工具决策
+- [[2026-06-16-Sentry的TOKEN配置|Sentry Token 配置]]：§1 入口 / §3 产出
+- [[2026-06-16-Sentry和GitHub的配置|Sentry 与 GitHub 的配置]]：§1 背景（OAuth 前提）

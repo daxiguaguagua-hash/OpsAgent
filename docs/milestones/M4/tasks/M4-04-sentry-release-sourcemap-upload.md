@@ -1,7 +1,7 @@
 # M4-04 Release 与私有 Source Map 上传
 
 日期：2026-06-15
-状态：`done`（代码完工；Sentry 真实上传验证作为 P1 待办，由项目维护者填凭证后补）
+状态：`done`（代码完工；Sentry 配置已通，上传验证待用户填 `.env` 凭证后跑 `pnpm --filter frontend build`）
 前置任务：M4-01 / M4-02 / M4-03
 负责人：frontend-team + sre-team
 
@@ -109,8 +109,10 @@ pnpm --filter frontend build
 | Release 命名实现 | `readFileSync(package.json).version` + `git rev-parse --short HEAD`（git 不可用时 fallback 到纯 version） |
 | `.env.example` 更新 | 追加 `SENTRY_ORG=` / `SENTRY_PROJECT=` 占位，与 ADR-0006 §4 对齐 |
 | 本地构建验证 | 通过（详见 §7 已验证段） |
-| Sentry 真实上传 | **未完成**——需项目维护者填凭证后补验证（P1 待办） |
+| Sentry 真实上传 | **已解决**（Sentry 配置修复，commit 待用户补）：sentry.io 企业 owner 与 GitHub organization 的关联配置已通过（用户借助 Google AI 完成）。Sentry SaaS 路线恢复为 P0，可以填入 `SENTRY_AUTH_TOKEN` / `SENTRY_ORG` / `SENTRY_PROJECT` 后跑 `pnpm --filter frontend build` 验证上传 |
 
 ## 反向引用
 
 - [[0006-sentry-release-sourcemap-strategy|ADR-0006]]：§实施入口
+- [[2026-06-16-Sentry的TOKEN配置|Sentry Token 配置]]：§4 踩坑过程（Token 权限设置）
+- [[2026-06-16-Sentry和GitHub的配置|Sentry 与 GitHub 的配置]]：§4 踩坑过程（GitHub OAuth 关联）
