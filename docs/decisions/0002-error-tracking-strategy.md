@@ -75,4 +75,4 @@ Sentry（应用性能与错误监控平台）最常见于前端，但也支持 N
 
 ## 反向引用
 
-暂无
+- [[0006-sentry-release-sourcemap-strategy|ADR-0006]]：关联 ADR（Sentry Release 命名与 Source Map 上传策略，§1 定位）

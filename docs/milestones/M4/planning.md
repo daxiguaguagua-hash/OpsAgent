@@ -178,6 +178,8 @@ ERROR_TRACKING_PROVIDER=custom
 
 **执行顺序**：先用 Sentry SaaS 跑通完整流程，再切换 DSN 验证 GlitchTip 兼容性。
 
+**上传工具决策**：最终采用 `@sentry/vite-plugin`（不是 `sentry-cli`），Release 命名策略待定。详见 [[0006-sentry-release-sourcemap-strategy|ADR-0006]]（M4-04 实施依据）。
+
 **Sentry CLI 状态**：已安装 `@sentry/cli` v3.5.0（npx），需要执行 `npx @sentry/cli login` 完成认证。
 
 ### 3.2 MinIO 是否必要？
@@ -392,3 +394,8 @@ const sentryTool = createTool({
 ---
 
 *本文档为 M4 规划讨论稿，随讨论进展持续更新。*
+
+## 反向引用
+
+- [[0006-sentry-release-sourcemap-strategy|ADR-0006]]：关联（§5 Phase B 执行顺序）
+- [[M4-04-sentry-release-sourcemap-upload|M4-04 任务卡]]：实施依据（§1 目标）

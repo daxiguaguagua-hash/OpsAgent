@@ -27,6 +27,7 @@ ADR（Architecture Decision Record）是记录**架构决策**的轻量级文档
 | [[0003-zod-schema-governance\|0003]]   | Zod 只在系统边界做运行时校验                           | `accepted`   | 2026-06-10 |
 | [[0004-hook-bootstrap-strategy\|0004]] | 工作流门禁采用 shell 先行 + TypeScript 渐进接管         | `deprecated` | 2026-06-05 |
 | [[0005-workflow-v2-design\|0005]]      | 测试策略师角色从 Codex 解耦到 claude-code-new-context | `deprecated` | 2026-06-08 |
+| [[0006-sentry-release-sourcemap-strategy\|0006]] | Sentry Release 命名与 Source Map 上传策略 | `proposed` | 2026-06-15 |
 
 ## 3. ADR 文件模板（强制）
 
