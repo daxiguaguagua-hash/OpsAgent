@@ -1,0 +1,219 @@
+# M4 会话交接文档（2026-06-14）
+
+**分支**：`m4`
+**本会话核心产出**：Analysis Pipeline 整合（M3-17）+ M4 全面规划
+
+---
+
+## 1. 本会话完成的工作
+
+### 1.1 Analysis Pipeline 整合（已完工，已提交）
+
+把 `apps/backend` 的 mock 分析服务整合到 `apps/agent` 的 Mastra Agent Pipeline：
+
+| 改动 | 说明 |
+|---|---|
+| `apps/agent/src/analysis-pipeline.ts` | 新增 Mastra Agent 分析管道 + Markdown 渲染 |
+| `apps/agent/src/lib.ts` | 新增 Library 入口 |
+| `apps/agent/src/cli.ts` | 新增 CLI 入口（从 index.ts 拆出） |
+| `apps/backend/src/business/analysis.ts` | 从 240 行重写为 30 行薄代理 |
+| `apps/backend/.env` | 移除 `MODEL_PROVIDER=mock` 覆盖 |
+
+**验证结果**：DeepSeek 调 4 个 tools（Prometheus/Loki/Tempo/Git）→ 37 秒生成 3813 chars 真实 Incident Report。
+
+### 1.2 GBrain 反思与记录
+
+- 发现 `apps/agent/src/gbrain/` 下的自建层是过度设计（6 个文件，当前 0 个被调用）
+- Agent 如需搜索知识库，直接 shell 调 GBrain CLI 两行代码就够
+- 已记录到 devlog（§9-§10）
+
+### 1.3 Mastra Agent 特性调研
+
+通过 Context7 验证：
+- DeepSeek 不支持 tools + structuredOutput 并发 → 改用纯 markdown 输出
+- Agent memory 是 opt-in → 当前没传 memory，每次 generate() 无上下文污染
+- `maxSteps` 控制 tool call 轮数 → 设为 15，配合 instructions "不重试"
+
+---
+
+## 2. M4 规划文档
+
+**文件位置**：[[planning|M4 规划主文档]]（`docs/milestones/M4/planning.md`）
+
+### 2.1 已决定的事项（5 项）
+
+| 决策 | 结论 |
+|---|---|
+| 三层方案 | Sentry SaaS + GlitchTip + 自研 SDK，面试三层递进叙事 |
+| Sentry 自建 | 不可行（7.75 GB 内存带不动） |
+| MinIO | 砍掉（Sentry/GlitchTip 都自带 Source Map 存储） |
+| 方案切换 | `ERROR_TRACKING_PROVIDER` 环境变量（sentry / glitchtip / custom） |
+| 执行顺序 | 先 Sentry SaaS 跑通 → 再切 GlitchTip 验证 |
+
+### 2.2 三层方案详情
+
+**第一层：Sentry SaaS**（P0）
+- `@sentry/react`（前端）+ `@sentry/node`（后端 Hono 官方集成）
+- Source Map 上传用 `@sentry/vite-plugin` 或 `sentry-cli`
+- 14 天免费试用
+
+**第二层：GlitchTip**（P1，兜底）
+- 兼容 Sentry 协议，只改 DSN，前端代码零改动
+- Docker 3 个容器（Web + PostgreSQL + Redis），~512 MB
+- MIT 开源
+
+**第三层：自研 Browser SDK**（P1，教学）
+- 项目地址：https://github.com/daxiguaguagua-hash/nodejs-and-frontend-performance-optimization
+- 已有：Navigation/Resource/Paint/Web Vitals 采集 + sendBeacon 传输
+- 需补：error-collector + symbolication API
+
+### 2.3 Sentry vs Grafana
+
+**结论：互补，不是替代**
+- Grafana 栈 = 基础设施层（"系统健康吗？"）
+- Sentry = 应用层（"代码哪一行错了？"）
+- 彩蛋：Grafana 有 Sentry 数据源插件，数据可互通
+
+### 2.4 待讨论事项（6 项）
+
+- [ ] GlitchTip 接入时机
+- [ ] 自研 SDK error-collector 的使用范围
+- [ ] M4-10 前端 OTel 推迟到 M6
+- [ ] Sentry Session Replay
+- [ ] 前端异常按钮设计
+- [ ] Agent sentry-tool 调 SaaS 还是 GlitchTip API
+
+---
+
+## 3. 接手优先事项
+
+新会话接手后建议按这个顺序干：
+
+### Step 1：Sentry CLI 认证
+
+```bash
+npm install -g @sentry/cli
+sentry-cli login
+sentry-cli info  # 确认认证成功
+```
+
+### Step 2：Sentry 项目创建
+
+在 sentry.io 创建项目（选 React），拿到：
+- DSN（前端初始化用）
+- Auth Token（Source Map 上传用）
+
+### Step 3：M4 Phase A（前端错误采集）
+
+1. `pnpm -F frontend add @sentry/react`
+2. 创建 `apps/frontend/src/lib/sentry.ts`（含 `ERROR_TRACKING_PROVIDER` 切换逻辑）
+3. 在 `main.tsx` 里初始化 Sentry
+4. 添加 ErrorBoundary
+5. 前端 "触发前端异常" 按钮适配 Sentry 捕获
+
+### Step 4：验证
+
+- 触发前端异常 → Sentry Dashboard 看到 Issue
+- 检查 stacktrace 是否包含源码信息
+
+---
+
+## 4. 关键文件索引
+
+| 文件 | 说明 |
+|---|---|
+| `docs/issues/M4-planning.md` | **M4 规划主文档**，所有决策和讨论都在这里 |
+| `docs/milestones/M3/analysis-pipeline-integration.md` | Analysis Pipeline 实战记录 + GBrain 反思 |
+| `apps/agent/src/analysis-pipeline.ts` | 分析管道核心代码 |
+| `apps/backend/src/business/analysis.ts` | Backend 薄代理 |
+| `docs/issues/M3-17-analysis-pipeline-integration.md` | Pipeline 设计文档 |
+
+---
+
+## 5. 注意事项
+
+1. **不要用 `structuredOutput`**：DeepSeek 不支持 tools + structuredOutput 并发
+2. **`maxSteps: 15`**：Agent instructions 里写了"不重试"，配合 15 步够用
+3. **preamble 裁剪**：`response.text` 开头可能有 agent 思考文本，已用正则裁剪到 `#` 或 `---` 开头
+4. **Agent 无状态**：Mastra memory 是 opt-in，当前没传，每次 generate() 独立
+5. **GBrain 自建层**：`apps/agent/src/gbrain/` 下的 `in-memory-client.ts` / `mcp-server.ts` / `types.ts` 当前未被使用，后续可清理
+6. **RAG 模块**：`apps/agent/src/rag/` 下 4 个文件当前 0 个被调用，等 OpenHands 阶段再整合
+
+---
+
+## 6. 交接事项（2026-06-14 会话结束追加）
+
+> **下一个会话的 AI 必须从本段开始读。** 这是防止 ADR 模式被遗忘的关键交接点。
+
+### 6.1 已完成（本会话）
+
+- **M4 Phase A 收尾**（commit `39a2ac7`）：`vite.config.ts` 加 `envDir: "../.."`，前端能读根 `.env`
+- **M4 Phase A 复盘**（commit `c8ddfc8`）：3 份文档
+  - `docs/devlog/2026-06-14-m4-phaseA-retrospective.md`（5 条工程教训）
+  - `docs/knowledge/2026-06-14-wiki-structure-blueprint.md`（知识库重构蓝图，提案原文）
+  - `docs/decisions/0000-adopt-adr.md`（**决定采用 ADR 模式**，扁平 5 目录 + 三批执行计划）
+- **双向链接纪律**（commit `779e6ea`）：ADR 模板加 `## 反向引用` 节，3 份文档形成闭环
+- **ADR 索引**（待 commit）：`docs/decisions/README.md` 完整化，包含模板 + 纪律 + 列表
+- **AGENTS.md 更新**（待 commit）：顶部必读清单加 `docs/decisions/README.md`，新增"知识管理"章节
+
+### 6.2 下一个会话必须做的第一件事
+
+**读 `docs/decisions/README.md`**——这是项目知识库的新锚点，包含：
+
+1. 完整的 ADR 模板（6 节：Context / Decision / Consequences / 反向引用）
+2. 双向链接纪律（`**关联**` + `## 反向引用`，必须手动维护）
+3. 当前 ADR 列表（只有 ADR-0000，批次 2 后会扩到 0001~0005）
+4. 命名规则、工作流、验收清单、反模式
+5. 批次 2 的待执行清单（M4 文档迁移 + 5 篇 devlog 分流）
+
+### 6.3 下一个会话的核心任务：ADR 批次 2 迁移
+
+**按 `docs/decisions/README.md` §11 的清单执行**：
+
+1. 创建 `docs/README.md` 作为总入口（指向 `docs/decisions/README.md` 等）
+2. M4 三份文档迁到 `docs/milestones/M4/`（用 `git mv` 保留 blame）：
+   - `docs/issues/M4-planning.md` → `docs/milestones/M4/planning.md`
+   - `docs/devlog/2026-06-14-m4-handoff.md` → `docs/milestones/M4/handoff.md`
+   - `docs/devlog/2026-06-14-m4-phaseA-retrospective.md` → `docs/milestones/M4/retrospective.md`
+3. 5 篇高价值 devlog 分流为 ADR（不是摘抄，是改写为自包含散文）：
+   - `2026-06-10-env-default-ownership.md` → `decisions/0001-env-layer-design.md`
+   - `2026-06-06-observability-and-sentry.md` → `decisions/0002-error-tracking-strategy.md`
+   - `2026-06-10-zod-usage-audit.md` → `decisions/0003-zod-schema-governance.md`
+   - `2026-06-05-hook-bootstrap-decision.md` → `decisions/0004-hook-bootstrap-strategy.md`
+   - `2026-06-08-workflow-system-audit.md` → `decisions/0005-workflow-v2-design.md`
+4. 更新 `AGENTS.md` / `CLAUDE.md` 中所有 `docs/devlog/` 路径引用
+5. 删除已分流的 devlog 原文件（git 历史保留）
+
+### 6.4 已知未解决问题（批次 2 之外）
+
+- **`@opsagent/env` 补 `clientEnv` schema**（P0，M5 前要做）：复盘文档 §2.1 详述
+- **`@sentry/node` 根 `node_modules` 链接问题**（Phase B 再处理）：`pnpm install` 没把它链接到 `node_modules/@sentry/node`
+- **GlitchTip 镜像拉取**：用户决定走 Sentry SaaS 路线，GlitchTip 延后；镜像 GitLab Registry 被墙
+
+### 6.5 关键文件索引（批次 2 后更新）
+
+批次 2 完成后，以下文件位置会变化，请在 PR 描述里同步：
+
+| 当前路径 | 批次 2 后路径 |
+|---|---|
+| `docs/issues/M4-planning.md` | `docs/milestones/M4/planning.md` |
+| `docs/devlog/2026-06-14-m4-handoff.md` | `docs/milestones/M4/handoff.md` |
+| `docs/devlog/2026-06-14-m4-phaseA-retrospective.md` | `docs/milestones/M4/retrospective.md` |
+| `docs/devlog/2026-06-10-env-default-ownership.md` | `docs/decisions/0001-env-layer-design.md`（改写） |
+| `docs/devlog/2026-06-06-observability-and-sentry.md` | `docs/decisions/0002-error-tracking-strategy.md`（改写） |
+| `docs/devlog/2026-06-10-zod-usage-audit.md` | `docs/decisions/0003-zod-schema-governance.md`（改写） |
+| `docs/devlog/2026-06-05-hook-bootstrap-decision.md` | `docs/decisions/0004-hook-bootstrap-strategy.md`（改写） |
+| `docs/devlog/2026-06-08-workflow-system-audit.md` | `docs/decisions/0005-workflow-v2-design.md`（改写） |
+
+### 6.6 提交记录（本会话 2026-06-14）
+
+```
+779e6ea docs: ADR 模板加反向引用节，建立双向链接纪律
+c8ddfc8 docs: M4-PhaseA 复盘 + 知识库重构蓝图 + ADR-0000
+39a2ac7 feat(frontend): envDir 指向 monorepo root 读 .env
+ccbd985 m4-phaseA完成，这里只是搭建了Sentry的框架...
+```
+
+## 反向引用
+
+- [[0000-adopt-adr|ADR-0000]]：§6 交接事项作为下一会话入口

@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opsagent.local/schemas/incident-report.json",
+  "title": "Incident Report",
+  "description": "OpsAgent 生成的故障报告 JSON 结构。与 INCIDENT_PHASE 生命周期对齐。",
+  "type": "object",
+  "required": [
+    "incidentId",
+    "summary",
+    "evidence",
+    "rootCause",
+    "recommendations",
+    "review"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "incidentId": {
+      "type": "string",
+      "description": "故障编号，例如 20260611-001",
+      "pattern": "^[0-9]{8}-[0-9]{3}$"
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "detectedAt",
+        "phase",
+        "impact",
+        "severity",
+        "mitigationStatus"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "detectedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 发现时间"
+        },
+        "phase": {
+          "type": "string",
+          "enum": ["detected", "diagnosed", "mitigated", "reviewed"],
+          "description": "当前生命周期阶段"
+        },
+        "impact": {
+          "type": "string",
+          "description": "影响范围描述"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["P0", "P1", "P2"],
+          "description": "严重等级"
+        },
+        "mitigationStatus": {
+          "type": "string",
+          "enum": ["mitigated", "unmitigated"]
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["metrics", "logs", "traces", "gitContext"],
+      "additionalProperties": false,
+      "properties": {
+        "metrics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["query", "results", "conclusion"],
+            "properties": {
+              "query": { "type": "string" },
+              "results": {
+                "type": "array",
+                "items": { "type": "object" }
+              },
+              "conclusion": { "type": "string" }
+            }
+          }
+        },
+        "logs": {
+          "type": "object",
+          "required": ["query", "entries", "traceIds"],
+          "properties": {
+            "query": { "type": "string" },
+            "entries": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["timestamp", "line", "labels"],
+                "properties": {
+                  "timestamp": { "type": "string", "format": "date-time" },
+                  "line": { "type": "string" },
+                  "labels": {
+                    "type": "object",
+                    "additionalProperties": { "type": "string" }
+                  },
+                  "detectedLevel": { "type": "string" }
+                }
+              }
+            },
+            "traceIds": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "traces": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["traceId", "rootService", "durationMs", "spans"],
+            "properties": {
+              "traceId": { "type": "string" },
+              "rootService": { "type": "string" },
+              "durationMs": { "type": "number" },
+              "spans": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "spanId",
+                    "operationName",
+                    "serviceName",
+                    "durationMs",
+                    "status"
+                  ],
+                  "properties": {
+                    "spanId": { "type": "string" },
+                    "parentSpanId": { "type": "string" },
+                    "operationName": { "type": "string" },
+                    "serviceName": { "type": "string" },
+                    "durationMs": { "type": "number" },
+                    "status": {
+                      "type": "string",
+                      "enum": ["OK", "ERROR", "UNSET"]
+                    },
+                    "attributes": {
+                      "type": "object",
+                      "additionalProperties": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "gitContext": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path", "recentCommits"],
+            "properties": {
+              "path": { "type": "string" },
+              "recentCommits": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["hash", "author", "date", "message"],
+                  "properties": {
+                    "hash": { "type": "string" },
+                    "author": { "type": "string" },
+                    "date": { "type": "string" },
+                    "message": { "type": "string" }
+                  }
+                }
+              },
+              "suspiciousChange": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "rootCause": {
+      "type": "string",
+      "minLength": 20,
+      "description": "根因分析，建议包含触发条件、传播路径、故障表现"
+    },
+    "recommendations": {
+      "type": "object",
+      "required": ["shortTerm", "longTerm", "prevention"],
+      "additionalProperties": false,
+      "properties": {
+        "shortTerm": { "type": "string" },
+        "longTerm": { "type": "string" },
+        "prevention": { "type": "string" }
+      }
+    },
+    "review": {
+      "type": "object",
+      "required": ["reviewer", "conclusion", "comments"],
+      "additionalProperties": false,
+      "properties": {
+        "reviewer": { "type": "string" },
+        "conclusion": {
+          "type": "string",
+          "enum": ["adopted", "partially_adopted", "rejected"]
+        },
+        "comments": { "type": "string" }
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "required": ["phases", "current"],
+      "properties": {
+        "phases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["phase", "at"],
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": ["detected", "diagnosed", "mitigated", "reviewed"]
+              },
+              "at": { "type": "string", "format": "date-time" },
+              "note": { "type": "string" }
+            }
+          }
+        },
+        "current": {
+          "type": "string",
+          "enum": ["detected", "diagnosed", "mitigated", "reviewed"]
+        }
+      }
+    }
+  }
+}

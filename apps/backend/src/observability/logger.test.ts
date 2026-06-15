@@ -23,11 +23,9 @@ import { API_ERROR_CODE } from "../http/constants";
 import {
   createFileLogSink,
   createRuntimeLogSink,
-  createStructuredLogger,
   generateTraceId,
   resolveTraceId,
   type LogEntry,
-  type LogSink,
 } from "./logger";
 import { OBSERVABILITY } from "./constants";
 

@@ -2,21 +2,25 @@
   "name": "@opsagent/agent",
   "private": true,
   "type": "module",
-  "main": "src/index.ts",
+  "main": "src/lib.ts",
   "scripts": {
     "build": "tsc -b",
     "check-types": "tsc -b --pretty false",
-    "dev": "tsx watch src/index.ts",
-    "start": "tsx src/index.ts",
-    "test": "tsx --test 'src/**/*.test.ts'"
+    "dev": "tsx watch src/cli.ts",
+    "start": "tsx src/cli.ts",
+    "test": "tsx --test 'src/**/*.test.ts'",
+    "gbrain:sync": "tsx src/gbrain/sync.ts"
   },
   "dependencies": {
+    "@ai-sdk/alibaba": "^1.0.26",
+    "@ai-sdk/deepseek": "^2.0.36",
     "@ai-sdk/openai": "^3.0.69",
     "@ai-sdk/provider": "^3.0.10",
     "@mastra/core": "^1.41.0",
     "@opsagent/env": "workspace:*",
     "@opsagent/shared": "workspace:*",
     "dotenv": "catalog:",
+    "yaml": "^2.8.1",
     "zod": "catalog:"
   },
   "devDependencies": {

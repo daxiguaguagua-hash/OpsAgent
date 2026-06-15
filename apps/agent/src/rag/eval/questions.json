@@ -1,0 +1,128 @@
+[
+  {
+    "id": "q-arch-01",
+    "question": "OpsAgent 项目的整体架构是怎样的？",
+    "expectedSourceId": "opsagent-architecture",
+    "category": "architecture"
+  },
+  {
+    "id": "q-arch-02",
+    "question": "项目采用 monorepo 还是多仓？",
+    "expectedSourceId": "opsagent-architecture",
+    "category": "architecture"
+  },
+  {
+    "id": "q-arch-03",
+    "question": "v3 架构候选方案有哪些？",
+    "expectedSourceId": "opsagent-architecture",
+    "category": "architecture"
+  },
+  {
+    "id": "q-arch-04",
+    "question": "后端使用了什么技术栈？",
+    "expectedSourceId": "opsagent-architecture",
+    "category": "architecture"
+  },
+  {
+    "id": "q-arch-05",
+    "question": "前端框架选型是 React 还是 Next.js？",
+    "expectedSourceId": "opsagent-architecture",
+    "category": "architecture"
+  },
+  {
+    "id": "q-arch-06",
+    "question": "可观测性三支柱如何落地？",
+    "expectedSourceId": "opsagent-architecture",
+    "category": "architecture"
+  },
+  {
+    "id": "q-arch-07",
+    "question": "Agent 与后端通过什么协议通信？",
+    "expectedSourceId": "opsagent-architecture",
+    "category": "architecture"
+  },
+  {
+    "id": "q-workflow-01",
+    "question": "Agent 执行工作流包含哪些阶段？",
+    "expectedSourceId": "opsagent-workflows",
+    "category": "workflow"
+  },
+  {
+    "id": "q-workflow-02",
+    "question": "任务状态机的合法转换有哪些？",
+    "expectedSourceId": "opsagent-workflows",
+    "category": "workflow"
+  },
+  {
+    "id": "q-workflow-03",
+    "question": "角色策略如何约束 implementer？",
+    "expectedSourceId": "opsagent-workflows",
+    "category": "workflow"
+  },
+  {
+    "id": "q-workflow-04",
+    "question": "测试纪律 checklist 包含什么？",
+    "expectedSourceId": "opsagent-workflows",
+    "category": "workflow"
+  },
+  {
+    "id": "q-workflow-05",
+    "question": "M1 阶段的文件路径白名单是什么？",
+    "expectedSourceId": "opsagent-workflows",
+    "category": "workflow"
+  },
+  {
+    "id": "q-workflow-06",
+    "question": "ready_for_review 门禁条件是什么？",
+    "expectedSourceId": "opsagent-workflows",
+    "category": "workflow"
+  },
+  {
+    "id": "q-workflow-07",
+    "question": "人类审核任务如何流转到 approver？",
+    "expectedSourceId": "opsagent-workflows",
+    "category": "workflow"
+  },
+  {
+    "id": "q-knowledge-01",
+    "question": "Prometheus 的指标模型是什么？",
+    "expectedSourceId": "opsagent-knowledge",
+    "category": "knowledge"
+  },
+  {
+    "id": "q-knowledge-02",
+    "question": "PromQL 常用函数有哪些？",
+    "expectedSourceId": "opsagent-knowledge",
+    "category": "knowledge"
+  },
+  {
+    "id": "q-knowledge-03",
+    "question": "SLO 和 Error Budget 如何计算？",
+    "expectedSourceId": "opsagent-knowledge",
+    "category": "knowledge"
+  },
+  {
+    "id": "q-knowledge-04",
+    "question": "OpenTelemetry 的 span 包含哪些属性？",
+    "expectedSourceId": "opsagent-knowledge",
+    "category": "knowledge"
+  },
+  {
+    "id": "q-knowledge-05",
+    "question": "Source Map 的工作原理是什么？",
+    "expectedSourceId": "opsagent-knowledge",
+    "category": "knowledge"
+  },
+  {
+    "id": "q-knowledge-06",
+    "question": "GBrain 的检索策略是什么？",
+    "expectedSourceId": "opsagent-knowledge",
+    "category": "knowledge"
+  },
+  {
+    "id": "q-knowledge-07",
+    "question": "Loki 的 LogQL 语法如何写？",
+    "expectedSourceId": "opsagent-knowledge",
+    "category": "knowledge"
+  }
+]

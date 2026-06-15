@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "opsagent-gbrain": {
+      "command": "pnpm",
+      "args": ["--filter", "@opsagent/agent", "gbrain:mcp"],
+      "env": {},
+      "description": "GBrain 知识库 MCP Server：search_knowledge 工具，支持按 sourceId 过滤"
+    }
+  }
+}

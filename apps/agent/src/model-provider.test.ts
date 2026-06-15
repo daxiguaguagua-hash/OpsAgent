@@ -13,7 +13,7 @@ import { describe, test } from "node:test";
 
 import { createModel, getModelConfigFromEnv, type ModelConfig } from "./model-provider.js";
 import { MODEL_PROVIDER } from "./constants.js";
-import { env } from "@opsagent/env/server";
+import { env } from "@opsagent/env";
 
 describe("createModel - 模型 Provider 工厂", () => {
   test("mock provider 返回可用的 mock 模型对象", () => {
@@ -94,6 +94,54 @@ describe("createModel - 模型 Provider 工厂", () => {
       "ollama provider 应提示需要安装额外包",
     );
   });
+
+  test("deepseek provider 返回 openai 兼容模型（使用自定义 baseURL）", () => {
+    const config: ModelConfig = {
+      provider: MODEL_PROVIDER.DEEPSEEK,
+      modelName: "",
+    };
+
+    const model = createModel(config);
+
+    assert.ok(model, "deepseek 模型应被创建");
+    assert.equal(model.modelId, "deepseek-chat", "默认 modelId 应为 deepseek-chat");
+  });
+
+  test("deepseek provider 支持自定义 modelName", () => {
+    const config: ModelConfig = {
+      provider: MODEL_PROVIDER.DEEPSEEK,
+      modelName: "deepseek-reasoner",
+    };
+
+    const model = createModel(config);
+
+    assert.ok(model, "deepseek 模型应被创建");
+    assert.equal(model.modelId, "deepseek-reasoner", "modelId 应为自定义值 deepseek-reasoner");
+  });
+
+  test("alibaba provider 返回通义千问模型（默认 qwen-max）", () => {
+    const config: ModelConfig = {
+      provider: MODEL_PROVIDER.ALIBABA,
+      modelName: "",
+    };
+
+    const model = createModel(config);
+
+    assert.ok(model, "alibaba 模型应被创建");
+    assert.equal(model.modelId, "qwen-max", "默认 modelId 应为 qwen-max");
+  });
+
+  test("alibaba provider 支持自定义 modelName", () => {
+    const config: ModelConfig = {
+      provider: MODEL_PROVIDER.ALIBABA,
+      modelName: "qwen-plus",
+    };
+
+    const model = createModel(config);
+
+    assert.ok(model, "alibaba 模型应被创建");
+    assert.equal(model.modelId, "qwen-plus", "modelId 应为自定义值 qwen-plus");
+  });
 });
 
 describe("getModelConfigFromEnv - 环境变量解析", () => {
@@ -103,9 +151,12 @@ describe("getModelConfigFromEnv - 环境变量解析", () => {
     assert.ok(config.provider, "provider 应存在");
     assert.ok(
       Object.values(MODEL_PROVIDER).includes(config.provider),
-      `provider 应为 openai/ollama/mock 之一，实际: ${config.provider}`,
+      `provider 应为 openai/deepseek/alibaba/ollama/mock 之一，实际: ${config.provider}`,
     );
-    assert.ok(config.modelName, "modelName 应存在");
+    assert.ok(
+      typeof config.modelName === "string",
+      "modelName 应为字符串",
+    );
   });
 
   test("mock provider 时使用默认 modelName", () => {

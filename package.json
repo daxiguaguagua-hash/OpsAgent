@@ -1,10 +1,27 @@
 {
   "name": "opsagent",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "apps/*",
+      "packages/*"
+    ],
+    "catalog": {
+      "dotenv": "^17.2.2",
+      "zod": "^4.1.13",
+      "typescript": "^6",
+      "@types/node": "^22.13.14",
+      "hono": "^4.8.2",
+      "tsx": "^4.19.2",
+      "@trpc/server": "^11.16.0",
+      "next-themes": "^0.4.6",
+      "react": "^19.2.6",
+      "react-dom": "^19.2.6",
+      "@trpc/client": "^11.16.0",
+      "@types/react": "^19.2.15",
+      "@types/react-dom": "^19.2.3"
+    }
+  },
   "type": "module",
   "scripts": {
     "dev": "turbo dev",
@@ -18,13 +35,6 @@
     "task:review": "node --experimental-strip-types packages/workflow-gates/src/taskCli.ts review",
     "task:finish": "node --experimental-strip-types packages/workflow-gates/src/taskCli.ts finish",
     "task:execute": "node --experimental-strip-types packages/workflow-gates/src/taskCli.ts execute",
-    "msg:send": "node --experimental-strip-types packages/workflow-gates/src/messageCli.ts send",
-    "msg:inbox": "node --experimental-strip-types packages/workflow-gates/src/messageCli.ts inbox",
-    "msg:outbox": "node --experimental-strip-types packages/workflow-gates/src/messageCli.ts outbox",
-    "msg:show": "node --experimental-strip-types packages/workflow-gates/src/messageCli.ts show",
-    "msg:read": "node --experimental-strip-types packages/workflow-gates/src/messageCli.ts read",
-    "msg:resolve": "node --experimental-strip-types packages/workflow-gates/src/messageCli.ts resolve",
-    "msg:reply": "node --experimental-strip-types packages/workflow-gates/src/messageCli.ts reply",
     "task:status": "node --experimental-strip-types packages/workflow-gates/src/taskCli.ts status",
     "task:handoff": "node --experimental-strip-types packages/workflow-gates/src/taskCli.ts handoff",
     "task:scope": "node --experimental-strip-types packages/workflow-gates/src/taskCli.ts scope",
@@ -52,13 +62,15 @@
     "db:down": "turbo -F @opsagent/db db:down"
   },
   "dependencies": {
-    "2": "^3.0.0",
     "@opsagent/env": "workspace:*",
+    "@sentry/node": "catalog:",
+    "@sentry/react": "catalog:",
     "dotenv": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@opsagent/config": "workspace:*",
+    "@sentry/vite-plugin": "catalog:",
     "@types/node": "catalog:",
     "tsx": "catalog:",
     "turbo": "^2.8.12",

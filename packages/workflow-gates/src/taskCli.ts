@@ -19,11 +19,9 @@ import {
   createExecutionRequest,
   executeActor,
 } from "./actorRuntime.ts";
-import { MessageBus } from "./messageBus.ts";
 import type {
   ActiveTask,
   ActorRegistry,
-  ExecutionResult,
   RolePolicy,
   TaskStatus,
   TestImpactAction,
@@ -33,7 +31,6 @@ import { validateActiveTask } from "./rolePolicy.ts";
 const activeTaskPath = ".agent/active-task.json";
 const rolePolicyPath = ".agent/role-policy.json";
 const actorRegistryPath = ".agent/actor-registry.json";
-const messageBus = new MessageBus();
 const rawArgs = process.argv.slice(2);
 const separatorIndex = rawArgs.indexOf("--");
 if (separatorIndex >= 0) {
@@ -140,13 +137,6 @@ async function handleExecute(args: string[]): Promise<void> {
     brief,
     readJson<ActorRegistry>(actorRegistryPath),
   );
-  const pendingMessages = messageBus.formatInboxForPrompt(
-    request.actor,
-    request.taskId,
-  );
-  if (pendingMessages) {
-    request.prompt = `${request.prompt}\n\n${pendingMessages}`;
-  }
 
   if (args.includes("--dry-run")) {
     console.log(JSON.stringify(request, null, 2));
@@ -155,22 +145,7 @@ async function handleExecute(args: string[]): Promise<void> {
 
   assertExecutionApproved(request, args.includes("--approve-external-data"));
   const result = await executeActor(request);
-  messageBus.markPendingRead(request.actor, request.taskId, result.completedAt);
-  writeExecutionRecord(result);
-  const message = messageBus.createExecutionResultMessage(result);
   console.log(JSON.stringify(result, null, 2));
-  console.log(`Execution result message: ${message.id} -> ${message.to}`);
-}
-
-function writeExecutionRecord(result: ExecutionResult): void {
-  const safeTaskId = result.taskId.replace(/[^a-zA-Z0-9._-]/g, "_");
-  const timestamp = result.completedAt.replace(/[:.]/g, "-");
-  const directory = `.agent/executions/${safeTaskId}`;
-  mkdirSync(directory, { recursive: true });
-  writeFileSync(
-    `${directory}/${timestamp}.json`,
-    `${JSON.stringify(result, null, 2)}\n`,
-  );
 }
 
 function updateTask(update: (task: ActiveTask) => ActiveTask): void {

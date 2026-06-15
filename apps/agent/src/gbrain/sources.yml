@@ -1,0 +1,48 @@
+# GBrain Sources 注册表
+#
+# 每条 source 对应一个独立同步的文档目录，使检索结果可标注来源（sourceId）。
+#
+# - searchWeight 控制默认召回优先级（0~1）
+# - syncMode:
+#     on_demand   按需同步，修改后手动跑 pnpm gbrain:sync
+#     weekly      每周一次（低优先级知识）
+#     excluded    不进入检索上下文（仅作历史归档）
+#
+# 同步命令：pnpm --filter @opsagent/agent gbrain:sync [--source <id>]
+
+sources:
+  - id: opsagent-architecture
+    path: docs/architecture/
+    description: 已冻结的架构说明
+    searchWeight: 1.0
+    syncMode: on_demand
+
+  - id: opsagent-decisions
+    path: docs/decisions/
+    description: Architecture Decision Records（ADR）
+    searchWeight: 1.0
+    syncMode: on_demand
+
+  - id: opsagent-workflows
+    path: docs/workflows/
+    description: 当前生效的工作流与角色策略
+    searchWeight: 1.0
+    syncMode: on_demand
+
+  - id: opsagent-knowledge
+    path: docs/knowledge/
+    description: 稳定技术知识（教学向）
+    searchWeight: 0.7
+    syncMode: on_demand
+
+  - id: opsagent-devlog
+    path: docs/devlog/
+    description: 过程记录与探索笔记（低优先级）
+    searchWeight: 0.3
+    syncMode: weekly
+
+  - id: opsagent-archive
+    path: docs/archive/
+    description: 已废弃的方案草案
+    searchWeight: 0
+    syncMode: excluded

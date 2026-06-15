@@ -20,7 +20,6 @@ import {
   httpRequestsTotal,
   httpRequestDurationSeconds,
   METRICS_ROUTE,
-  getMetricsContent,
 } from "./metrics";
 import { PROMETHEUS } from "./constants";
 

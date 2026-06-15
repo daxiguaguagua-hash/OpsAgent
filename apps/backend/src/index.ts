@@ -1,5 +1,5 @@
 import { serve } from "@hono/node-server";
-import { env } from "@opsagent/env/server";
+import { env } from "@opsagent/env";
 
 import { createApp } from "./app";
 import { OPENTELEMETRY } from "./observability/constants";
