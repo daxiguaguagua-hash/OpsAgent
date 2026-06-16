@@ -122,9 +122,10 @@ M4-09 的 `sentry-tool` 默认 endpoint 是 `https://sentry.io/api/0`。GlitchTi
 - [x] M4-09：`sentry-tool` 加 `SENTRY_API_ENDPOINT` 环境变量（默认 Sentry SaaS，可切 GlitchTip）（`readConfig` fallback chain + 2 个测试，137/137 pass）
 - [x] 前端：把 `VITE_SENTRY_DSN` 切到 GlitchTip，浏览器触发异常，验证 Issue 出现在 `http://localhost:8001/javascript-react/issues/`（envelope 端点 curl 验证 Issue #2 已出现；浏览器 UI 待用户手动验证 stacktrace symbolication）
 - [x] 文档：[[glitchtip-deploy|docs/runbooks/glitchtip-deploy.md]]（GlitchTip 部署 + 凭证获取 + MCP Server 配置手册）
-- [ ] 评估：把 Mastra agent 的 M4-09 sentry-tool 替换为 GlitchTip 官方 MCP Server（17 个内置 tools，零维护成本）
+- [x] 评估：把 Mastra agent 的 M4-09 sentry-tool 替换为 GlitchTip 官方 MCP Server（17 个内置 tools，零维护成本）
   - **2026-06-16 实测**：Qoder CLI MCP 客户端 + GlitchTip OAuth 不兼容（`/mcp` 直返 `invalid_token`，浏览器 OAuth 流程未触发）
   - **当前决策**：暂不替换，sentry-tool 保留作为 Mastra agent 主力；GlitchTip MCP 留给 Claude Desktop / Cursor 等原生 MCP 客户端使用
+  - **2026-06-16 演进（[[0010-glitchtip-bearer-direct-integration|ADR-0010]]）**：新增 `glitchtip-tool` 直连 REST（Bearer token，绕过 OAuth），sentry-tool 降级为 fallback；修复 sentry-tool 字段名错位（`contextLine` vs `context_line`）导致的源码上下文丢失和 LLM 幻觉 `Checkout.tsx` 问题
 
 ## 反向引用
 
@@ -134,3 +135,4 @@ M4-09 的 `sentry-tool` 默认 endpoint 是 `https://sentry.io/api/0`。GlitchTi
 - [[glitchtip-deploy|GlitchTip 部署与凭证获取手册]]：§1 部署（本 ADR 的运维落地）
 - [[0008-glitchtip-email-domain-pitfall|ADR-0008]]：GlitchTip 管理员邮箱禁止使用 `.local` 等保留 TLD（本 ADR 部署时踩坑沉淀）
 - [[0006-sentry-release-sourcemap-strategy|ADR-0006]] §GlitchTip 兼容：GlitchTip 服务端不支持 debug-id artifact bundle，需要 legacy 上传模式 + `sourcemap: true` + `VITE_APP_VERSION` 注入（2026-06-16 端到端验证）
+- [[0010-glitchtip-bearer-direct-integration|ADR-0010]]：Mastra agent 接入 GlitchTip 走 Bearer token 直连 REST，绕过 OAuth MCP（解决 sentry-tool 字段名错位与 LLM 幻觉 Checkout.tsx）

@@ -31,6 +31,7 @@ ADR（Architecture Decision Record）是记录**架构决策**的轻量级文档
 | [[0007-glitchtip-as-sentry-fallback\|0007]] | GlitchTip 自建作为 Sentry SaaS 的主力兜底 | `accepted` | 2026-06-16 |
 | [[0008-glitchtip-email-domain-pitfall\|0008]] | GlitchTip 管理员邮箱禁止使用 `.local` 等保留 TLD | `accepted` | 2026-06-16 |
 | [[0009-port-allocation-strategy\|0009]] | 服务端口分配采用"注册表 + 反向代理"双层策略 | `accepted` | 2026-06-16 |
+| [[0010-glitchtip-bearer-direct-integration\|0010]] | GlitchTip 接入走 Bearer token 直连，绕过 OAuth MCP | `accepted` | 2026-06-16 |
 
 ## 3. ADR 文件模板（强制）
 
