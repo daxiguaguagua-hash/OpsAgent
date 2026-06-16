@@ -2,8 +2,10 @@ import tailwindcss from "@tailwindcss/vite";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
-import { readFileSync } from "node:fs";
+import dotenv from "dotenv";
 import { execSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { defineConfig } from "vite";
 
 const frontendPackageJson = JSON.parse(
@@ -20,11 +22,17 @@ function getGitShortSha(): string | undefined {
   }
 }
 
+// 显式从 frontend/.env 加载 SENTRY_* 凭证（override: true 覆盖父 shell 的同名空变量）
+// 不能用 Vite 的 loadEnv：它默认 override:false，会被父 shell 的空 SENTRY_AUTH_TOKEN 挡住
+// 不能用 @opsagent/env：它在 vite.config.ts 上下文中会触发 repo-root.js 模块解析错误
+dotenv.config({ override: true, path: path.resolve(process.cwd(), ".env") });
+
 const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN || undefined;
 const sentryOrg = process.env.SENTRY_ORG || undefined;
 const sentryProject = process.env.SENTRY_PROJECT || undefined;
-const releaseName = getGitShortSha()
-  ? `${frontendPackageJson.version}-${getGitShortSha()}`
+const gitSha = getGitShortSha();
+const releaseName = gitSha
+  ? `${frontendPackageJson.version}-${gitSha}`
   : frontendPackageJson.version;
 
 if (!sentryAuthToken) {
