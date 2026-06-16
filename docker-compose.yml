@@ -130,6 +130,33 @@ services:
       - opsagent_tempo_data:/var/tempo
     restart: unless-stopped
 
+  # GlitchTip（Sentry 开源兼容平替，M4-11 spike 引入）
+  # 默认不启动，需要时用 `docker compose --profile glitchtip up -d`
+  # 详见 docs/milestones/M4/tasks/M4-11-glitchtip-sentry-fallback-spike.md
+  glitchtip:
+    image: glitchtip/glitchtip:latest
+    container_name: opsagent-glitchtip
+    profiles: ["glitchtip"]
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://glitchtip:${GLITCHTIP_DB_PASSWORD:-glitchtip}@postgres:5432/glitchtip
+      REDIS_URL: redis://redis:6379/1
+      SECRET_KEY: ${GLITCHTIP_SECRET_KEY:-IEdxRctfwACQOk9Vpud0yq9xWTF2wW6w1oUYmGWUiUU}
+      GLITCHTIP_DOMAIN: ${GLITCHTIP_DOMAIN:-http://localhost:8000}
+      DEFAULT_FROM_EMAIL: ${GLITCHTIP_FROM_EMAIL:-noreply@opsagent.local}
+      EMAIL_URL: consolemail://
+      ENABLE_OPEN_USER_REGISTRATION: "true"
+      DEFAULT_FROM_EMAIL_IS_VERIFIED: "true"
+      # All-in-one 模式：Web + Worker 在同一容器（demo 用；生产环境应分离 worker）
+      GLITCHTIP_EMBED_WORKER: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   opsagent_postgres_data:
   opsagent_redis_data:
