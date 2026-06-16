@@ -1,7 +1,7 @@
 # M4-04 Release 与私有 Source Map 上传
 
 日期：2026-06-15
-状态：`done`（代码完工；Sentry 配置已通，上传验证待用户填 `.env` 凭证后跑 `pnpm --filter frontend build`）
+状态：`done`（代码 + Sentry 真实上传均已验证通过，Release `0.0.0-2ce306b`）
 前置任务：M4-01 / M4-02 / M4-03
 负责人：frontend-team + sre-team
 
@@ -83,20 +83,21 @@ flowchart LR
 - **Source Map 不公开（M4-02 回归）**：`grep -l sourceMappingURL dist/assets/*.js` 无输出——`.js` 文件不含 `//# sourceMappingURL=` 注释，浏览器 DevTools 无法定位 `.map`
 - **类型检查**：`vite.config.ts` 引入 `@sentry/vite-plugin` 类型正确，无 TS 报错
 
-### 待验证（P1 待办，需填凭证）
+### 已验证（Sentry 真实上传，2026-06-16）
 
-由项目维护者在 `.env` 填入 `SENTRY_AUTH_TOKEN` / `SENTRY_ORG` / `SENTRY_PROJECT` 后，跑：
+- **`pnpm --filter frontend build`**：成功，构建日志显示 `[sentry-vite-plugin] Info: Successfully uploaded source maps to Sentry`
+- **Release 命名**：`0.0.0-2ce306b`（`package.version-git-sha` 格式，符合 ADR-0006 §2；commit `2ce306b` 是用户手动提交的 Sentry Token 配置 commit）
+- **Organization / Project**：`none-fez` / `javascript-react`
+- **Upload 统计**：
+  - Bundled 4 files for upload（2 scripts + 2 source maps）
+  - Upload type: artifact bundle（debug ID 方式）
+  - Uploading completed in 23.982s
+- **debug IDs**：
+  - `7ae1d389-9c03-4826-b93a-58611be56bbc`
+  - `f4beb2d3-96a2-41ed-87f7-20304e63458b`
+- **Source Map 不公开（M4-02 回归）**：`grep sourceMappingURL dist/assets/*.js` 无输出——`.js` 文件不含 `//# sourceMappingURL=` 注释
 
-```bash
-pnpm --filter frontend build
-```
-
-预期：
-- 构建日志出现 "@sentry/vite-plugin" 上传相关输出（非 warning）
-- Sentry Dashboard 的 Release 列表出现 `0.0.0-<git-sha>` 条目（`package.version-git-sha` 格式，符合 ADR-0006 §2）
-- Sentry Issue 堆栈显示 `apps/frontend/src/**/*.tsx` 源码文件和行号（不是 `index-*.js`）
-
-验证后把截图 URL / Release 名 / 真实 commit sha 回填到这里。
+> Sentry Dashboard 验证入口：https://none-fez.sentry.io/releases/0.0.0-2ce306b/ （项目维护者补：触发前端异常后，Issue 堆栈应显示 `apps/frontend/src/**/*.tsx` 源码文件 + 行号）
 
 ## 8. 工作流记录
 
@@ -105,6 +106,8 @@ pnpm --filter frontend build
 | ADR-0006 状态转换 | `proposed → accepted`（项目维护者确认 Release 命名策略 `package.version-git-sha`） |
 | 依赖安装 | `@sentry/vite-plugin` 已在 catalog（`^5.3.0`）和 frontend devDependencies（`catalog:`），无需新增 package.json 改动 |
 | `@opsagent/env` server schema | 追加 `SENTRY_AUTH_TOKEN` / `SENTRY_ORG` / `SENTRY_PROJECT`（optional，构建时校验） |
+| 凭证位置决策 | **最终决定放在 `apps/frontend/.env`**（frontend 优先，`@opsagent/env` `collectEnvFiles` 从 cwd 往上爬会读到；符合 ADR-0001 "包级 .env 覆盖根 .env" 的语义）。根 `.env` 仅保留占位注释 |
+| 凭证加载实现 | 迭代三次：① `import "@opsagent/env"` 触发 dotenv 副作用 → 触发 `repo-root.js` 模块解析错误（vite.config.ts 不走 tsdown）；② Vite `loadEnv(mode, cwd, "")` → 父 shell 已有空字符串 `SENTRY_AUTH_TOKEN`，loadEnv 默认 `override:false` 不覆盖，plugin 没注册；③ **最终 `dotenv.config({ override: true, path: cwd/.env })`** → 显式覆盖父 shell 空变量，成功 |
 | `vite.config.ts` 集成 | 动态注册 `@sentry/vite-plugin`；token 空时 plugin 不注册 + console.warn 提醒 |
 | Release 命名实现 | `readFileSync(package.json).version` + `git rev-parse --short HEAD`（git 不可用时 fallback 到纯 version） |
 | `.env.example` 更新 | 追加 `SENTRY_ORG=` / `SENTRY_PROJECT=` 占位，与 ADR-0006 §4 对齐 |
@@ -116,3 +119,4 @@ pnpm --filter frontend build
 - [[0006-sentry-release-sourcemap-strategy|ADR-0006]]：§实施入口
 - [[2026-06-16-Sentry的TOKEN配置|Sentry Token 配置]]：§4 踩坑过程（Token 权限设置）
 - [[2026-06-16-Sentry和GitHub的配置|Sentry 与 GitHub 的配置]]：§4 踩坑过程（GitHub OAuth 关联）
+- [[2026-06-15-monorepo-env-governance|monorepo env 治理教训]]：§11 dotenv override 踩坑（引用 §8 工作流记录）

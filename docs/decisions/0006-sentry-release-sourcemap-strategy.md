@@ -68,6 +68,8 @@ M4 Phase B 的核心交付就是补齐这两个能力，对应任务卡 M4-04。
 
 **Token 最小权限**：Sentry Personal Token 需要 `Project: Admin` + `Release: Admin` + `Organization: Read`，其他权限保持 `No Access`。详见 [[2026-06-16-Sentry的TOKEN配置|Sentry Token 配置]]。
 
+**凭证加载实现注记**：`vite.config.ts` 实际用 `dotenv.config({ override: true, path: "apps/frontend/.env" })` 而非直接读 `process.env` 或 Vite `loadEnv`——因为父 shell 可能有同名空字符串（Vite `loadEnv` 默认 `override:false` 不覆盖），而 `@opsagent/env` 在 vite.config.ts 上下文中会触发 `repo-root.js` 模块解析错误。踩坑细节详见 [[2026-06-15-monorepo-env-governance|monorepo env 治理教训 §11]]。
+
 ## Consequences
 
 ### 正面
@@ -94,3 +96,4 @@ M4 Phase B 的核心交付就是补齐这两个能力，对应任务卡 M4-04。
 - [[planning|M4 规划]]：§3.1 上传工具决策
 - [[2026-06-16-Sentry的TOKEN配置|Sentry Token 配置]]：§1 入口 / §3 产出
 - [[2026-06-16-Sentry和GitHub的配置|Sentry 与 GitHub 的配置]]：§1 背景（OAuth 前提）
+- [[2026-06-15-monorepo-env-governance|monorepo env 治理教训]]：§11 dotenv override 踩坑（引用 §4 凭证管理）
