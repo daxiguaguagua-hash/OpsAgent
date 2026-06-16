@@ -90,6 +90,55 @@ M4 Phase B 的核心交付就是补齐这两个能力，对应任务卡 M4-04。
 - **Sentry 免费额度**：Source Map 上传占用 Sentry 存储配额（免费版 5 GB），长期需要监控
 - **网络依赖**：离线构建会失败（plugin 默认 `silent` 模式可降级为警告，但会丢失上传）
 
+## GlitchTip 兼容（2026-06-16 实施发现）
+
+`@sentry/vite-plugin` 默认走 **debug-id artifact bundle** 上传路径：文件名是 `<uuid>.js`，服务端靠 stack frame 里嵌入的 `debug_id` 匹配 `.map`。Sentry SaaS 原生支持这条路径，但 **GlitchTip 服务端（截至 2026-06-16 版本）不支持**——它只走传统 URL 匹配：artifact name 必须与 stack frame 的 `absPath` 对得上（`~/assets/foo.js` 对应 `http://host/assets/foo.js`）。
+
+### 失败症状
+
+event 成功入库，`release` 字段正确，但 stack frame 的 `filename` / `function` 仍是压缩后的值，`context_line` / `context` 为空。
+
+### 根因（3 个叠加）
+
+1. **上传命名对不上**：plugin 默认上传成 `<uuid>.js`，frame 要的是 `/assets/index-<hash>.js`，两者不匹配。
+2. **sourceMappingURL 注释缺失**：`build.sourcemap: "hidden"` 不在 JS 里写 `//# sourceMappingURL=…`，服务端即使拿到 JS artifact 也不知道去哪找对应的 `.map`。
+3. **SDK release 不匹配**：前端 `Sentry.init({ release })` 读 `VITE_APP_VERSION`（未定义 → fallback `"dev"`），但上传时的 releaseName 是 `0.0.0-<gitSha>`，服务端按 release 找 artifact 时找不到。
+
+### 修复（`apps/frontend/vite.config.ts`，2026-06-16 已落地）
+
+```typescript
+define: {
+  // 让 SDK 上报的 release 与上传时的 releaseName 完全一致
+  // （Sentry 官方文档明确要求二者严格相等，否则 stacktrace 不反解）
+  "import.meta.env.VITE_APP_VERSION": JSON.stringify(releaseName),
+},
+build: {
+  // 必须 true，不能 "hidden"：GlitchTip legacy 模式靠 JS 里的
+  // sourceMappingURL 注释找到对应的 .map artifact
+  sourcemap: true,
+},
+plugins: [
+  sentryVitePlugin({
+    // …
+    release: {
+      name: releaseName,
+      // 改用 legacy 模式，每个 .js/.js.map 单独上传为
+      // ~/assets/<hash>.js 风格的 URL 命名 artifact
+      uploadLegacySourcemaps: {
+        paths: ["./dist/assets"],
+        urlPrefix: "~/assets",
+      },
+    },
+  }),
+],
+```
+
+### 范围说明
+
+- 这是 **GlitchTip 特有的限制**；Sentry SaaS 不需要这些改动（但加了也不冲突，故统一配置）。
+- `sourcemap: true` 会让 `.map` 内联到 JS，dist 体积翻倍（约 5 MB → 12 MB）。dist/ 目录本身不通过 web server 暴露给浏览器，只存在于 GlitchTip release artifact 里，不会泄漏到生产环境。
+- `sentry-tool.ts`（M4-09）已扩展透传 `contextLine` / `context` / `origLineNo` / `origColNo` / `origFilename` / `origFunction`，Mastra agent 可直接消费反解后的源码上下文，不必再二次调 git-context。
+
 ## 反向引用
 
 - [[M4-04-sentry-release-sourcemap-upload|M4-04 任务卡]]：§1 目标 / §6 边界
@@ -97,4 +146,4 @@ M4 Phase B 的核心交付就是补齐这两个能力，对应任务卡 M4-04。
 - [[2026-06-16-Sentry的TOKEN配置|Sentry Token 配置]]：§1 入口 / §3 产出
 - [[2026-06-16-Sentry和GitHub的配置|Sentry 与 GitHub 的配置]]：§1 背景（OAuth 前提）
 - [[2026-06-15-monorepo-env-governance|monorepo env 治理教训]]：§11 dotenv override 踩坑（引用 §4 凭证管理）
-- [[0007-glitchtip-as-sentry-fallback|ADR-0007]]：GlitchTip 兼容 `@sentry/vite-plugin`（§R1 实测）
+- [[0007-glitchtip-as-sentry-fallback|ADR-0007]]：GlitchTip 兼容 `@sentry/vite-plugin`（§R1 实测）+ 本节 GlitchTip 兼容章节

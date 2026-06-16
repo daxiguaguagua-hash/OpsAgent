@@ -34,6 +34,14 @@ interface SentryRawFrame {
   colNo?: number;
   inApp?: boolean;
   module?: string;
+  // sourcemap 反解后的源码位置（Sentry/GlitchTip 服务端解析后下发）
+  contextLine?: string;
+  context?: Array<[number, string]>;
+  origLineNo?: number;
+  origColNo?: number;
+  origFilename?: string;
+  origAbsPath?: string;
+  origFunction?: string;
 }
 
 interface SentryBreadcrumb {
@@ -64,6 +72,13 @@ export interface SentryStacktraceFrame {
   lineNo: number | undefined;
   colNo: number | undefined;
   inApp: boolean;
+  // sourcemap 反解后的源码位置（可选：服务端未解析时为空）
+  contextLine: string | undefined;
+  context: Array<[number, string]>;
+  origLineNo: number | undefined;
+  origColNo: number | undefined;
+  origFilename: string | undefined;
+  origFunction: string | undefined;
 }
 
 export interface SentryBreadcrumbView {
@@ -174,6 +189,12 @@ function extractStacktrace(event: SentryEvent): SentryStacktraceFrame[] {
           lineNo: typeof frame.lineNo === "number" ? frame.lineNo : undefined,
           colNo: typeof frame.colNo === "number" ? frame.colNo : undefined,
           inApp: frame.inApp === true,
+          contextLine: typeof frame.contextLine === "string" ? frame.contextLine : undefined,
+          context: Array.isArray(frame.context) ? frame.context : [],
+          origLineNo: typeof frame.origLineNo === "number" ? frame.origLineNo : undefined,
+          origColNo: typeof frame.origColNo === "number" ? frame.origColNo : undefined,
+          origFilename: frame.origFilename,
+          origFunction: frame.origFunction,
         });
       }
       if (frames.length > 0) break;
@@ -308,6 +329,12 @@ const eventSchema = z.object({
           lineNo: z.number().optional(),
           colNo: z.number().optional(),
           inApp: z.boolean(),
+          contextLine: z.string().optional(),
+          context: z.array(z.tuple([z.number(), z.string()])),
+          origLineNo: z.number().optional(),
+          origColNo: z.number().optional(),
+          origFilename: z.string().optional(),
+          origFunction: z.string().optional(),
         }),
       ),
       breadcrumbs: z.array(

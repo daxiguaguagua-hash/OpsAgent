@@ -133,3 +133,4 @@ M4-09 的 `sentry-tool` 默认 endpoint 是 `https://sentry.io/api/0`。GlitchTi
 - [[2026-06-15-monorepo-env-governance|monorepo env 治理教训]]：§11 dotenv override（GlitchTip 凭证加载复用 M4-04 的实现）
 - [[glitchtip-deploy|GlitchTip 部署与凭证获取手册]]：§1 部署（本 ADR 的运维落地）
 - [[0008-glitchtip-email-domain-pitfall|ADR-0008]]：GlitchTip 管理员邮箱禁止使用 `.local` 等保留 TLD（本 ADR 部署时踩坑沉淀）
+- [[0006-sentry-release-sourcemap-strategy|ADR-0006]] §GlitchTip 兼容：GlitchTip 服务端不支持 debug-id artifact bundle，需要 legacy 上传模式 + `sourcemap: true` + `VITE_APP_VERSION` 注入（2026-06-16 端到端验证）
