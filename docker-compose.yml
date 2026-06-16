@@ -150,6 +150,8 @@ services:
       DEFAULT_FROM_EMAIL_IS_VERIFIED: "true"
       # All-in-one 模式：Web + Worker 在同一容器（demo 用；生产环境应分离 worker）
       GLITCHTIP_EMBED_WORKER: "true"
+      # 启用官方 MCP Server（/mcp endpoint，AI Agent 直连，无需自建 sentry-tool）
+      GLITCHTIP_ENABLE_MCP: "True"
     depends_on:
       postgres:
         condition: service_healthy

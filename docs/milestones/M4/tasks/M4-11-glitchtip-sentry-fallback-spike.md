@@ -161,7 +161,7 @@ Sentry.init({ dsn, integrations, ... });
 | M4-04：切凭证到 GlitchTip，跑 `pnpm --filter frontend build` 验证 Release 出现 | ADR-0007 §后续行动 |
 | M4-09：`sentry-tool` 加 `SENTRY_API_ENDPOINT` 环境变量 | ADR-0007 §后续行动 |
 | 前端：把 `VITE_SENTRY_DSN` 切到 GlitchTip，浏览器触发异常验证 | ADR-0007 §后续行动 |
-| 文档：`docs/runbooks/` 加"GlitchTip 一键部署手册" | ADR-0007 §后续行动 |
+| ~~文档：`docs/runbooks/` 加"GlitchTip 一键部署手册"~~ | ✅ 已落地 [[glitchtip-deploy|docs/runbooks/glitchtip-deploy.md]] |
 
 ## 反向引用
 
@@ -169,3 +169,4 @@ Sentry.init({ dsn, integrations, ... });
 - [[0006-sentry-release-sourcemap-strategy|ADR-0006]]：§3 Source Map 上传路径（GlitchTip 兼容度验证）
 - [[planning|M4 规划]]：§3.1 三层方案（GlitchTip 作为 P1 兜底）
 - [[2026-06-16-Sentry的TOKEN配置|Sentry Token 配置]]：凭证管理（GlitchTip 复用同一套 Personal Token 概念）
+- [[glitchtip-deploy|GlitchTip 部署与凭证获取手册]]：§1 部署（本 spike 的产物）
