@@ -130,6 +130,47 @@ services:
       - opsagent_tempo_data:/var/tempo
     restart: unless-stopped
 
+  # GlitchTip（Sentry 开源兼容平替，M4-11 spike 引入）
+  # 默认不启动，需要时用 `docker compose --profile glitchtip up -d`
+  # 详见 docs/milestones/M4/tasks/M4-11-glitchtip-sentry-fallback-spike.md
+  #
+  # ── 端口分配说明（ADR-0009） ──────────────────────────────
+  # GlitchTip 官方镜像默认监听容器内 8000。backend 也默认 8000，
+  # 两者 host 端口不能重叠，因此把 host 端映射到 8001，容器内
+  # 仍是 8000（环境变量 GLITCHTIP_DOMAIN 同步指向 8001）。
+  #
+  # 这种"每个服务占一个 host 端口"是开发期的临时妥协。
+  # 生产/多服务并存的最佳实践是 **Nginx / Traefik 反向代理**：
+  #   - 对外只暴露 80/443，按 Host / 路径分发到内部端口；
+  #   - 各服务不再直接暴露 host 端口，彻底消除端口冲突；
+  #   - GlitchTip 通过 `sentry.opsagent.local` 之类域名访问。
+  # 演进节奏见 docs/decisions/0009-port-allocation-strategy.md。
+  glitchtip:
+    image: glitchtip/glitchtip:latest
+    container_name: opsagent-glitchtip
+    profiles: ["glitchtip"]
+    ports:
+      - "8001:8000"
+    environment:
+      DATABASE_URL: postgresql://glitchtip:${GLITCHTIP_DB_PASSWORD:-glitchtip}@postgres:5432/glitchtip
+      REDIS_URL: redis://redis:6379/1
+      SECRET_KEY: ${GLITCHTIP_SECRET_KEY:-IEdxRctfwACQOk9Vpud0yq9xWTF2wW6w1oUYmGWUiUU}
+      GLITCHTIP_DOMAIN: ${GLITCHTIP_DOMAIN:-http://localhost:8001}
+      DEFAULT_FROM_EMAIL: ${GLITCHTIP_FROM_EMAIL:-noreply@opsagent.local}
+      EMAIL_URL: consolemail://
+      ENABLE_OPEN_USER_REGISTRATION: "true"
+      DEFAULT_FROM_EMAIL_IS_VERIFIED: "true"
+      # All-in-one 模式：Web + Worker 在同一容器（demo 用；生产环境应分离 worker）
+      GLITCHTIP_EMBED_WORKER: "true"
+      # 启用官方 MCP Server（/mcp endpoint，AI Agent 直连，无需自建 sentry-tool）
+      GLITCHTIP_ENABLE_MCP: "True"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   opsagent_postgres_data:
   opsagent_redis_data:

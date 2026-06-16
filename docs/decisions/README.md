@@ -27,7 +27,11 @@ ADR（Architecture Decision Record）是记录**架构决策**的轻量级文档
 | [[0003-zod-schema-governance\|0003]]   | Zod 只在系统边界做运行时校验                           | `accepted`   | 2026-06-10 |
 | [[0004-hook-bootstrap-strategy\|0004]] | 工作流门禁采用 shell 先行 + TypeScript 渐进接管         | `deprecated` | 2026-06-05 |
 | [[0005-workflow-v2-design\|0005]]      | 测试策略师角色从 Codex 解耦到 claude-code-new-context | `deprecated` | 2026-06-08 |
-| [[0006-sentry-release-sourcemap-strategy\|0006]] | Sentry Release 命名与 Source Map 上传策略 | `proposed` | 2026-06-15 |
+| [[0006-sentry-release-sourcemap-strategy\|0006]] | Sentry Release 命名与 Source Map 上传策略 | `accepted` | 2026-06-15 |
+| [[0007-glitchtip-as-sentry-fallback\|0007]] | GlitchTip 自建作为 Sentry SaaS 的主力兜底 | `accepted` | 2026-06-16 |
+| [[0008-glitchtip-email-domain-pitfall\|0008]] | GlitchTip 管理员邮箱禁止使用 `.local` 等保留 TLD | `accepted` | 2026-06-16 |
+| [[0009-port-allocation-strategy\|0009]] | 服务端口分配采用"注册表 + 反向代理"双层策略 | `accepted` | 2026-06-16 |
+| [[0010-glitchtip-bearer-direct-integration\|0010]] | GlitchTip 接入走 Bearer token 直连，绕过 OAuth MCP | `accepted` | 2026-06-16 |
 
 ## 3. ADR 文件模板（强制）
 

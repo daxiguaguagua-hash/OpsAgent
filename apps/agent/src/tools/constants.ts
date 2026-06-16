@@ -101,3 +101,58 @@ export type TraceToolErrorCode =
 
 export type TraceSpanStatus =
   (typeof TRACE_TOOL.STATUS)[keyof typeof TRACE_TOOL.STATUS];
+
+export const SENTRY_TOOL = {
+  ID: "sentry",
+  DESCRIPTION:
+    "Query Sentry for recent frontend error issues and their latest events (symbolicated stacktrace + breadcrumbs + browser context). Use this to analyze frontend exceptions and correlate them with recent source code changes via git-context.",
+  DEFAULT_ENDPOINT: "https://sentry.io/api/0",
+  API_PATH: {
+    PROJECT_ISSUES: "/projects/{org}/{project}/issues/",
+    ISSUE_LATEST_EVENT: "/issues/{issueId}/events/latest/",
+  },
+  TIMEOUT_MS: 15_000,
+  DEFAULT_QUERY: "is:unresolved",
+  DEFAULT_LIMIT: 5,
+  MIN_LIMIT: 1,
+  MAX_LIMIT: 20,
+  MAX_STACKTRACE_FRAMES: 20,
+  MAX_BREADCRUMBS: 30,
+  ERROR: {
+    FETCH_FAILED: "FETCH_FAILED",
+    INVALID_RESPONSE: "INVALID_RESPONSE",
+    SENTRY_ERROR: "SENTRY_ERROR",
+    MISSING_CONFIG: "MISSING_CONFIG",
+    INVALID_LIMIT: "INVALID_LIMIT",
+  },
+} as const;
+
+export type SentryToolErrorCode =
+  (typeof SENTRY_TOOL.ERROR)[keyof typeof SENTRY_TOOL.ERROR];
+
+export const GLITCHTIP_TOOL = {
+  ID: "glitchtip",
+  DESCRIPTION:
+    "Retrieve a frontend error issue from GlitchTip (Sentry-compatible self-hosted) together with its latest event's symbolicated stacktrace. Each frame carries the resolved source file path (e.g. src/routes/index.tsx), line number, and a context window of surrounding source lines — quote the contextLine in the incident report so the reader can see the actual code that threw. Prefer this tool over 'sentry' when diagnosing frontend exceptions, because it returns the source context inline (no second git-context call needed for the throw site).",
+  DEFAULT_ENDPOINT: "http://localhost:8001/api/0",
+  API_PATH: {
+    ISSUE_DETAIL: "/issues/{issueId}/",
+    ISSUE_LATEST_EVENT: "/issues/{issueId}/events/latest/",
+  },
+  TIMEOUT_MS: 15_000,
+  DEFAULT_QUERY: "is:unresolved",
+  DEFAULT_LIMIT: 5,
+  MIN_LIMIT: 1,
+  MAX_LIMIT: 20,
+  MAX_STACKTRACE_FRAMES: 20,
+  MAX_CONTEXT_LINES: 20,
+  ERROR: {
+    FETCH_FAILED: "FETCH_FAILED",
+    INVALID_RESPONSE: "INVALID_RESPONSE",
+    GLITCHTIP_ERROR: "GLITCHTIP_ERROR",
+    MISSING_CONFIG: "MISSING_CONFIG",
+  },
+} as const;
+
+export type GlitchtipToolErrorCode =
+  (typeof GLITCHTIP_TOOL.ERROR)[keyof typeof GLITCHTIP_TOOL.ERROR];

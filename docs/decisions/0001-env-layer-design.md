@@ -61,3 +61,4 @@
 
 - [[2026-06-15-monorepo-env-governance|Monorepo 环境变量治理教训]]：在 §3 作为"中央统一 vs 包自治"张力的案例引用
 - [[0006-sentry-release-sourcemap-strategy|ADR-0006]]：§4 凭证管理（`SENTRY_AUTH_TOKEN` 走 `@opsagent/env` server schema）
+- [[0009-port-allocation-strategy|ADR-0009]]：端口变量纳入 env 注册表，`PORT` 别名迁移为 `BACKEND_PORT`

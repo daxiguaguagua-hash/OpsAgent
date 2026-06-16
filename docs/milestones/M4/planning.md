@@ -61,7 +61,7 @@ M4 采用三层递进方案，面试时从上往下讲，展示"会用工具 →
 
 ```typescript
 Sentry.init({
-  dsn: "http://your-glitchtip-key@localhost:8000/1",
+  dsn: "http://your-glitchtip-key@localhost:8001/1",
   // 和 Sentry SaaS 完全一样的初始化代码，前端零改动
 });
 ```
@@ -170,7 +170,7 @@ VITE_SENTRY_DSN=https://xxx@o0.ingest.sentry.io/0
 
 # 方案二：GlitchTip 私有化（中小企业场景）
 ERROR_TRACKING_PROVIDER=glitchtip
-VITE_GLITCHTIP_DSN=http://xxx@localhost:8000/1
+VITE_GLITCHTIP_DSN=http://xxx@localhost:8001/1
 
 # 方案三：自研 SDK（教学演示，不走 Sentry 协议）
 ERROR_TRACKING_PROVIDER=custom
@@ -224,6 +224,8 @@ M4-07（简化 symbolication 反解 API）和 M4-03/04（Sentry）有功能重�
 1. 新增 `sentry-tool`：调 Sentry API 拿最近的 error event（包含 stacktrace + breadcrumbs）
 2. 新增 `source-map-tool`（可选）：如果 Sentry 已经做了 symbolication，这个 tool 只需拿到还原后的源码位置
 3. 更新 Agent instructions：加一段"分析前端错误时，先查 Sentry event，拿到源码位置后用 git-context 工具查近期变更"
+
+任务卡已细化：[[M4-09-agent-sentry-source-suggestions|M4-09 任务卡]]（含 inputSchema / outputSchema / Sentry API endpoints / Agent instructions 草稿）。
 
 ```typescript
 // 新增 tool 伪代码
@@ -356,21 +358,21 @@ const sentryTool = createTool({
 
 ## 7. 环境准备清单
 
-| 项目 | 状态 | 说明 |
-|---|---|---|
-| Sentry CLI | ✅ 已安装 | `@sentry/cli` v3.5.0（npx），需执行 `npx @sentry/cli login` |
-| Sentry 账号 | ❓ 待确认 | sentry.io 免费注册（14 天试用） |
-| Sentry DSN | ❓ 待创建 | 创建项目后获得 |
-| Sentry Auth Token | ❓ 待创建 | 用于 Source Map 上传 + CLI 认证 |
-| GlitchTip Docker 镜像 | 未拉取 | `gitlab.com/glitchtip/glitchtip`，~512 MB |
-| GlitchTip PostgreSQL | 已有 | 可复用现有 `opsagent-postgres` |
-| `ERROR_TRACKING_PROVIDER` | 待配置 | 环境变量，切换 sentry / glitchtip / custom |
-| `@sentry/react` | 未安装 | npm 包 |
-| `@sentry/node` | 未安装 | npm 包，后端 Hono 集成 |
-| `@sentry/vite-plugin` | 未安装 | 构建时上传 Source Map |
-| `source-map` | 未安装 | M4-07 自研反解用 |
-| 自研 browser-sdk | ✅ 已有 | [GitHub 仓库](https://github.com/daxiguaguagua-hash/nodejs-and-frontend-performance-optimization) |
-| ~~MinIO Docker 镜像~~ | ~~已取消~~ | M4-06 cancelled，Sentry/GlitchTip 自带存储 |
+| 项目                        | 状态      | 说明                                                                                              |
+| ------------------------- | ------- | ----------------------------------------------------------------------------------------------- |
+| Sentry CLI                | ✅ 已安装   | `@sentry/cli` v3.5.0（npx），需执行 `npx @sentry/cli login`                                           |
+| Sentry 账号                 | 已确认     | sentry.io 免费注册（14 天试用）                                                                          |
+| Sentry DSN                | 已创建     | 创建项目后获得                                                                                         |
+| Sentry Auth Token         | 已创建     | 用于 Source Map 上传 + CLI 认证                                                                       |
+| GlitchTip Docker 镜像       | 已有      | `gitlab.com/glitchtip/glitchtip`，~512 MB                                                        |
+| GlitchTip PostgreSQL      | 已有      | 可复用现有 `opsagent-postgres`                                                                       |
+| `ERROR_TRACKING_PROVIDER` | 待配置     | 环境变量，切换 sentry / glitchtip / custom                                                             |
+| `@sentry/react`           | 已安装     | npm 包                                                                                           |
+| `@sentry/node`            | 已安装     | npm 包，后端 Hono 集成                                                                                |
+| `@sentry/vite-plugin`     | 已安装     | 构建时上传 Source Map                                                                                |
+| `source-map`              | 已安装     | M4-07 自研反解用                                                                                     |
+| 自研 browser-sdk            | ✅ 已有    | [GitHub 仓库](https://github.com/daxiguaguagua-hash/nodejs-and-frontend-performance-optimization) |
+| ~~MinIO Docker 镜像~~       | ~~已取消~~ | M4-06 cancelled，Sentry/GlitchTip 自带存储                                                           |
 
 ## 8. 开放问题（待讨论）
 
@@ -398,4 +400,7 @@ const sentryTool = createTool({
 ## 反向引用
 
 - [[0006-sentry-release-sourcemap-strategy|ADR-0006]]：关联（§5 Phase B 执行顺序）
+- [[0007-glitchtip-as-sentry-fallback|ADR-0007]]：关联（§3.1 三层方案 GlitchTip 落地）
 - [[M4-04-sentry-release-sourcemap-upload|M4-04 任务卡]]：实施依据（§1 目标）
+- [[M4-09-agent-sentry-source-suggestions|M4-09 任务卡]]：§3.5 任务细化
+- [[M4-11-glitchtip-sentry-fallback-spike|M4-11 任务卡]]：§3.1 GlitchTip spike 数据来源

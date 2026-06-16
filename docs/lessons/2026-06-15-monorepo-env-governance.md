@@ -280,6 +280,59 @@ agentEnv.MODEL_PROVIDER;  // ✅ agent 专属
 **加分句**：
 > "这种'调研业界方案 + 结合真实项目经验 + 给出重新设计方案'的思考过程，比单纯'落地某个方案'更能体现架构师的能力。"
 
+## 11. 来自 M4-04 的真实踩坑：dotenv override 陷阱
+
+M4-04 实施阶段（`@sentry/vite-plugin` 集成）触发了一个**典型的 dotenv 陷阱**，值得所有 monorepo 项目警惕。
+
+### 现象
+
+`vite.config.ts` 需要从 `.env` 读 `SENTRY_AUTH_TOKEN` 来注册 `@sentry/vite-plugin`。第一次实现用 Vite 官方 `loadEnv(mode, cwd, "")`，构建日志却一直输出 `SENTRY_AUTH_TOKEN 未配置`——但 `apps/frontend/.env` 明明填了 71 字符的 token。
+
+### 根因
+
+用 `env -i` 隔离父 shell 跑同样的 `loadEnv`，token **立刻加载成功**（71 字符）。说明父 shell 里有 `SENTRY_AUTH_TOKEN=""`（**set 但空字符串**）。
+
+查 Vite `loadEnv` 源码（`packages/vite/src/node/env.ts`）：
+
+```javascript
+const parsed = dotenv.parse(envContent);
+for (const [key, value] of Object.entries(parsed)) {
+  // 关键：process.env[key] != null 时不覆盖
+  if (process.env[key] !== undefined && process.env[key] !== null) {
+    continue;  // 已存在的变量（包括空字符串 ""）被保留
+  }
+  process.env[key] = value;
+}
+```
+
+`process.env[key] === ""` 也算"已存在"，所以 `.env` 的值被跳过。同一文件里的 `SENTRY_ORG` / `SENTRY_PROJECT` 因为父 shell **没 set**，反而能正常加载。
+
+### 修复
+
+```typescript
+// vite.config.ts
+import dotenv from "dotenv";
+dotenv.config({ override: true, path: path.resolve(process.cwd(), ".env") });
+```
+
+`dotenv`（底层库）的 `override: true` 选项**强制覆盖** `process.env` 里的同名变量，不管已存在的值是空字符串还是其他内容。
+
+### 教训
+
+| 层面 | 反思 |
+|---|---|
+| **API 直觉反人性** | "已存在不覆盖"是 dotenv 默认行为（出于"用户 shell 优先"的假设），但空字符串也算"已存在"这件事不直观 |
+| **排查技巧** | `env -i` 跑同样的代码，对比父 shell 和隔离 shell 的结果，能立刻暴露"shell 里有隐藏污染" |
+| **对 monorepo 的启示** | 子包构建（`pnpm --filter X build`）的父 shell 环境不可控；任何依赖 `process.env` 的构建脚本都应该显式声明 `override` 或显式 unset 不想要的变量 |
+| **对 `@opsagent/env` 的启示** | `packages/env/src/index.ts` 用的是 `dotenv.config({ override: true })`（已正确），但 vite.config.ts 没走它（因为会触发 `repo-root.js` 构建错误）——这又是另一个架构张力：构建期代码不能依赖运行期的包 |
+
+### 关联
+
+- 实施入口：[[M4-04-sentry-release-sourcemap-upload|M4-04 任务卡 §8 工作流记录]]
+- 架构决策：[[0006-sentry-release-sourcemap-strategy|ADR-0006 §4 凭证管理]]
+
 ## 反向引用
 
-暂无（这是第一篇 `docs/lessons/` 文档）
+- [[M4-04-sentry-release-sourcemap-upload|M4-04 任务卡]]：§8 工作流记录（凭证位置决策引用本文 §9）
+- [[0006-sentry-release-sourcemap-strategy|ADR-0006]]：§4 凭证管理（dotenv override 实现细节，详见本文 §11）
+- [[0007-glitchtip-as-sentry-fallback|ADR-0007]]：§Consequences（GlitchTip 凭证加载复用 M4-04 实现）

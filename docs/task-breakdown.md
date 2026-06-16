@@ -213,13 +213,14 @@ M3-11 至 M3-16 在 M2 验收完成后启动。M2 期间只记录方案，不提
 | [M4-01](milestones/M4/tasks/M4-01-frontend-sourcemap.md) | 前端生产构建生成 Source Map（源码映射文件） | frontend-team | P1 | `done`（Phase A，commit `ccbd985`，任务卡待补） | build 配置 | 生成 `.map` 文件 |
 | [M4-02](milestones/M4/tasks/M4-02-sourcemap-not-public.md) | Source Map 不公开暴露 | frontend-team | P1 | `done`（Phase A，commit `ccbd985`，任务卡待补） | 部署说明 | 浏览器不能直接访问 `.map` |
 | [M4-03](milestones/M4/tasks/M4-03-sentry-sdk.md) | 接入 Sentry 前端 SDK（软件开发工具包） | frontend-team | P0 | `done`（Phase A，commit `ccbd985`，任务卡待补） | Sentry 初始化与错误边界 | 前端演示异常能形成 Sentry Issue（问题记录） |
-| [M4-04](milestones/M4/tasks/M4-04-sentry-release-sourcemap-upload.md) | 配置 Release（发布版本）与私有 Source Map 上传 | frontend-team + sre-team | P0 | `done`（代码完工，[ADR-0006](decisions/0006-sentry-release-sourcemap-strategy.md)；Sentry 上传验证 P1 待办） | 构建与上传脚本 | Sentry 能把压缩堆栈还原到源码文件和行号 |
+| [M4-04](milestones/M4/tasks/M4-04-sentry-release-sourcemap-upload.md) | 配置 Release（发布版本）与私有 Source Map 上传 | frontend-team + sre-team | P0 | `done`（[ADR-0006](decisions/0006-sentry-release-sourcemap-strategy.md)；Release `0.0.0-2ce306b` 已上传验证） | 构建与上传脚本 | Sentry 能把压缩堆栈还原到源码文件和行号 |
 | M4-05 | 增加 Breadcrumbs（操作轨迹）与环境上下文 | frontend-team | P1 | | 错误上下文字段 | Issue 包含操作轨迹、环境、版本和场景 |
 | M4-06 | 增加 MinIO 私有存储 | sre-team | P1 | `cancelled`（[planning §3.2](milestones/M4/planning.md)） | MinIO Compose 服务 | 可以私有保存演示用构建产物和 Source Map |
 | M4-07 | 实现简化 symbolication（源码反解） | backend-team | P1 | | 演示用反解 API | 压缩 JS 行列号能通过私有 Source Map 映射到源码位置 |
 | M4-08 | 对比 Sentry 与自研反解流程 | docs-team | P1 | | 架构与安全说明 | 明确生产方案、教学方案和 Source Map 不公开原则 |
-| M4-09 | Agent 结合源码给建议 | ai-agent-team | P1 | | 报告增强 | 报告包含源码文件、疑似行号和人类审核建议 |
+| [M4-09](milestones/M4/tasks/M4-09-agent-sentry-source-suggestions.md) | Agent 结合源码给建议 | ai-agent-team | P1 | `done` | 报告增强 | 报告包含源码文件、疑似行号和人类审核建议 |
 | M4-10 | 前端接入 OTel Web SDK（端到端链路追踪） | frontend-team | P1 | | `@opentelemetry/sdk-trace-web` 初始化 | 浏览器 fetch 产生的 span 发到 OTel Collector，Tempo 中可看到前端→后端的完整 trace |
+| [M4-11](milestones/M4/tasks/M4-11-glitchtip-sentry-fallback-spike.md) | GlitchTip 平替 Sentry 可行性 Spike（梯子失效触发） | sre-team + ai-agent-team | P0 | `done`（[ADR-0007](decisions/0007-glitchtip-as-sentry-fallback.md)；R1/R2/R3 全通过） | spike 报告 + ADR-0007 草稿 | 验证 `@sentry/vite-plugin` 上传 / Sentry API 兼容 / 前端 SDK 无 session 报错 |
 
 ## 9. M5 GitLab 企业模拟模式
 
