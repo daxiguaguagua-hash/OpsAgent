@@ -77,3 +77,4 @@ Sentry（应用性能与错误监控平台）最常见于前端，但也支持 N
 
 - [[0006-sentry-release-sourcemap-strategy|ADR-0006]]：关联 ADR（Sentry Release 命名与 Source Map 上传策略，§1 定位）
 - [[0007-glitchtip-as-sentry-fallback|ADR-0007]]：GlitchTip 从 P1 兜底推到 P0 主力（梯子失效触发）
+- [[0009-port-allocation-strategy|ADR-0009]]：可观测性栈端口（Prometheus/Loki/Tempo/Grafana）纳入端口注册表统一治理

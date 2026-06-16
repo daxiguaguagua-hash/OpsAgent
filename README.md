@@ -119,11 +119,12 @@ OpsAgent/
 3. 安装 pnpm（Node.js 包管理工具）
 4. 安装 Docker Compose（容器编排工具）
 5. 运行 `pnpm install` 安装所有子包依赖
-6. 运行 `pnpm infra:up` 启动 PG/Redis 等基础设施
-7. 运行 `pnpm run dev` 启动 前端+后端+agent
-8. 访问 `http://localhost:3001` 前端故障控制台，用于触发错误
-9. 访问 `http://localhost:8000` 后端服务，包含 Grafana 可视化看板,Loki 日志系统,Jaeger/Tempo 链路追踪系统,Prometheus 指标系统
-10. 运行 `pnpm db:start` 可以单独启动数据库，不用启动上面的所有基础设置，专门用于做数据库开发
+6. 运行 `pnpm infra:up` 启动 PG/Redis 等基础设施，但是不启动 GlitchTip 前端错误追踪。这个命令建议用来开发后端服务或者监控开发。
+7. 运行 `pnpm glitchtip:up` 启动 **PG/Redis/GlitchTip 等等一系列基础设置**，这个是前端使用的追踪系统。用来平替Sentry的。**注意**：GlitchTip 在 host 上绑 `8001`（backend 占 `8000`，详见 ADR-0009）。
+8. 运行 `pnpm run dev` 启动 前端+后端+agent
+9. 访问 `http://localhost:3001` 前端故障控制台，用于触发错误
+10. 访问 `http://localhost:8000` 后端服务；Grafana 看板在 `http://localhost:3000`，GlitchTip 在 `http://localhost:8001`
+11. 运行 `pnpm db:start` 可以单独启动数据库，不用启动上面的所有基础设置，专门用于做数据库开发
 
 ## 以下是一些开发总结
 
