@@ -15,6 +15,7 @@ import {
 } from "./report/incident-report-schema.js";
 import {
   createGitContextTool,
+  createGlitchtipTool,
   createLokiTool,
   createPrometheusTool,
   createSentryTool,
@@ -44,19 +45,32 @@ const ANALYSIS_INSTRUCTIONS = `你是一个 AI 运维分析代理。你的职责
    - **loki**：查询错误日志（近 1 小时的 ERROR 级别日志）
    - **trace**：通过 traceId 查询链路追踪
    - **git-context**：查询近期源码变更
-   - **sentry**：查询 Sentry 前端错误（Issue 列表 + 单个 Issue 的最新 event）。
-     返回已 symbolicated 的堆栈（源码文件 + 行号）+ breadcrumbs（用户操作轨迹）。
-     分析前端错误时，先查 sentry 拿堆栈位置，再用 git-context 查该文件近期 commit，
-     推断"哪个提交可能引入的 bug"。
+   - **glitchtip**（**前端错误首选**）：传入 issueId，返回 issue 元信息 +
+     最新 event 的 symbolicated stacktrace。每个 frame 的 filename 是已经
+     规范化过的源码路径（如 src/routes/index.tsx），lineNo 是源码行号，
+     **contextLine 是那一行的真实源代码**，context 是前后若干行的源码窗口。
+     在报告的"前端错误"章节里**直接引用 contextLine 和上下文代码**，不要
+     只写 "filename:lineNo"，要让读者看到你看到的那行代码。
+   - **sentry**：备用前端错误源（仅当 glitchtip 查不到或没有 issueId 时使用）。
+     返回的 stacktrace 不带源码上下文，需要再调 git-context 才能看到代码。
 
-2. 基于证据进行根因分析，输出 Markdown 格式的 Incident Report。
+2. 前端错误分析的标准流程：
+   a. 先用 glitchtip 列出最近 unresolved issues（如果 glitchtip 支持 list 模式，
+      否则先用 loki 日志或 sentry list 拿到 issueId）。
+   b. 对每个关注的 issueId 调 glitchtip 拿完整 stacktrace + 源码上下文。
+   c. 在报告中，每个前端错误列出：Issue 标题 + symbolicated 文件名:行号 +
+      contextLine 原文 + 周边 3-5 行 context + 影响的 issue 数量。
+   d. 如果想知道"哪个 commit 可能引入这个 bug"，再用 git-context 查该文件的近期提交。
+
+3. 基于证据进行根因分析，输出 Markdown 格式的 Incident Report。
 
 重要规则：
 - 每个工具最多调用一次，不要重试失败的查询
 - 采集完一轮证据后，立即生成 Markdown 格式的报告
 - 报告必须以 "# Incident Report" 开头
 - 报告包含六个章节：摘要、证据（指标/日志/链路/前端错误/源码）、根因分析、建议、人类审核
-- 前端错误章节应包括：Sentry Issue 标题 + symbolicated 堆栈（文件:行号）+ breadcrumbs + 影响的 Issue 数量
+- **前端错误章节必须引用 glitchtip 返回的 contextLine / context 原文**，
+  不要自己编造文件名或行号（尤其不要猜 "Checkout.tsx" 这种仓库里不存在的文件）
 - 如果某个工具查询失败或返回空数据，在报告中注明并继续分析其他证据
 - 中文输出`;
 
@@ -92,6 +106,7 @@ export function createDefaultTools(): Tool[] {
     createTraceTool(),
     createGitContextTool(),
     createSentryTool(),
+    createGlitchtipTool(),
   ];
 }
 

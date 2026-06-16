@@ -8,3 +8,5 @@ export { createTraceTool } from "./trace-tool.js";
 export type { TraceDeps } from "./trace-tool.js";
 export { createSentryTool } from "./sentry-tool.js";
 export type { SentryDeps } from "./sentry-tool.js";
+export { createGlitchtipTool } from "./glitchtip-tool.js";
+export type { GlitchtipDeps } from "./glitchtip-tool.js";
