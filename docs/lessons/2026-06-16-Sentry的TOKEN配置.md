@@ -35,4 +35,5 @@
 ## 反向引用
 
 - [[0006-sentry-release-sourcemap-strategy|ADR-0006]]：§4 凭证管理（`SENTRY_AUTH_TOKEN` 的来源）
+- [[0007-glitchtip-as-sentry-fallback|ADR-0007]]：§Consequences（GlitchTip Token 在 Django shell 创建）
 - [[M4-04-sentry-release-sourcemap-upload|M4-04 任务卡]]：§8 工作流记录（Sentry 配置修复）

@@ -97,3 +97,4 @@ M4 Phase B 的核心交付就是补齐这两个能力，对应任务卡 M4-04。
 - [[2026-06-16-Sentry的TOKEN配置|Sentry Token 配置]]：§1 入口 / §3 产出
 - [[2026-06-16-Sentry和GitHub的配置|Sentry 与 GitHub 的配置]]：§1 背景（OAuth 前提）
 - [[2026-06-15-monorepo-env-governance|monorepo env 治理教训]]：§11 dotenv override 踩坑（引用 §4 凭证管理）
+- [[0007-glitchtip-as-sentry-fallback|ADR-0007]]：GlitchTip 兼容 `@sentry/vite-plugin`（§R1 实测）

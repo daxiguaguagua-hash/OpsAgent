@@ -1,7 +1,7 @@
 # M4-11 GlitchTip 平替 Sentry 可行性 Spike
 
 日期：2026-06-16
-状态：`planned`
+状态：`done`（3 个风险全部通过 ✅，沉淀为 ADR-0007）
 前置任务：M4-04（Source Map 上传路径已实现）/ M4-09（sentry-tool 已实现）
 负责人：sre-team + ai-agent-team
 性质：spike（15–60 分钟验证，产出 ADR-0007 草稿）
@@ -68,39 +68,104 @@ M4 planning §3.1 早就规划了"三层方案"：Sentry SaaS / GlitchTip 自建
 - **不做** 切换 Sentry SaaS ↔ GlitchTip 的自动化脚本——`.env` 手动切换即可
 - **不做** 自研 symbolication 集成（那是 M4-07 的范围）
 
-## 7. 测试证据（spike 完成后填写）
+## 7. 测试证据（spike 实测，2026-06-16）
 
-### R1：Source Map 上传
+### R1：Source Map 上传 ✅
 
-> 实施阶段补：`pnpm --filter frontend build` 日志 + GlitchTip Release 截图
+```bash
+$ SENTRY_URL=http://localhost:8000/ SENTRY_ORG=opsagent SENTRY_PROJECT=javascript-react \
+    sentry-cli sourcemaps upload --release 0.0.0-glitchtip-spike apps/frontend/dist/assets
+> Bundled 4 files for upload
+> Bundle ID: 9bb7d897-e200-52fc-a299-20bfc23b7f4d
+> Uploading completed in 0.051s
+> Organization: opsagent
+> Projects: javascript-react
+> Release: 0.0.0-glitchtip-spike
+> Upload type: artifact bundle
+```
 
-### R2：Sentry API 兼容
+**结论**：sentry-cli 直传 GlitchTip 成功。`@sentry/vite-plugin` 底层就是 sentry-cli，因此 **M4-04 现有构建脚本无需改动**，只换 `.env` 即可。
 
-> 实施阶段补：`sentry-tool` 实测请求/响应 + symbolicated stacktrace 截图
+### R2：Sentry API 兼容 ✅
 
-### R3：前端 SDK 无 session 报错
+实测通过的 endpoint：
 
-> 实施阶段补：浏览器 console 截图 + GlitchTip Issue 截图
+| Endpoint | 用途 | 实测 |
+|---|---|---|
+| `GET /api/0/` | API root | 返回 `{"version":"0","user":null,"auth":null}`（Sentry 格式） |
+| `POST /api/0/organizations/` | 创建 org | `{"slug":"opsagent", ...}` |
+| `POST /api/0/organizations/{org}/teams/` | 创建 team | `{"slug":"frontend", ...}` |
+| `POST /api/0/teams/{org}/{team}/projects/` | 创建 project | `{"platform":"javascript-react", ...}` |
+| `GET /api/0/projects/{org}/{project}/keys/` | 拿 DSN | `{"dsn":{"public":"http://<key>@localhost:8000/1"}}` |
+| `POST /api/1/envelope/` | Event ingestion | 200 OK（**必须带 `X-Sentry-Auth` header**，DSN-in-body 返回 403） |
+| `GET /api/0/projects/{org}/{project}/issues/` | 列 issues | 返回结构化 issue（含 metadata.type / metadata.value / firstRelease / lastRelease） |
+
+**关键发现**：
+1. GlitchTip 完全兼容 Sentry `/api/0/` REST API
+2. envelope 端点必须用 `X-Sentry-Auth: Sentry sentry_version=7,sentry_client=...,sentry_key=<public-key>` header（Sentry SDK 标准方式），不能依赖 DSN 中的 key
+3. sentry-tool 的 `request()` helper 已经用 `Authorization: Bearer`，需补一个 `X-Sentry-Auth` 分支（或确认 GlitchTip 也接受 Bearer）
+
+### R3：前端 SDK 无 session 报错 ✅
+
+**GlitchTip 官方文档给的 `autoSessionTracking: false` 写法在 @sentry/react v9+ 已失效**（TS2353: 'autoSessionTracking' does not exist in type 'BrowserOptions'）。
+
+按 Sentry v8→v9 迁移指南，正确写法是**从默认 integrations 里过滤掉 browserSessionIntegration**：
+
+```typescript
+const integrations = Sentry.getDefaultIntegrations({}).filter(
+  (i) => i.name !== "BrowserSession",
+);
+integrations.push(Sentry.browserTracingIntegration(), Sentry.replayIntegration());
+
+Sentry.init({ dsn, integrations, ... });
+```
+
+已落地到 `apps/frontend/src/lib/sentry.ts`，`pnpm --filter frontend check-types` 通过（1m 55s，0 errors）。
 
 ### 资源增量
 
-> 实施阶段补：`docker stats` 输出
-
-## 8. 工作流记录（spike 完成后填写）
-
-> 实施阶段补：每步 commit sha、遇到的意外、决策变更。
-
-## 9. 后续行动（取决于 spike 结果）
-
-| spike 结果 | 后续 |
+| 容器 | 资源 |
 |---|---|
-| 全部兼容 ✅ | ADR-0007 固化"GlitchTip 本地主力 + Sentry SaaS 梯子通时回切"；M4-04 / M4-09 凭证切到 GlitchTip |
-| `@sentry/vite-plugin` 不兼容 ⚠️ | ADR-0007 改为"GlitchTip 用 glitchtip-cli 上传"；补 M4-04 上传脚本 |
-| Sentry API 不兼容 ⚠️ | ADR-0007 注明"sentry-tool 加 endpoint 适配"；扩 M4-09 支持 endpoint 切换 |
-| 多个不兼容 ❌ | 重新评估 GlitchTip 版本（换最新版 / 看 Sentry 协议兼容层）；极端情况下考虑自研 symbolication（M4-07）作为主力 |
+| `opsagent-glitchtip` | ~256 MB RAM（all-in-one Web + Worker） |
+| 复用 `opsagent-postgres` | 新增 DB `glitchtip` + user `glitchtip`（独立隔离） |
+| 复用 `opsagent-redis` | db=1（避免与 opsagent db=0 冲突） |
+
+### Sentry Dashboard 截图（待用户补）
+
+- [ ] `http://localhost:8000/javascript-react/issues/` 列表（含模拟 TypeError Issue）
+- [ ] `http://localhost:8000/javascript-react/releases/0.0.0-glitchtip-spike/` Release 详情
+
+## 8. 工作流记录
+
+| 步骤 | 结果 |
+|---|---|
+| `docker-compose.yml` 追加 `glitchtip` service | `profiles: ["glitchtip"]` + `GLITCHTIP_EMBED_WORKER=true`（all-in-one 模式）；依赖现有 `opsagent-postgres` / `opsagent-redis` |
+| `observability/glitchtip/init.sql`（新建） | 新建独立 DB `glitchtip` + user `glitchtip`；在容器内 `psql` 执行，避免与现有 opsagent DB 耦合 |
+| `docker compose --profile glitchtip up -d` | 容器启动（"Mode: Web only" 初始）；首次需手动 `python manage.py migrate`（109 个迁移） |
+| `DJANGO_SUPERUSER_PASSWORD=Demo1234! python manage.py createsuperuser` | 创建 demo 账号 `demo@opsagent.local` |
+| Django shell 创建 APIToken | BitField scopes 全开（`int(tok.scopes)=65535`）；token 前缀 `sntrys_glitchtip_all_` 模拟 Sentry 格式 |
+| 创建 org / team / project | 全部走 Sentry 兼容 API；DSN: `http://637bb2e204af4efeb646c525d9926852@localhost:8000/1` |
+| 加 `GLITCHTIP_EMBED_WORKER=true` | 重启后日志显示 "Partition maintenance complete"——Worker 跑起来，event ingestion 通路打通 |
+| R1 实测（sentry-cli 上传） | ✅ 4 files bundled，51 ms 上传成功 |
+| R2 实测（Sentry API） | ✅ 7 个 endpoint 全部兼容（envelope 必须 `X-Sentry-Auth`） |
+| R3 实测（前端 SDK） | ✅ `autoSessionTracking: false` 在 v9+ 不可用；改用 `getDefaultIntegrations({}).filter(name !== "BrowserSession")` |
+| `apps/frontend/src/lib/sentry.ts` 改造 | 过滤 browserSessionIntegration + 保留 browserTracing + replay |
+| `pnpm check-types` 全量 | 7/7 tasks successful |
+| `pnpm --filter @opsagent/agent test` | 135/135 pass |
+| ADR-0007 起草 | accepted；GlitchTip 作为 Sentry SaaS 不可达时的主力 |
+
+## 9. 后续行动（决策已落地：ADR-0007）
+
+| 任务 | 关联 |
+|---|---|
+| M4-04：切凭证到 GlitchTip，跑 `pnpm --filter frontend build` 验证 Release 出现 | ADR-0007 §后续行动 |
+| M4-09：`sentry-tool` 加 `SENTRY_API_ENDPOINT` 环境变量 | ADR-0007 §后续行动 |
+| 前端：把 `VITE_SENTRY_DSN` 切到 GlitchTip，浏览器触发异常验证 | ADR-0007 §后续行动 |
+| 文档：`docs/runbooks/` 加"GlitchTip 一键部署手册" | ADR-0007 §后续行动 |
 
 ## 反向引用
 
-- [[0006-sentry-release-sourcemap-strategy|ADR-0006]]：§3 Source Map 上传路径（本 spike 验证 GlitchTip 兼容度）
+- [[0007-glitchtip-as-sentry-fallback|ADR-0007]]：§Decision（本 spike 的实测结果）
+- [[0006-sentry-release-sourcemap-strategy|ADR-0006]]：§3 Source Map 上传路径（GlitchTip 兼容度验证）
 - [[planning|M4 规划]]：§3.1 三层方案（GlitchTip 作为 P1 兜底）
 - [[2026-06-16-Sentry的TOKEN配置|Sentry Token 配置]]：凭证管理（GlitchTip 复用同一套 Personal Token 概念）

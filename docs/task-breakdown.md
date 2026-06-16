@@ -220,7 +220,7 @@ M3-11 至 M3-16 在 M2 验收完成后启动。M2 期间只记录方案，不提
 | M4-08 | 对比 Sentry 与自研反解流程 | docs-team | P1 | | 架构与安全说明 | 明确生产方案、教学方案和 Source Map 不公开原则 |
 | [M4-09](milestones/M4/tasks/M4-09-agent-sentry-source-suggestions.md) | Agent 结合源码给建议 | ai-agent-team | P1 | `done` | 报告增强 | 报告包含源码文件、疑似行号和人类审核建议 |
 | M4-10 | 前端接入 OTel Web SDK（端到端链路追踪） | frontend-team | P1 | | `@opentelemetry/sdk-trace-web` 初始化 | 浏览器 fetch 产生的 span 发到 OTel Collector，Tempo 中可看到前端→后端的完整 trace |
-| [M4-11](milestones/M4/tasks/M4-11-glitchtip-sentry-fallback-spike.md) | GlitchTip 平替 Sentry 可行性 Spike（梯子失效触发） | sre-team + ai-agent-team | P0 | `planned` | spike 报告 + ADR-0007 草稿 | 验证 `@sentry/vite-plugin` 上传 / Sentry API 兼容 / 前端 SDK 无 session 报错 |
+| [M4-11](milestones/M4/tasks/M4-11-glitchtip-sentry-fallback-spike.md) | GlitchTip 平替 Sentry 可行性 Spike（梯子失效触发） | sre-team + ai-agent-team | P0 | `done`（[ADR-0007](decisions/0007-glitchtip-as-sentry-fallback.md)；R1/R2/R3 全通过） | spike 报告 + ADR-0007 草稿 | 验证 `@sentry/vite-plugin` 上传 / Sentry API 兼容 / 前端 SDK 无 session 报错 |
 
 ## 9. M5 GitLab 企业模拟模式
 

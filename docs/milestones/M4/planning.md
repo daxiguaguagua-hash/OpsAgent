@@ -358,21 +358,21 @@ const sentryTool = createTool({
 
 ## 7. 环境准备清单
 
-| 项目 | 状态 | 说明 |
-|---|---|---|
-| Sentry CLI | ✅ 已安装 | `@sentry/cli` v3.5.0（npx），需执行 `npx @sentry/cli login` |
-| Sentry 账号 | ❓ 待确认 | sentry.io 免费注册（14 天试用） |
-| Sentry DSN | ❓ 待创建 | 创建项目后获得 |
-| Sentry Auth Token | ❓ 待创建 | 用于 Source Map 上传 + CLI 认证 |
-| GlitchTip Docker 镜像 | 未拉取 | `gitlab.com/glitchtip/glitchtip`，~512 MB |
-| GlitchTip PostgreSQL | 已有 | 可复用现有 `opsagent-postgres` |
-| `ERROR_TRACKING_PROVIDER` | 待配置 | 环境变量，切换 sentry / glitchtip / custom |
-| `@sentry/react` | 未安装 | npm 包 |
-| `@sentry/node` | 未安装 | npm 包，后端 Hono 集成 |
-| `@sentry/vite-plugin` | 未安装 | 构建时上传 Source Map |
-| `source-map` | 未安装 | M4-07 自研反解用 |
-| 自研 browser-sdk | ✅ 已有 | [GitHub 仓库](https://github.com/daxiguaguagua-hash/nodejs-and-frontend-performance-optimization) |
-| ~~MinIO Docker 镜像~~ | ~~已取消~~ | M4-06 cancelled，Sentry/GlitchTip 自带存储 |
+| 项目                        | 状态      | 说明                                                                                              |
+| ------------------------- | ------- | ----------------------------------------------------------------------------------------------- |
+| Sentry CLI                | ✅ 已安装   | `@sentry/cli` v3.5.0（npx），需执行 `npx @sentry/cli login`                                           |
+| Sentry 账号                 | 已确认     | sentry.io 免费注册（14 天试用）                                                                          |
+| Sentry DSN                | 已创建     | 创建项目后获得                                                                                         |
+| Sentry Auth Token         | 已创建     | 用于 Source Map 上传 + CLI 认证                                                                       |
+| GlitchTip Docker 镜像       | 已有      | `gitlab.com/glitchtip/glitchtip`，~512 MB                                                        |
+| GlitchTip PostgreSQL      | 已有      | 可复用现有 `opsagent-postgres`                                                                       |
+| `ERROR_TRACKING_PROVIDER` | 待配置     | 环境变量，切换 sentry / glitchtip / custom                                                             |
+| `@sentry/react`           | 已安装     | npm 包                                                                                           |
+| `@sentry/node`            | 已安装     | npm 包，后端 Hono 集成                                                                                |
+| `@sentry/vite-plugin`     | 已安装     | 构建时上传 Source Map                                                                                |
+| `source-map`              | 已安装     | M4-07 自研反解用                                                                                     |
+| 自研 browser-sdk            | ✅ 已有    | [GitHub 仓库](https://github.com/daxiguaguagua-hash/nodejs-and-frontend-performance-optimization) |
+| ~~MinIO Docker 镜像~~       | ~~已取消~~ | M4-06 cancelled，Sentry/GlitchTip 自带存储                                                           |
 
 ## 8. 开放问题（待讨论）
 
@@ -400,4 +400,7 @@ const sentryTool = createTool({
 ## 反向引用
 
 - [[0006-sentry-release-sourcemap-strategy|ADR-0006]]：关联（§5 Phase B 执行顺序）
+- [[0007-glitchtip-as-sentry-fallback|ADR-0007]]：关联（§3.1 三层方案 GlitchTip 落地）
 - [[M4-04-sentry-release-sourcemap-upload|M4-04 任务卡]]：实施依据（§1 目标）
+- [[M4-09-agent-sentry-source-suggestions|M4-09 任务卡]]：§3.5 任务细化
+- [[M4-11-glitchtip-sentry-fallback-spike|M4-11 任务卡]]：§3.1 GlitchTip spike 数据来源

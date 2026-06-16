@@ -335,3 +335,4 @@ dotenv.config({ override: true, path: path.resolve(process.cwd(), ".env") });
 
 - [[M4-04-sentry-release-sourcemap-upload|M4-04 任务卡]]：§8 工作流记录（凭证位置决策引用本文 §9）
 - [[0006-sentry-release-sourcemap-strategy|ADR-0006]]：§4 凭证管理（dotenv override 实现细节，详见本文 §11）
+- [[0007-glitchtip-as-sentry-fallback|ADR-0007]]：§Consequences（GlitchTip 凭证加载复用 M4-04 实现）
