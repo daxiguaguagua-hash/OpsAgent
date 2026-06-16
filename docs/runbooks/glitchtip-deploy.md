@@ -77,7 +77,7 @@ glitchtip-worker:
 #### 方式 A：Web UI（最直观）
 
 ```
-http://localhost:8000/
+http://localhost:8001/
   → 登录 demo@opsagent.local / Demo1234!
   → 顶部 Projects 选 javascript-react
   → 左侧 Issues  →  页面顶部有 DSN 复制按钮
@@ -89,7 +89,7 @@ http://localhost:8000/
 
 ```bash
 curl -H "Authorization: Bearer $TOKEN" \
-     http://localhost:8000/api/0/projects/opsagent/javascript-react/keys/
+     http://localhost:8001/api/0/projects/opsagent/javascript-react/keys/
 ```
 
 返回示例：
@@ -98,9 +98,9 @@ curl -H "Authorization: Bearer $TOKEN" \
 [{
   "id": "637bb2e2-04af-4efe-b646-c525d9926852",
   "dsn": {
-    "public":   "http://637bb2e204af4efeb646c525d9926852@localhost:8000/1",
-    "secret":   "http://637bb2e204af4efeb646c525d9926852@localhost:8000/1",
-    "security": "http://localhost:8000/api/1/security/?glitchtip_key=..."
+    "public":   "http://637bb2e204af4efeb646c525d9926852@localhost:8001/1",
+    "secret":   "http://637bb2e204af4efeb646c525d9926852@localhost:8001/1",
+    "security": "http://localhost:8001/api/1/security/?glitchtip_key=..."
   },
   "projectID": 1
 }]
@@ -125,7 +125,7 @@ for k in ProjectKey.objects.all():
 #### 方式 A：Web UI（推荐）
 
 ```
-http://localhost:8000/
+http://localhost:8001/
   → 右上角用户头像 → Profile / Settings
   → Auth Tokens（或 API Tokens）
   → Create New Token
@@ -170,10 +170,10 @@ member:read  / member:write  / member:admin
 
 ```bash
 # 写到 ~/.sentryclirc
-sentry-cli --url http://localhost:8000 login
+sentry-cli --url http://localhost:8001 login
 
 # 或用环境变量（不写文件）
-SENTRY_URL=http://localhost:8000 \
+SENTRY_URL=http://localhost:8001 \
 SENTRY_AUTH_TOKEN=sntrys_glitchtip_... \
 SENTRY_ORG=opsagent \
 SENTRY_PROJECT=javascript-react \
@@ -186,11 +186,11 @@ sentry-cli releases list
 
 ```bash
 # 列 organizations
-curl -H "Authorization: Bearer $TOKEN" http://localhost:8000/api/0/organizations/
+curl -H "Authorization: Bearer $TOKEN" http://localhost:8001/api/0/organizations/
 # → [{"slug": "opsagent", ...}]
 
 # 列 projects
-curl -H "Authorization: Bearer $TOKEN" http://localhost:8000/api/0/projects/
+curl -H "Authorization: Bearer $TOKEN" http://localhost:8001/api/0/projects/
 # → [{"slug": "javascript-react", "organization": {"slug": "opsagent"}, ...}]
 ```
 
@@ -198,15 +198,15 @@ curl -H "Authorization: Bearer $TOKEN" http://localhost:8000/api/0/projects/
 
 | 项 | 值 |
 |---|---|
-| Web UI | http://localhost:8000/ |
+| Web UI | http://localhost:8001/ |
 | 用户 | `demo@opsagent.local` / `Demo1234!`（superuser） |
 | Organization slug | `opsagent` |
 | Team slug | `frontend` |
 | Project slug | `javascript-react`（platform: javascript-react） |
 | Project ID | `1` |
-| **Public DSN** | `http://637bb2e204af4efeb646c525d9926852@localhost:8000/1` |
+| **Public DSN** | `http://637bb2e204af4efeb646c525d9926852@localhost:8001/1` |
 | **Auth Token** | `sntrys_glitchtip_all_d8fd4e65aa5cb13180ec01704f28587d`（全 scopes） |
-| **MCP endpoint** | `http://localhost:8000/mcp`（OAuth flow） |
+| **MCP endpoint** | `http://localhost:8001/mcp`（OAuth flow） |
 
 **DSN 来源**：API 调用 `GET /api/0/projects/opsagent/javascript-react/keys/`（2026-06-16 spike 实测）
 **Token 来源**：容器内 Django shell 创建（GlitchTip 没暴露 Token 创建 REST API）
@@ -224,11 +224,11 @@ SENTRY_PROJECT=javascript-react
 SENTRY_API_ENDPOINT=           # 默认 https://sentry.io/api/0
 
 # GlitchTip 自建（梯子断时）
-VITE_SENTRY_DSN=http://637bb2e204af4efeb646c525d9926852@localhost:8000/1
+VITE_SENTRY_DSN=http://637bb2e204af4efeb646c525d9926852@localhost:8001/1
 SENTRY_AUTH_TOKEN=sntrys_glitchtip_all_d8fd4e65aa5cb13180ec01704f28587d
 SENTRY_ORG=opsagent
 SENTRY_PROJECT=javascript-react
-SENTRY_API_ENDPOINT=http://localhost:8000/api/0
+SENTRY_API_ENDPOINT=http://localhost:8001/api/0
 ```
 
 ### 4.2 切到 GlitchTip 不需要重装包
@@ -244,7 +244,7 @@ SENTRY_API_ENDPOINT=http://localhost:8000/api/0
 docker-compose.yml 已加 `GLITCHTIP_ENABLE_MCP: "True"`（commit `bd0d67d`）。MCP endpoint：
 
 ```
-http://localhost:8000/mcp
+http://localhost:8001/mcp
 ```
 
 ### 5.2 内置 17 个 tools（按类别）
@@ -261,13 +261,13 @@ http://localhost:8000/mcp
 
 ```bash
 # OAuth discovery metadata
-curl http://localhost:8000/.well-known/oauth-protected-resource/mcp
-# → {"resource":"http://localhost:8000/mcp",
-#    "authorization_servers":["http://localhost:8000/mcp"],
+curl http://localhost:8001/.well-known/oauth-protected-resource/mcp
+# → {"resource":"http://localhost:8001/mcp",
+#    "authorization_servers":["http://localhost:8001/mcp"],
 #    "bearer_methods_supported":["header"]}
 
 # OAuth authorization server metadata
-curl http://localhost:8000/.well-known/oauth-authorization-server
+curl http://localhost:8001/.well-known/oauth-authorization-server
 # → authorization_endpoint / token_endpoint / registration_endpoint
 #   scopes_supported: org:read / project:read / event:read / event:write
 #   grant_types: authorization_code / refresh_token
@@ -280,7 +280,7 @@ curl http://localhost:8000/.well-known/oauth-authorization-server
 {
   "mcpServers": {
     "glitchtip": {
-      "url": "http://localhost:8000/mcp"
+      "url": "http://localhost:8001/mcp"
     }
   }
 }

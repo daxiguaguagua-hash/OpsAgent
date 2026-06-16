@@ -25,10 +25,10 @@ M4 planning §3.1 早就规划了三层方案（Sentry SaaS / GlitchTip 自建 /
 
 | 场景 | 平台 | 触发方式 |
 |---|---|---|
-| 开发 / 本地 demo / 网络受限 | **GlitchTip**（localhost:8000） | 默认 |
+| 开发 / 本地 demo / 网络受限 | **GlitchTip**（localhost:8001） | 默认 |
 | 生产 / 网络通时回切 | Sentry SaaS | 切换 `VITE_SENTRY_DSN` |
 
-**关键发现**：前端代码只需换 `VITE_SENTRY_DSN`（指向 `http://<key>@localhost:8000/1`），其他代码零改动。`ERROR_TRACKING_PROVIDER` 切换逻辑已实现（ADR-0006 / M4 planning §3.1）。
+**关键发现**：前端代码只需换 `VITE_SENTRY_DSN`（指向 `http://<key>@localhost:8001/1`），其他代码零改动。`ERROR_TRACKING_PROVIDER` 切换逻辑已实现（ADR-0006 / M4 planning §3.1）。
 
 ### M4-11 Spike 实测结果（3 个风险全部通过 ✅）
 
@@ -60,7 +60,7 @@ M4 planning §3.1 早就规划了三层方案（Sentry SaaS / GlitchTip 自建 /
 | Sentry SaaS | `VITE_SENTRY_DSN` | `https://<key>@o4511561514418176.ingest.us.sentry.io/4511562966499328` |
 | GlitchTip | `SENTRY_AUTH_TOKEN`（同名，不同值） | `sntrys_glitchtip_<hex>`（在 Django shell 创建 APIToken） |
 | GlitchTip | `SENTRY_ORG` / `SENTRY_PROJECT` | 字符串 slug（如 `opsagent` / `javascript-react`） |
-| GlitchTip | `VITE_SENTRY_DSN` | `http://<public-key>@localhost:8000/1` |
+| GlitchTip | `VITE_SENTRY_DSN` | `http://<public-key>@localhost:8001/1` |
 
 切换平台只需编辑 `.env` 里的 5 个变量，无需改代码。
 
@@ -91,7 +91,7 @@ if (dsn) {
 
 ### sentry-tool endpoint 切换
 
-M4-09 的 `sentry-tool` 默认 endpoint 是 `https://sentry.io/api/0`。GlitchTip 部署后，在 `.env` 加 `SENTRY_API_ENDPOINT=http://localhost:8000/api/0`，`SentryDeps.endpoint` 优先读环境变量，零改动切换。
+M4-09 的 `sentry-tool` 默认 endpoint 是 `https://sentry.io/api/0`。GlitchTip 部署后，在 `.env` 加 `SENTRY_API_ENDPOINT=http://localhost:8001/api/0`，`SentryDeps.endpoint` 优先读环境变量，零改动切换。
 
 ## Consequences
 
@@ -120,7 +120,7 @@ M4-09 的 `sentry-tool` 默认 endpoint 是 `https://sentry.io/api/0`。GlitchTi
 
 - [x] M4-04：把 `SENTRY_AUTH_TOKEN` / `ORG` / `PROJECT` 切到 GlitchTip，跑 `pnpm --filter frontend build` 验证 Source Map 上传到 GlitchTip Release 列表（Release `0.0.0-73bf4a1` 已确认，2026-06-16）
 - [x] M4-09：`sentry-tool` 加 `SENTRY_API_ENDPOINT` 环境变量（默认 Sentry SaaS，可切 GlitchTip）（`readConfig` fallback chain + 2 个测试，137/137 pass）
-- [x] 前端：把 `VITE_SENTRY_DSN` 切到 GlitchTip，浏览器触发异常，验证 Issue 出现在 `http://localhost:8000/javascript-react/issues/`（envelope 端点 curl 验证 Issue #2 已出现；浏览器 UI 待用户手动验证 stacktrace symbolication）
+- [x] 前端：把 `VITE_SENTRY_DSN` 切到 GlitchTip，浏览器触发异常，验证 Issue 出现在 `http://localhost:8001/javascript-react/issues/`（envelope 端点 curl 验证 Issue #2 已出现；浏览器 UI 待用户手动验证 stacktrace symbolication）
 - [x] 文档：[[glitchtip-deploy|docs/runbooks/glitchtip-deploy.md]]（GlitchTip 部署 + 凭证获取 + MCP Server 配置手册）
 - [ ] 评估：把 Mastra agent 的 M4-09 sentry-tool 替换为 GlitchTip 官方 MCP Server（17 个内置 tools，零维护成本）
   - **2026-06-16 实测**：Qoder CLI MCP 客户端 + GlitchTip OAuth 不兼容（`/mcp` 直返 `invalid_token`，浏览器 OAuth 流程未触发）

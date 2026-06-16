@@ -23,7 +23,7 @@ M4 planning §3.1 早就规划了"三层方案"：Sentry SaaS / GlitchTip 自建
 | # | 风险 | 验证手段 | 判定标准 |
 |---|---|---|---|
 | R1 | `@sentry/vite-plugin` 能否上传 Source Map 到 GlitchTip | 起 GlitchTip → 配 frontend `SENTRY_ORG/PROJECT/AUTH_TOKEN` 指向 GlitchTip → `pnpm --filter frontend build` | build 日志出现 "Successfully uploaded source maps" + GlitchTip Release 列表出现条目 |
-| R2 | Sentry REST API（`/api/0/projects/...`）在 GlitchTip 是否兼容 | sentry-tool 配 `endpoint: http://localhost:8000/api/0`，调 list issues + get latest event | 返回结构化 issue + event（stacktrace 已 symbolicated） |
+| R2 | Sentry REST API（`/api/0/projects/...`）在 GlitchTip 是否兼容 | sentry-tool 配 `endpoint: http://localhost:8001/api/0`，调 list issues + get latest event | 返回结构化 issue + event（stacktrace 已 symbolicated） |
 | R3 | 前端 SDK 必须 `autoSessionTracking: false`（GlitchTip 不支持 sessions） | `apps/frontend/src/lib/sentry.ts` 加 `autoSessionTracking: false` → 触发前端异常 → GlitchTip UI 可见 Issue | Issue 出现 + 不报 "unsupported session" 错误 |
 
 ## 3. 资源盘点（全部已就绪）
@@ -52,10 +52,10 @@ M4 planning §3.1 早就规划了"三层方案"：Sentry SaaS / GlitchTip 自建
 | 验收项 | 标准 |
 |---|---|
 | docker-compose profile 模式 | `docker compose up -d` 默认仍 8 服务；`docker compose --profile glitchtip up -d` 追加 GlitchTip |
-| GlitchTip Web UI 可达 | `http://localhost:8000` 能看到 GlitchTip 登录页 |
+| GlitchTip Web UI 可达 | `http://localhost:8001` 能看到 GlitchTip 登录页 |
 | 账号注册 + Project 创建 | 注册 demo 账号 → 创建 "javascript-react" project → 拿到 DSN |
 | R1 Source Map 上传 | `pnpm --filter frontend build` 日志 "Successfully uploaded" + GlitchTip Release 列表出现条目 |
-| R2 Sentry API 兼容 | `sentry-tool`（endpoint 改到 localhost:8000）能 list issues + get latest event + 拿到 symbolicated stacktrace |
+| R2 Sentry API 兼容 | `sentry-tool`（endpoint 改到 localhost:8001）能 list issues + get latest event + 拿到 symbolicated stacktrace |
 | R3 前端 SDK 无 session 报错 | 触发前端异常 → GlitchTip UI 出现 Issue + 不报 session 相关错误 |
 | 前端代码零改动 | 只换 `VITE_SENTRY_DSN` 指向 GlitchTip（M4 planning §3.1 约定） |
 | 资源增量可控 | `docker stats` 显示 GlitchTip 容器 < 512 MB RAM |
@@ -73,7 +73,7 @@ M4 planning §3.1 早就规划了"三层方案"：Sentry SaaS / GlitchTip 自建
 ### R1：Source Map 上传 ✅
 
 ```bash
-$ SENTRY_URL=http://localhost:8000/ SENTRY_ORG=opsagent SENTRY_PROJECT=javascript-react \
+$ SENTRY_URL=http://localhost:8001/ SENTRY_ORG=opsagent SENTRY_PROJECT=javascript-react \
     sentry-cli sourcemaps upload --release 0.0.0-glitchtip-spike apps/frontend/dist/assets
 > Bundled 4 files for upload
 > Bundle ID: 9bb7d897-e200-52fc-a299-20bfc23b7f4d
@@ -96,7 +96,7 @@ $ SENTRY_URL=http://localhost:8000/ SENTRY_ORG=opsagent SENTRY_PROJECT=javascrip
 | `POST /api/0/organizations/` | 创建 org | `{"slug":"opsagent", ...}` |
 | `POST /api/0/organizations/{org}/teams/` | 创建 team | `{"slug":"frontend", ...}` |
 | `POST /api/0/teams/{org}/{team}/projects/` | 创建 project | `{"platform":"javascript-react", ...}` |
-| `GET /api/0/projects/{org}/{project}/keys/` | 拿 DSN | `{"dsn":{"public":"http://<key>@localhost:8000/1"}}` |
+| `GET /api/0/projects/{org}/{project}/keys/` | 拿 DSN | `{"dsn":{"public":"http://<key>@localhost:8001/1"}}` |
 | `POST /api/1/envelope/` | Event ingestion | 200 OK（**必须带 `X-Sentry-Auth` header**，DSN-in-body 返回 403） |
 | `GET /api/0/projects/{org}/{project}/issues/` | 列 issues | 返回结构化 issue（含 metadata.type / metadata.value / firstRelease / lastRelease） |
 
@@ -132,8 +132,8 @@ Sentry.init({ dsn, integrations, ... });
 
 ### Sentry Dashboard 截图（待用户补）
 
-- [ ] `http://localhost:8000/javascript-react/issues/` 列表（含模拟 TypeError Issue）
-- [ ] `http://localhost:8000/javascript-react/releases/0.0.0-glitchtip-spike/` Release 详情
+- [ ] `http://localhost:8001/javascript-react/issues/` 列表（含模拟 TypeError Issue）
+- [ ] `http://localhost:8001/javascript-react/releases/0.0.0-glitchtip-spike/` Release 详情
 
 ## 8. 工作流记录
 
@@ -144,7 +144,7 @@ Sentry.init({ dsn, integrations, ... });
 | `docker compose --profile glitchtip up -d` | 容器启动（"Mode: Web only" 初始）；首次需手动 `python manage.py migrate`（109 个迁移） |
 | `DJANGO_SUPERUSER_PASSWORD=Demo1234! python manage.py createsuperuser` | 创建 demo 账号 `demo@opsagent.local` |
 | Django shell 创建 APIToken | BitField scopes 全开（`int(tok.scopes)=65535`）；token 前缀 `sntrys_glitchtip_all_` 模拟 Sentry 格式 |
-| 创建 org / team / project | 全部走 Sentry 兼容 API；DSN: `http://637bb2e204af4efeb646c525d9926852@localhost:8000/1` |
+| 创建 org / team / project | 全部走 Sentry 兼容 API；DSN: `http://637bb2e204af4efeb646c525d9926852@localhost:8001/1` |
 | 加 `GLITCHTIP_EMBED_WORKER=true` | 重启后日志显示 "Partition maintenance complete"——Worker 跑起来，event ingestion 通路打通 |
 | R1 实测（sentry-cli 上传） | ✅ 4 files bundled，51 ms 上传成功 |
 | R2 实测（Sentry API） | ✅ 7 个 endpoint 全部兼容（envelope 必须 `X-Sentry-Auth`） |

@@ -61,7 +61,7 @@ M4 采用三层递进方案，面试时从上往下讲，展示"会用工具 →
 
 ```typescript
 Sentry.init({
-  dsn: "http://your-glitchtip-key@localhost:8000/1",
+  dsn: "http://your-glitchtip-key@localhost:8001/1",
   // 和 Sentry SaaS 完全一样的初始化代码，前端零改动
 });
 ```
@@ -170,7 +170,7 @@ VITE_SENTRY_DSN=https://xxx@o0.ingest.sentry.io/0
 
 # 方案二：GlitchTip 私有化（中小企业场景）
 ERROR_TRACKING_PROVIDER=glitchtip
-VITE_GLITCHTIP_DSN=http://xxx@localhost:8000/1
+VITE_GLITCHTIP_DSN=http://xxx@localhost:8001/1
 
 # 方案三：自研 SDK（教学演示，不走 Sentry 协议）
 ERROR_TRACKING_PROVIDER=custom

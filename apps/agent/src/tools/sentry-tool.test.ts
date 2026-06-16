@@ -95,7 +95,33 @@ async function callWith(
 ): Promise<{ result: SentryListResult | SentryEventResult; captured: CapturedRequest[] }> {
   const captured: CapturedRequest[] = [];
   const deps = buildDeps({ ...overrides, captured });
-  const tool = createSentryTool(deps);
+
+  // 隔离 Sentry 凭证类环境变量，避免父 shell 的真实凭证泄漏到
+  // "凭证缺失"等测试中。readConfig 在 createSentryTool 内部同步运行并
+  // 把 env 值闭包到 config，所以隔离必须包住 createSentryTool 调用，
+  // 而不是 execute。
+  // SENTRY_API_ENDPOINT 不在隔离范围内：同名 describe 块会显式 set/delete
+  // 它，并由其自身的 try/finally 负责还原。
+  const CREDENTIAL_KEYS = ["SENTRY_AUTH_TOKEN", "SENTRY_ORG", "SENTRY_PROJECT"] as const;
+  const saved: Record<string, string | undefined> = {};
+  for (const key of CREDENTIAL_KEYS) {
+    saved[key] = process.env[key];
+    delete process.env[key];
+  }
+  let tool;
+  try {
+    tool = createSentryTool(deps);
+  } finally {
+    for (const key of CREDENTIAL_KEYS) {
+      const value = saved[key];
+      if (value === undefined) {
+        delete process.env[key];
+      } else {
+        process.env[key] = value;
+      }
+    }
+  }
+
   const execute = tool.execute;
   if (!execute) throw new Error("tool.execute should exist");
   const result = (await execute(input, {} as never)) as

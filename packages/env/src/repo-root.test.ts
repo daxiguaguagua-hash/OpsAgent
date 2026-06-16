@@ -15,10 +15,16 @@ describe("getRepoRoot() 函数，这里是验证是否能够正确找到根目�
     assert.ok(existsSync(pkgPath), `根目录应包含 package.json: ${pkgPath}`);
 
     const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
-    assert.ok(
-      Array.isArray(pkg.workspaces),
-      "根 package.json 必须有 workspaces 字段",
-    );
+    // pnpm / yarn berry 风格：{ workspaces: { packages: [...] } }
+    // npm / yarn classic 风格：{ workspaces: [...] }
+    // 两种都是合法的 monorepo 根，断言任一形态即可。
+    const hasWorkspaces =
+      (Array.isArray(pkg.workspaces) && pkg.workspaces.length > 0) ||
+      (pkg.workspaces &&
+        typeof pkg.workspaces === "object" &&
+        Array.isArray(pkg.workspaces.packages) &&
+        pkg.workspaces.packages.length > 0);
+    assert.ok(hasWorkspaces, "根 package.json 必须有 workspaces 字段（数组或 { packages: [] }）");
   });
 
   test("getRepoRoot() 结果会被缓存，多次调用返回同一值", () => {
