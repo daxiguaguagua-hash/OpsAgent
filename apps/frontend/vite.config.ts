@@ -30,6 +30,7 @@ dotenv.config({ override: true, path: path.resolve(process.cwd(), ".env") });
 const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN || undefined;
 const sentryOrg = process.env.SENTRY_ORG || undefined;
 const sentryProject = process.env.SENTRY_PROJECT || undefined;
+const sentryUrl = process.env.SENTRY_URL || "https://sentry.io";
 const gitSha = getGitShortSha();
 const releaseName = gitSha
   ? `${frontendPackageJson.version}-${gitSha}`
@@ -63,6 +64,7 @@ export default defineConfig({
     ...(sentryAuthToken && sentryOrg && sentryProject
       ? [
           sentryVitePlugin({
+            url: sentryUrl,
             org: sentryOrg,
             project: sentryProject,
             authToken: sentryAuthToken,

@@ -469,6 +469,73 @@ describe("createSentryTool — 空结果", () => {
   });
 });
 
+describe("createSentryTool — SENTRY_API_ENDPOINT 环境变量", () => {
+  test("process.env.SENTRY_API_ENDPOINT 覆盖默认 endpoint", async () => {
+    const original = process.env.SENTRY_API_ENDPOINT;
+    try {
+      process.env.SENTRY_API_ENDPOINT = "http://localhost:8000/api/0";
+      const captured: CapturedRequest[] = [];
+      const deps = buildDeps({
+        endpoint: undefined,
+        captured,
+        response: { ok: true, status: 200, json: async () => [] },
+      });
+      const tool = createSentryTool(deps);
+      const execute = tool.execute;
+      if (!execute) throw new Error("tool.execute should exist");
+      await execute({}, {} as never);
+
+      assert.equal(captured.length, 1, "应发起 1 次请求");
+      const url = new URL(captured[0]!.url);
+      assert.equal(
+        url.origin,
+        "http://localhost:8000",
+        "应使用 SENTRY_API_ENDPOINT 环境变量中的 origin",
+      );
+      assert.ok(
+        url.pathname.startsWith("/api/0/"),
+        "pathname 应以 /api/0/ 开头",
+      );
+    } finally {
+      if (original === undefined) {
+        delete process.env.SENTRY_API_ENDPOINT;
+      } else {
+        process.env.SENTRY_API_ENDPOINT = original;
+      }
+    }
+  });
+
+  test("deps.endpoint 优先级高于 process.env.SENTRY_API_ENDPOINT", async () => {
+    const original = process.env.SENTRY_API_ENDPOINT;
+    try {
+      process.env.SENTRY_API_ENDPOINT = "http://env-override:9000/api/0";
+      const captured: CapturedRequest[] = [];
+      const deps = buildDeps({
+        endpoint: "https://deps-wins.test/api/0",
+        captured,
+        response: { ok: true, status: 200, json: async () => [] },
+      });
+      const tool = createSentryTool(deps);
+      const execute = tool.execute;
+      if (!execute) throw new Error("tool.execute should exist");
+      await execute({}, {} as never);
+
+      const url = new URL(captured[0]!.url);
+      assert.equal(
+        url.origin,
+        "https://deps-wins.test",
+        "deps.endpoint 应优先于环境变量",
+      );
+    } finally {
+      if (original === undefined) {
+        delete process.env.SENTRY_API_ENDPOINT;
+      } else {
+        process.env.SENTRY_API_ENDPOINT = original;
+      }
+    }
+  });
+});
+
 describe("createSentryTool — 入参校验", () => {
   test("limit 超过 MAX_LIMIT 被 zod 拦截", async () => {
     const tool = createSentryTool(buildDeps());

@@ -99,6 +99,19 @@ flowchart LR
 
 > Sentry Dashboard 验证入口：https://none-fez.sentry.io/releases/0.0.0-2ce306b/ （项目维护者补：触发前端异常后，Issue 堆栈应显示 `apps/frontend/src/**/*.tsx` 源码文件 + 行号）
 
+### 已验证（GlitchTip 自建，2026-06-16）
+
+- **`pnpm --filter frontend build`**：成功，构建日志显示 `[sentry-vite-plugin] Info: Successfully uploaded source maps to Sentry`（实际目标为 GlitchTip `http://localhost:8000`）
+- **Release 命名**：`0.0.0-73bf4a1`（`package.version-git-sha` 格式，符合 ADR-0006 §2）
+- **Organization / Project**：`opsagent` / `javascript-react`
+- **Upload 统计**：
+  - Bundled 4 files for upload（2 scripts + 2 source maps）
+  - Upload type: artifact bundle
+  - Uploading completed in 0.061s
+- **凭证来源**：`apps/frontend/.env`（`dotenv.config({ override: true })`），`SENTRY_URL=http://localhost:8000`
+- **Source Map 不公开（M4-02 回归）**：`grep sourceMappingURL dist/assets/*.js` 无输出
+- **GlitchTip API 验证**：`GET /api/0/projects/opsagent/javascript-react/releases/` 返回 Release `0.0.0-73bf4a1`（详见 ADR-0007 §后续行动）
+
 ## 8. 工作流记录
 
 | 步骤 | 结果 |

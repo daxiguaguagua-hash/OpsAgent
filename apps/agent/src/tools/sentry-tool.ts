@@ -127,7 +127,7 @@ function readConfig(deps: SentryDeps): {
   const rawOrg = deps.org ?? process.env.SENTRY_ORG;
   const rawProject = deps.project ?? process.env.SENTRY_PROJECT;
   return {
-    endpoint: deps.endpoint ?? SENTRY_TOOL.DEFAULT_ENDPOINT,
+    endpoint: deps.endpoint ?? process.env.SENTRY_API_ENDPOINT ?? SENTRY_TOOL.DEFAULT_ENDPOINT,
     authToken: rawToken && rawToken.length > 0 ? rawToken : undefined,
     org: rawOrg && rawOrg.length > 0 ? rawOrg : undefined,
     project: rawProject && rawProject.length > 0 ? rawProject : undefined,

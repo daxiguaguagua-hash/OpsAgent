@@ -118,9 +118,9 @@ M4-09 的 `sentry-tool` 默认 endpoint 是 `https://sentry.io/api/0`。GlitchTi
 
 ## 后续行动（M4 Phase D 起）
 
-- [ ] M4-04：把 `SENTRY_AUTH_TOKEN` / `ORG` / `PROJECT` 切到 GlitchTip，跑 `pnpm --filter frontend build` 验证 Source Map 上传到 GlitchTip Release 列表
-- [ ] M4-09：`sentry-tool` 加 `SENTRY_API_ENDPOINT` 环境变量（默认 Sentry SaaS，可切 GlitchTip）
-- [ ] 前端：把 `VITE_SENTRY_DSN` 切到 GlitchTip，浏览器触发异常，验证 Issue 出现在 `http://localhost:8000/javascript-react/issues/`
+- [x] M4-04：把 `SENTRY_AUTH_TOKEN` / `ORG` / `PROJECT` 切到 GlitchTip，跑 `pnpm --filter frontend build` 验证 Source Map 上传到 GlitchTip Release 列表（Release `0.0.0-73bf4a1` 已确认，2026-06-16）
+- [x] M4-09：`sentry-tool` 加 `SENTRY_API_ENDPOINT` 环境变量（默认 Sentry SaaS，可切 GlitchTip）（`readConfig` fallback chain + 2 个测试，137/137 pass）
+- [x] 前端：把 `VITE_SENTRY_DSN` 切到 GlitchTip，浏览器触发异常，验证 Issue 出现在 `http://localhost:8000/javascript-react/issues/`（envelope 端点 curl 验证 Issue #2 已出现；浏览器 UI 待用户手动验证 stacktrace symbolication）
 - [x] 文档：[[glitchtip-deploy|docs/runbooks/glitchtip-deploy.md]]（GlitchTip 部署 + 凭证获取 + MCP Server 配置手册）
 - [ ] 评估：把 Mastra agent 的 M4-09 sentry-tool 替换为 GlitchTip 官方 MCP Server（17 个内置 tools，零维护成本）
   - **2026-06-16 实测**：Qoder CLI MCP 客户端 + GlitchTip OAuth 不兼容（`/mcp` 直返 `invalid_token`，浏览器 OAuth 流程未触发）
@@ -132,3 +132,4 @@ M4-09 的 `sentry-tool` 默认 endpoint 是 `https://sentry.io/api/0`。GlitchTi
 - [[2026-06-16-Sentry的TOKEN配置|Sentry Token 配置]]：§1 入口（GlitchTip Token 在 Django shell 创建）
 - [[2026-06-15-monorepo-env-governance|monorepo env 治理教训]]：§11 dotenv override（GlitchTip 凭证加载复用 M4-04 的实现）
 - [[glitchtip-deploy|GlitchTip 部署与凭证获取手册]]：§1 部署（本 ADR 的运维落地）
+- [[0008-glitchtip-email-domain-pitfall|ADR-0008]]：GlitchTip 管理员邮箱禁止使用 `.local` 等保留 TLD（本 ADR 部署时踩坑沉淀）

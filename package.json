@@ -52,6 +52,8 @@
     "compose:config": "docker compose config",
     "infra:up": "docker compose up -d",
     "infra:down": "docker compose down",
+    "glitchtip:up": "docker compose --profile glitchtip up -d",
+    "glitchtip:down": "docker compose --profile glitchtip down",
     "db:push": "turbo -F @opsagent/db db:push",
     "db:studio": "turbo -F @opsagent/db db:studio",
     "db:generate": "turbo -F @opsagent/db db:generate",

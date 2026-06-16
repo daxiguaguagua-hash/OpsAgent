@@ -158,15 +158,16 @@ flowchart LR
 ### 单元测试（`sentry-tool.test.ts`）
 
 ```
-ℹ tests 135   ℹ pass 135   ℹ fail 0
+ℹ tests 137   ℹ pass 137   ℹ fail 0
 ```
 
-其中 sentry-tool 新增 18 个测试，覆盖 6 个 describe 块：
+其中 sentry-tool 新增 20 个测试，覆盖 8 个 describe 块：
 - **成功 list issues**（2 个）：URL 拼接 + Authorization Bearer token + issues 标准化；默认 query/limit
 - **成功 get latest event**（3 个）：stacktrace 反转截断 + breadcrumbs 提取 + contexts 透传；stacktrace/breadcrumbs 缺失返回 []；unix 秒 timestamp 转 ISO
 - **凭证缺失**（2 个）：全部缺失返回 MISSING_CONFIG 不发请求；issueId 模式下缺失返回 event 模式错误
 - **网络与协议错误**（5 个）：HTTP 401 + fetch 异常 + AbortError + 非 JSON 响应 + 非数组响应
 - **空结果**（1 个）：issues 为 [] 时 success
+- **SENTRY_API_ENDPOINT 环境变量**（2 个）：`process.env.SENTRY_API_ENDPOINT` 覆盖默认 endpoint；`deps.endpoint` 优先级高于环境变量
 - **入参校验**（2 个）：limit 超 MAX / 低于 MIN 被 zod 拦截
 
 ### 类型检查
@@ -199,6 +200,7 @@ $ grep -r SENTRY_AUTH_TOKEN apps/agent/dist/
 | `apps/agent/src/analysis-pipeline.ts` | `createDefaultTools()` 追加 `createSentryTool()`；`ANALYSIS_INSTRUCTIONS` 追加 sentry 工具说明 + 报告新增"前端错误"章节（5 → 6 章） |
 | 类型检查 | `pnpm check-types` 7/7 tasks successful |
 | 单元测试 | `pnpm --filter @opsagent/agent test` 135/135 pass（+18 sentry-tool） |
+| `SENTRY_API_ENDPOINT` 环境变量支持 | `readConfig` 读取 `process.env.SENTRY_API_ENDPOINT`（fallback: `SENTRY_TOOL.DEFAULT_ENDPOINT`）；`@opsagent/env` server schema 追加 `SENTRY_API_ENDPOINT` 字段；`.env.example` 追加占位；测试 +2（env 覆盖默认 / deps 优先级高于 env），137/137 pass |
 
 ## 反向引用
 
