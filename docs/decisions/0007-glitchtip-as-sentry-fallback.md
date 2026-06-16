@@ -123,6 +123,8 @@ M4-09 的 `sentry-tool` 默认 endpoint 是 `https://sentry.io/api/0`。GlitchTi
 - [ ] 前端：把 `VITE_SENTRY_DSN` 切到 GlitchTip，浏览器触发异常，验证 Issue 出现在 `http://localhost:8000/javascript-react/issues/`
 - [x] 文档：[[glitchtip-deploy|docs/runbooks/glitchtip-deploy.md]]（GlitchTip 部署 + 凭证获取 + MCP Server 配置手册）
 - [ ] 评估：把 Mastra agent 的 M4-09 sentry-tool 替换为 GlitchTip 官方 MCP Server（17 个内置 tools，零维护成本）
+  - **2026-06-16 实测**：Qoder CLI MCP 客户端 + GlitchTip OAuth 不兼容（`/mcp` 直返 `invalid_token`，浏览器 OAuth 流程未触发）
+  - **当前决策**：暂不替换，sentry-tool 保留作为 Mastra agent 主力；GlitchTip MCP 留给 Claude Desktop / Cursor 等原生 MCP 客户端使用
 
 ## 反向引用
 

@@ -292,17 +292,19 @@ curl http://localhost:8000/.well-known/oauth-authorization-server
 
 | 维度 | GlitchTip MCP Server | 自建 sentry-tool（M4-09） |
 |---|---|---|
-| 工具数量 | 17 个 | 1 个（list/get issue） |
+| 工具数量 | 17 个 | 2 个（list / get） |
 | 维护成本 | 官方维护 | 自己维护 |
 | 跨平台 | 任何 MCP 客户端 | 仅限 Mastra agent |
 | 性能分析 | ✅ transaction_trends / N+1 query | ❌ |
 | Alert 管理 | ✅ | ❌ |
 | Log 搜索 | ✅ | ❌ |
-| 离线可用性 | ❌ 必须连 GlitchTip | ✅ 同样必须连 |
+| **Qoder CLI 兼容** | ⚠️ OAuth 握手失败（2026-06-16 实测） | ✅ 直接可用 |
+| 离线可用性 | ❌ 必须连 GlitchTip | ❌ 同样必须连 |
 
 **推荐**：
-- **Claude Desktop / Cursor / 任何 MCP 客户端** → 直接用 GlitchTip MCP
-- **Mastra agent（M4-09）** → 保留自建 sentry-tool（Mastra 不是 MCP 客户端），作为 MCP 不可用时的 fallback
+- **Claude Desktop / Cursor（原生 MCP 客户端）** → 直接用 GlitchTip MCP（自动 OAuth）
+- **Qoder CLI** → 用 Bearer Token header 绕过 OAuth（见 §5.4），或放弃 MCP 用 sentry-tool
+- **Mastra agent（M4-09）** → 保留自建 sentry-tool（Mastra 不是 MCP 客户端）
 
 ## 6. 故障排查
 
@@ -314,6 +316,7 @@ curl http://localhost:8000/.well-known/oauth-authorization-server
 | envelope 端点返回 403 | 缺 `X-Sentry-Auth` header | 用 sentry-cli 标准方式（`Authorization: Bearer <token>` 也接受，但 envelope 端点必须 `X-Sentry-Auth`） |
 | 容器显示 "Mode: Web only" | Worker 未启用 | 检查 `GLITCHTIP_EMBED_WORKER=true` 是否生效 |
 | MCP `/mcp` 返回 404 | 未启用 MCP | 加 `GLITCHTIP_ENABLE_MCP=True` 重启 |
+| **Qoder CLI `/mcp reload` 卡在 "Needs authentication"** | GlitchTip 的 OAuth 实现（authorization_code + PKCE S256）与 Qoder CLI MCP 客户端未完全兼容——访问 `/mcp` 直返 `{"error":"invalid_token","error_description":"Authentication required"}`，浏览器 OAuth 流程未触发。**2026-06-16 实测确认** | (a) 在 Qoder settings.json 给 glitchtip 加 `headers.Authorization: "Bearer <token>"` 跳过 OAuth；(b) **推荐**：放弃 MCP，用 M4-09 自建 sentry-tool；(c) 改用 Claude Desktop（官方文档说自动处理 OAuth） |
 | DSN 拿不到 | 未建 Project | `POST /api/0/teams/{org}/{team}/projects/` 建一个 |
 
 ## 7. 卸载 / 重置
