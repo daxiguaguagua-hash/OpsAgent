@@ -101,3 +101,31 @@ export type TraceToolErrorCode =
 
 export type TraceSpanStatus =
   (typeof TRACE_TOOL.STATUS)[keyof typeof TRACE_TOOL.STATUS];
+
+export const SENTRY_TOOL = {
+  ID: "sentry",
+  DESCRIPTION:
+    "Query Sentry for recent frontend error issues and their latest events (symbolicated stacktrace + breadcrumbs + browser context). Use this to analyze frontend exceptions and correlate them with recent source code changes via git-context.",
+  DEFAULT_ENDPOINT: "https://sentry.io/api/0",
+  API_PATH: {
+    PROJECT_ISSUES: "/projects/{org}/{project}/issues/",
+    ISSUE_LATEST_EVENT: "/issues/{issueId}/events/latest/",
+  },
+  TIMEOUT_MS: 15_000,
+  DEFAULT_QUERY: "is:unresolved",
+  DEFAULT_LIMIT: 5,
+  MIN_LIMIT: 1,
+  MAX_LIMIT: 20,
+  MAX_STACKTRACE_FRAMES: 20,
+  MAX_BREADCRUMBS: 30,
+  ERROR: {
+    FETCH_FAILED: "FETCH_FAILED",
+    INVALID_RESPONSE: "INVALID_RESPONSE",
+    SENTRY_ERROR: "SENTRY_ERROR",
+    MISSING_CONFIG: "MISSING_CONFIG",
+    INVALID_LIMIT: "INVALID_LIMIT",
+  },
+} as const;
+
+export type SentryToolErrorCode =
+  (typeof SENTRY_TOOL.ERROR)[keyof typeof SENTRY_TOOL.ERROR];

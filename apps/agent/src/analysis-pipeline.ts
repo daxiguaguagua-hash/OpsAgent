@@ -17,6 +17,7 @@ import {
   createGitContextTool,
   createLokiTool,
   createPrometheusTool,
+  createSentryTool,
   createTraceTool,
 } from "./tools/index.js";
 
@@ -43,6 +44,10 @@ const ANALYSIS_INSTRUCTIONS = `你是一个 AI 运维分析代理。你的职责
    - **loki**：查询错误日志（近 1 小时的 ERROR 级别日志）
    - **trace**：通过 traceId 查询链路追踪
    - **git-context**：查询近期源码变更
+   - **sentry**：查询 Sentry 前端错误（Issue 列表 + 单个 Issue 的最新 event）。
+     返回已 symbolicated 的堆栈（源码文件 + 行号）+ breadcrumbs（用户操作轨迹）。
+     分析前端错误时，先查 sentry 拿堆栈位置，再用 git-context 查该文件近期 commit，
+     推断"哪个提交可能引入的 bug"。
 
 2. 基于证据进行根因分析，输出 Markdown 格式的 Incident Report。
 
@@ -50,7 +55,8 @@ const ANALYSIS_INSTRUCTIONS = `你是一个 AI 运维分析代理。你的职责
 - 每个工具最多调用一次，不要重试失败的查询
 - 采集完一轮证据后，立即生成 Markdown 格式的报告
 - 报告必须以 "# Incident Report" 开头
-- 报告包含五个章节：摘要、证据（指标/日志/链路/源码）、根因分析、建议、人类审核
+- 报告包含六个章节：摘要、证据（指标/日志/链路/前端错误/源码）、根因分析、建议、人类审核
+- 前端错误章节应包括：Sentry Issue 标题 + symbolicated 堆栈（文件:行号）+ breadcrumbs + 影响的 Issue 数量
 - 如果某个工具查询失败或返回空数据，在报告中注明并继续分析其他证据
 - 中文输出`;
 
@@ -85,6 +91,7 @@ export function createDefaultTools(): Tool[] {
     createLokiTool(),
     createTraceTool(),
     createGitContextTool(),
+    createSentryTool(),
   ];
 }
 
