@@ -1,7 +1,7 @@
 # M4-09 Agent 结合源码给建议（sentry-tool）
 
 日期：2026-06-16
-状态：`planned`
+状态：`done`
 前置任务：M4-04（Source Map 上传，提供已 symbolicated 的堆栈）/ M3-07（git-context-tool，提供近期源码变更）
 负责人：ai-agent-team
 
@@ -153,13 +153,52 @@ flowchart LR
 
 鉴权：HTTP header `Authorization: Bearer <SENTRY_AUTH_TOKEN>`
 
-## 9. 测试证据（完工后填写）
+## 9. 测试证据
 
-> 实施阶段补：mock fetch 测试报告 + agent.generate 端到端 + Sentry Dashboard 截图。
+### 单元测试（`sentry-tool.test.ts`）
 
-## 10. 工作流记录（完工后填写）
+```
+ℹ tests 135   ℹ pass 135   ℹ fail 0
+```
 
-> 实施阶段补：每步 commit sha、遇到的意外、决策变更。
+其中 sentry-tool 新增 18 个测试，覆盖 6 个 describe 块：
+- **成功 list issues**（2 个）：URL 拼接 + Authorization Bearer token + issues 标准化；默认 query/limit
+- **成功 get latest event**（3 个）：stacktrace 反转截断 + breadcrumbs 提取 + contexts 透传；stacktrace/breadcrumbs 缺失返回 []；unix 秒 timestamp 转 ISO
+- **凭证缺失**（2 个）：全部缺失返回 MISSING_CONFIG 不发请求；issueId 模式下缺失返回 event 模式错误
+- **网络与协议错误**（5 个）：HTTP 401 + fetch 异常 + AbortError + 非 JSON 响应 + 非数组响应
+- **空结果**（1 个）：issues 为 [] 时 success
+- **入参校验**（2 个）：limit 超 MAX / 低于 MIN 被 zod 拦截
+
+### 类型检查
+
+```
+pnpm --filter @opsagent/agent check-types   → 0 errors
+pnpm check-types                             → 7/7 tasks successful
+```
+
+### 凭证安全
+
+```bash
+$ grep -r SENTRY_AUTH_TOKEN apps/agent/dist/
+# 无输出（token 只在 server 端 process.env 使用，不进 bundle）
+```
+
+### 端到端验证（待用户补）
+
+- [ ] 手动触发前端异常 → Sentry 捕获 → 调 `pnpm task:analyze` → Incident Report 出现"前端错误"章节 + 源码文件 + 行号
+- [ ] Sentry Dashboard 截图（Issue 已被 symbolicated 还原到 `apps/frontend/src/**/*.tsx`）
+
+## 10. 工作流记录
+
+| 步骤 | 结果 |
+|---|---|
+| `apps/agent/src/tools/constants.ts` | 追加 `SENTRY_TOOL` 常量（ID `sentry` / API path 模板 / TIMEOUT_MS / ERROR codes / DEFAULT_QUERY / DEFAULT_LIMIT / MAX_STACKTRACE_FRAMES / MAX_BREADCRUMBS） |
+| `apps/agent/src/tools/sentry-tool.ts`（新建） | `SentryDeps` 接口 + `createSentryTool` 工厂；`extractStacktrace` 反转 frames + 截断到 20 帧；`extractBreadcrumbs` 提取最后 30 条；`normalizeContexts` 透传 browser/os |
+| `apps/agent/src/tools/sentry-tool.test.ts`（新建） | mock fetch 覆盖 18 个场景（成功 list / 成功 event / 缺失凭证 / HTTP 401 / 超时 / 空结果 / 入参校验） |
+| `apps/agent/src/tools/index.ts` | 追加 `createSentryTool` / `SentryDeps` 导出 |
+| `apps/agent/src/analysis-pipeline.ts` | `createDefaultTools()` 追加 `createSentryTool()`；`ANALYSIS_INSTRUCTIONS` 追加 sentry 工具说明 + 报告新增"前端错误"章节（5 → 6 章） |
+| 类型检查 | `pnpm check-types` 7/7 tasks successful |
+| 单元测试 | `pnpm --filter @opsagent/agent test` 135/135 pass（+18 sentry-tool） |
 
 ## 反向引用
 
