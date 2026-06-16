@@ -225,6 +225,8 @@ M4-07（简化 symbolication 反解 API）和 M4-03/04（Sentry）有功能重�
 2. 新增 `source-map-tool`（可选）：如果 Sentry 已经做了 symbolication，这个 tool 只需拿到还原后的源码位置
 3. 更新 Agent instructions：加一段"分析前端错误时，先查 Sentry event，拿到源码位置后用 git-context 工具查近期变更"
 
+任务卡已细化：[[M4-09-agent-sentry-source-suggestions|M4-09 任务卡]]（含 inputSchema / outputSchema / Sentry API endpoints / Agent instructions 草稿）。
+
 ```typescript
 // 新增 tool 伪代码
 const sentryTool = createTool({

@@ -218,7 +218,7 @@ M3-11 至 M3-16 在 M2 验收完成后启动。M2 期间只记录方案，不提
 | M4-06 | 增加 MinIO 私有存储 | sre-team | P1 | `cancelled`（[planning §3.2](milestones/M4/planning.md)） | MinIO Compose 服务 | 可以私有保存演示用构建产物和 Source Map |
 | M4-07 | 实现简化 symbolication（源码反解） | backend-team | P1 | | 演示用反解 API | 压缩 JS 行列号能通过私有 Source Map 映射到源码位置 |
 | M4-08 | 对比 Sentry 与自研反解流程 | docs-team | P1 | | 架构与安全说明 | 明确生产方案、教学方案和 Source Map 不公开原则 |
-| M4-09 | Agent 结合源码给建议 | ai-agent-team | P1 | | 报告增强 | 报告包含源码文件、疑似行号和人类审核建议 |
+| [M4-09](milestones/M4/tasks/M4-09-agent-sentry-source-suggestions.md) | Agent 结合源码给建议 | ai-agent-team | P1 | `planned` | 报告增强 | 报告包含源码文件、疑似行号和人类审核建议 |
 | M4-10 | 前端接入 OTel Web SDK（端到端链路追踪） | frontend-team | P1 | | `@opentelemetry/sdk-trace-web` 初始化 | 浏览器 fetch 产生的 span 发到 OTel Collector，Tempo 中可看到前端→后端的完整 trace |
 
 ## 9. M5 GitLab 企业模拟模式

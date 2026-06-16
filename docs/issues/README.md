@@ -10,7 +10,7 @@
 | M1 | [[M1/tasks/|docs/milestones/M1/tasks/]] | [[M1/milestone-acceptance|M1-milestone-acceptance.md]] |
 | M2 | [[M2/tasks/|docs/milestones/M2/tasks/]] | [[M2/milestone-acceptance|M2-milestone-acceptance.md]] |
 | M3 | [[M3/tasks/|docs/milestones/M3/tasks/]] | （M3 验收文档待补） |
-| M4 | [[M4/tasks/|docs/milestones/M4/tasks/]] | （M4 进行中；M4-04 已建卡，M4-01/02/03 为 Phase A 历史待补） |
+| M4 | [[M4/tasks/|docs/milestones/M4/tasks/]] | （M4 进行中；M4-04 / M4-09 已建卡，M4-01/02/03 为 Phase A 历史待补） |
 
 总览与正式拆分见 [[task-breakdown|task-breakdown.md]]。
 
